@@ -75,7 +75,7 @@ export default function AdminLayout() {
       </header>
 
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[220px_1fr]">
-        <nav className="lg:sticky lg:top-24 lg:self-start">
+        <nav className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
             {NAV.map(({ to, label, Icon, end }) => (
               <NavLink
