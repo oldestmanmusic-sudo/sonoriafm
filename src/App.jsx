@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -13,6 +13,18 @@ import Noticias from '@/pages/Noticias';
 import ArticleDetail from '@/pages/ArticleDetail';
 import SobreNosotros from '@/pages/SobreNosotros';
 import Contacto from '@/pages/Contacto';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminLayout from '@/pages/admin/AdminLayout';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import AdminArticles from '@/pages/admin/AdminArticles';
+import AdminArtists from '@/pages/admin/AdminArtists';
+import AdminPrograms from '@/pages/admin/AdminPrograms';
+import AdminTracks from '@/pages/admin/AdminTracks';
+import AdminMessages from '@/pages/admin/AdminMessages';
 import Layout from '@/components/Layout';
 
 const AuthenticatedApp = () => {
@@ -50,6 +62,23 @@ const AuthenticatedApp = () => {
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
         <Route path="/contacto" element={<Contacto />} />
       </Route>
+
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/admin" replace />} />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="articulos" element={<AdminArticles />} />
+          <Route path="artistas" element={<AdminArtists />} />
+          <Route path="programacion" element={<AdminPrograms />} />
+          <Route path="historial" element={<AdminTracks />} />
+          <Route path="mensajes" element={<AdminMessages />} />
+        </Route>
+      </Route>
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

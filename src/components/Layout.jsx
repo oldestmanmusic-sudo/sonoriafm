@@ -56,7 +56,10 @@ export default function Layout() {
           </div>
           <div className="mx-auto max-w-6xl px-4 mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <p>SONORIA · Música variada en vivo 24/7</p>
-            <p>© {new Date().getFullYear()} SONORIA</p>
+            <div className="flex items-center gap-4">
+              <Link to="/admin" className="hover:text-foreground">Panel de administración</Link>
+              <p>© {new Date().getFullYear()} SONORIA</p>
+            </div>
           </div>
         </footer>
         <div className="h-24" aria-hidden />
