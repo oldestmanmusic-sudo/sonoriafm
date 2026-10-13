@@ -3,9 +3,9 @@ import { Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const links = [
-  { to: '/', label: 'Radio en Vivo' },
-  { to: '/artistas', label: 'Artistas' },
-  { to: '/programacion', label: 'Programación' },
+  { to: '/', label: 'Radio en Vivo', short: 'Radio' },
+  { to: '/artistas', label: 'Artistas', short: 'Artistas' },
+  { to: '/programacion', label: 'Programación', short: 'Horarios' },
 ];
 
 export default function SiteNav() {
@@ -33,7 +33,8 @@ export default function SiteNav() {
                   active ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                 )}
               >
-                {l.label}
+                <span className="sm:hidden">{l.short}</span>
+                <span className="hidden sm:inline">{l.label}</span>
               </Link>
             );
           })}
