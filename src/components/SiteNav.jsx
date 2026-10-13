@@ -1,15 +1,24 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Radio } from 'lucide-react';
+import { Radio, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 const links = [
-  { to: '/', label: 'Radio en Vivo', short: 'Radio' },
-  { to: '/artistas', label: 'Artistas', short: 'Artistas' },
-  { to: '/programacion', label: 'Programación', short: 'Horarios' },
+  { to: '/', label: 'Radio en Vivo' },
+  { to: '/artistas', label: 'Artistas' },
+  { to: '/programacion', label: 'Programación' },
+  { to: '/noticias', label: 'Noticias' },
+  { to: '/sobre-nosotros', label: 'Sobre Nosotros' },
+  { to: '/contacto', label: 'Contacto' },
 ];
 
 export default function SiteNav() {
   const { pathname } = useLocation();
+  const [open, setOpen] = useState(false);
+
+  const isActive = (to) => (to === '/' ? pathname === '/' : pathname.startsWith(to));
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
       <nav className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
@@ -21,24 +30,55 @@ export default function SiteNav() {
             SONO<span className="text-primary">RIA</span>
           </span>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-1.5">
-          {links.map((l) => {
-            const active = pathname === l.to;
-            return (
-              <Link
-                key={l.to}
-                to={l.to}
-                className={cn(
-                  'px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-full transition-colors whitespace-nowrap',
-                  active ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                )}
-              >
-                <span className="sm:hidden">{l.short}</span>
-                <span className="hidden sm:inline">{l.label}</span>
-              </Link>
-            );
-          })}
+
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-1">
+          {links.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className={cn(
+                'px-3 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap',
+                isActive(l.to) ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+              )}
+            >
+              {l.label}
+            </Link>
+          ))}
         </div>
+
+        {/* Mobile menu */}
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              aria-label="Abrir menú"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground hover:bg-secondary"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-72">
+            <SheetTitle className="font-heading text-lg font-extrabold tracking-tight">
+              SONO<span className="text-primary">RIA</span>
+            </SheetTitle>
+            <div className="mt-6 flex flex-col gap-1">
+              {links.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    'rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+                    isActive(l.to) ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                  )}
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+          </SheetContent>
+        </Sheet>
       </nav>
     </header>
   );

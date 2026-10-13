@@ -9,6 +9,10 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from '@/pages/Home';
 import Artists from '@/pages/Artists';
 import Programming from '@/pages/Programming';
+import Noticias from '@/pages/Noticias';
+import ArticleDetail from '@/pages/ArticleDetail';
+import SobreNosotros from '@/pages/SobreNosotros';
+import Contacto from '@/pages/Contacto';
 import Layout from '@/components/Layout';
 
 const AuthenticatedApp = () => {
@@ -41,6 +45,10 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Home />} />
         <Route path="/artistas" element={<Artists />} />
         <Route path="/programacion" element={<Programming />} />
+        <Route path="/noticias" element={<Noticias />} />
+        <Route path="/noticias/:id" element={<ArticleDetail />} />
+        <Route path="/sobre-nosotros" element={<SobreNosotros />} />
+        <Route path="/contacto" element={<Contacto />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
