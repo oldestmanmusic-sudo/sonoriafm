@@ -1,0 +1,60 @@
+{
+  "name": "Program",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "host": {
+      "type": "string"
+    },
+    "day": {
+      "type": "string",
+      "enum": [
+        "Lun",
+        "Mar",
+        "Mi\u00e9",
+        "Jue",
+        "Vie",
+        "S\u00e1b",
+        "Dom"
+      ]
+    },
+    "start_time": {
+      "type": "string"
+    },
+    "end_time": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "day",
+    "start_time",
+    "end_time"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+import { useRadio } from '@/lib/radioContext';
+import { Play, Pause, Loader2, Volume2, VolumeX } from 'lucide-react';
+
+export default function RadioPlayer({ nowPlaying }) {
+  const { isPlaying, isLoading, error, toggle, volume, setVolume } = useRadio();
+  const track = nowPlaying;
+
+  return (
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl px-1">
+      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card/80 backdrop-blur-2xl shadow-2xl shadow-primary/10 px-3 py-3 sm:px-4">
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-secondary">
+          {track?.cover_url ? (
+            <img src={track.cover_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-primary/40 to-accent/30" />
+          )}
+          {isPlaying && (
+            <div className="absolute inset-0 flex items-end justify-center gap-0.5 bg-black/40 p-2">
+              <span className="eq-bar w-0.5 h-3 bg-accent" style={{ animationDelay: '0ms' }} />
+              <span className="eq-bar w-0.5 h-3 bg-accent" style={{ animationDelay: '150ms' }} />
+              <span className="eq-bar w-0.5 h-3 bg-accent" style={{ animationDelay: '300ms' }} />
+              <span className="eq-bar w-0.5 h-3 bg-accent" style={{ animationDelay: '450ms' }} />
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-accent">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent pulse-live" /> En vivo
+          </span>
+          <p className="truncate text-sm font-semibold leading-tight">{track?.title ?? 'SONORIA Radio'}</p>
+          <p className="truncate text-xs text-muted-foreground">{track?.artist ?? 'Música variada 24/7'}</p>
+        </div>
+
+        <button
+          onClick={toggle}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95"
+          aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+        >
+          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
+        </button>
+
+        <div className="hidden sm:flex items-center gap-2">
+          <button
+            onClick={() => setVolume(volume > 0 ? 0 : 0.8)}
+            className="text-muted-foreground hover:text-foreground"
+            aria-label="Silenciar"
+          >
+            {volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+            className="w-20 accent-primary"
+            aria-label="Volumen"
+          />
+        </div>
+      </div>
+      {error && (
+        <p className="mt-1 text-center text-xs text-destructive">No se pudo conectar al stream. Toca reintentar.</p>
+      )}
+    </div>
+  );
+}
