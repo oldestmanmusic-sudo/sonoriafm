@@ -4,14 +4,16 @@ import { base44 } from '@/api/base44Client';
 import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
-import { Loader2, ExternalLink } from 'lucide-react';
+import { Loader2, ExternalLink, Play, Pause } from 'lucide-react';
 import BackButton from '@/components/BackButton';
+import { useRadio } from '@/lib/radioContext';
 
 export default function ArtistDetail() {
   const { id } = useParams();
   const [artist, setArtist] = useState(null);
   const [tracks, setTracks] = useState([]);
   const [notFound, setNotFound] = useState(false);
+  const { onDemandTrack, isPlaying, isLoading, playOnDemand, toggle } = useRadio();
 
   useEffect(() => {
     let active = true;
@@ -82,15 +84,33 @@ export default function ArtistDetail() {
         <p className="mt-4 text-muted-foreground">Todavía no hay canciones publicadas de este artista.</p>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {tracks.map((t) => (
-            <Link key={t.id} to={`/cancion/${t.id}`} className="group">
-              <div className="aspect-square overflow-hidden rounded-2xl bg-secondary">
-                <Image src={t.cover_url || DEFAULT_COVER} alt={t.title} className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
+          {tracks.map((t) => {
+            const active = onDemandTrack?.id === t.id;
+            return (
+              <div key={t.id} className="relative group">
+                <Link to={`/cancion/${t.id}`} className="block">
+                  <div className="aspect-square overflow-hidden rounded-2xl bg-secondary">
+                    <Image src={t.cover_url || DEFAULT_COVER} alt={t.title} className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                  <p className="mt-2 truncate text-sm font-semibold">{t.title}</p>
+                  {t.genre && <p className="truncate text-xs text-muted-foreground">{t.genre}</p>}
+                </Link>
+                <button
+                  onClick={() => (active && isPlaying ? toggle() : playOnDemand(t))}
+                  className="absolute top-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition-transform hover:scale-105 active:scale-95"
+                  aria-label={active && isPlaying ? `Pausar ${t.title}` : `Reproducir ${t.title}`}
+                >
+                  {active && isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : active && isPlaying ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4 ml-0.5" />
+                  )}
+                </button>
               </div>
-              <p className="mt-2 truncate text-sm font-semibold">{t.title}</p>
-              {t.genre && <p className="truncate text-xs text-muted-foreground">{t.genre}</p>}
-            </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>

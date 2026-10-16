@@ -118,6 +118,11 @@ export function RadioProvider({ children, playlist = [] }) {
   const currentRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [scheduledTrack, setScheduledTrack] = useState(null);
+  // Modo "a la carta": una canción elegida por el usuario sustituye a la
+  // emisión en vivo hasta que termina o hasta que el usuario vuelve a la radio.
+  const [onDemandTrack, setOnDemandTrack] = useState(null);
+  const onDemandRef = useRef(null);
+  const epochRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVol] = useState(0.8);
@@ -156,9 +161,11 @@ export function RadioProvider({ children, playlist = [] }) {
     }
     if (inFlightRef.current) return;
     inFlightRef.current = true;
+    const myEpoch = epochRef.current;
     setIsLoading(true);
     setError(false);
     for (let step = 0; step < schedule.length; step++) {
+      if (epochRef.current !== myEpoch) { inFlightRef.current = false; return; }
       const item = schedule[(index + step) % schedule.length];
       await startAt(item.track, step === 0 ? offset : 0);
       try {
@@ -194,6 +201,48 @@ export function RadioProvider({ children, playlist = [] }) {
     enter(schedule, index, offset);
   }, [enter]);
 
+  // La canción a la carta terminó (o su fuente falló): reconecta con la
+  // emisión en vivo exactamente donde esté la rotación en ese momento.
+  const onDemandFinished = useCallback(() => {
+    onDemandRef.current = null;
+    setOnDemandTrack(null);
+    playScheduled();
+  }, [playScheduled]);
+
+  // Reproduce una canción "a la carta": corta la emisión en vivo y suena solo
+  // esta canción. Solo un audio a la vez: la radio queda en pausa.
+  const playOnDemand = useCallback(async (track) => {
+    const audio = audioRef.current;
+    if (!audio || !track || !track.audio_url) return;
+    epochRef.current += 1;
+    inFlightRef.current = false;
+    setError(false);
+    setIsLoading(true);
+    onDemandRef.current = track;
+    setOnDemandTrack(track);
+    try {
+      audio.src = track.audio_url;
+      await audio.play();
+    } catch {
+      /* autoplay bloqueado: queda preparada para reanudar con el botón */
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Vuelve a la radio en vivo: corta la canción a la carta y conecta donde
+  // toque la rotación aleatoria en este momento.
+  const resumeLive = useCallback(() => {
+    if (!onDemandRef.current) return;
+    epochRef.current += 1;
+    inFlightRef.current = false;
+    onDemandRef.current = null;
+    setOnDemandTrack(null);
+    setIsLoading(true);
+    setError(false);
+    playScheduled();
+  }, [playScheduled]);
+
   // Al terminar una canción (o si su fuente falla): si el reloj aún apunta a la
   // pista que acaba de sonar, pasa a la siguiente del barajado; si ya empezó la
   // siguiente, conecta donde está la emisión.
@@ -217,7 +266,13 @@ export function RadioProvider({ children, playlist = [] }) {
     const onPause = () => setIsPlaying(false);
     const onWaiting = () => setIsLoading(true);
     const onCanPlay = () => setIsLoading(false);
-    const onEnded = () => { setIsPlaying(false); advance(); };
+    const onEnded = () => {
+      setIsPlaying(false);
+      if (onDemandRef.current) onDemandFinished(); else advance();
+    };
+    const onError = () => {
+      if (onDemandRef.current) onDemandFinished(); else advance();
+    };
     const onStalled = () => {
       if (!audio.paused) { audio.load(); audio.play().catch(() => {}); }
     };
@@ -228,7 +283,7 @@ export function RadioProvider({ children, playlist = [] }) {
     audio.addEventListener('canplay', onCanPlay);
     audio.addEventListener('stalled', onStalled);
     audio.addEventListener('ended', onEnded);
-    audio.addEventListener('error', advance);
+    audio.addEventListener('error', onError);
 
     return () => {
       audio.pause();
@@ -238,9 +293,9 @@ export function RadioProvider({ children, playlist = [] }) {
       audio.removeEventListener('canplay', onCanPlay);
       audio.removeEventListener('stalled', onStalled);
       audio.removeEventListener('ended', onEnded);
-      audio.removeEventListener('error', advance);
+      audio.removeEventListener('error', onError);
     };
-  }, [advance]);
+  }, [advance, onDemandFinished]);
 
   // La emisión se reconstruye cuando cambia la lista de canciones.
   useEffect(() => {
@@ -266,7 +321,7 @@ export function RadioProvider({ children, playlist = [] }) {
   useEffect(() => {
     if (!playlist || !playlist.some((t) => t && t.audio_url)) return;
     const start = () => {
-      if (!currentRef.current) playScheduled();
+      if (!currentRef.current && !onDemandRef.current) playScheduled();
     };
     window.addEventListener('pointerdown', start);
     window.addEventListener('keydown', start);
@@ -283,6 +338,7 @@ export function RadioProvider({ children, playlist = [] }) {
     const timer = setInterval(() => {
       const audio = audioRef.current;
       if (!audio || audio.paused || !currentRef.current) return;
+      if (onDemandRef.current) return;
       if (!playlistRef.current.length) return;
       const { schedule, index, offset } = findPosition(playlistRef.current, totalRef.current, Date.now());
       const item = schedule[index];
@@ -304,9 +360,14 @@ export function RadioProvider({ children, playlist = [] }) {
       audio.pause();
       return;
     }
-    // Al volver a conectar, entra donde toca la emisión en este momento.
+    // Reanudar: si hay una canción a la carta, continúa donde estaba; si no,
+    // entra en la emisión donde toca en este momento.
     setIsLoading(true);
     setError(false);
+    if (onDemandRef.current) {
+      audio.play().catch(() => setIsLoading(false));
+      return;
+    }
     playScheduled();
   }, [playScheduled]);
 
@@ -319,7 +380,7 @@ export function RadioProvider({ children, playlist = [] }) {
   // bloqueo con título, artista, carátula y botones de reproducir/pausar.
   useEffect(() => {
     if (typeof navigator.mediaSession === 'undefined' || typeof MediaMetadata === 'undefined') return;
-    const track = currentTrack || scheduledTrack;
+    const track = onDemandTrack || currentTrack || scheduledTrack;
     if (track) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title || 'Radio en vivo',
@@ -334,10 +395,10 @@ export function RadioProvider({ children, playlist = [] }) {
     return () => {
       navigator.mediaSession.playbackState = 'none';
     };
-  }, [currentTrack, scheduledTrack, isPlaying, toggle]);
+  }, [currentTrack, scheduledTrack, onDemandTrack, isPlaying, toggle]);
 
   return (
-    <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack, scheduledTrack }}>
+    <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack, scheduledTrack, onDemandTrack, playOnDemand, resumeLive }}>
       {children}
     </RadioContext.Provider>
   );

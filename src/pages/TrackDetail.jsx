@@ -4,8 +4,9 @@ import { base44 } from '@/api/base44Client';
 import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
-import { Heart, Share2, Loader2 } from 'lucide-react';
+import { Heart, Share2, Loader2, Play, Pause } from 'lucide-react';
 import BackButton from '@/components/BackButton';
+import { useRadio } from '@/lib/radioContext';
 
 export default function TrackDetail() {
   const { id } = useParams();
@@ -14,6 +15,8 @@ export default function TrackDetail() {
   const [notFound, setNotFound] = useState(false);
   const [liking, setLiking] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { onDemandTrack, isPlaying, isLoading, playOnDemand, toggle } = useRadio();
+  const isThis = onDemandTrack?.id === id;
 
   useEffect(() => {
     let active = true;
@@ -132,13 +135,17 @@ export default function TrackDetail() {
             </dl>
           )}
 
-          {track.audio_url && (
-            <audio controls src={track.audio_url} className="mt-6 w-full">
-              Tu navegador no soporta audio.
-            </audio>
-          )}
-
           <div className="mt-8 flex flex-wrap items-center gap-3">
+            {track.audio_url && (
+              <Button
+                onClick={() => (isThis ? toggle() : playOnDemand(track))}
+                className="rounded-full"
+                disabled={isThis && isLoading}
+              >
+                {isThis && isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : isThis && isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isThis && isPlaying ? 'Pausar' : isThis ? 'Reanudar' : 'Reproducir'}
+              </Button>
+            )}
             <Button onClick={like} variant="outline" className="rounded-full" disabled={liking}>
               {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4 text-accent" />}
               {track.likes ?? 0}
