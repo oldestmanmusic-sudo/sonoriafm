@@ -34,6 +34,8 @@ export default function EnviarCancion() {
     lyrics: '',
   });
   const [file, setFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
+  const [artistImageFile, setArtistImageFile] = useState(null);
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -64,6 +66,16 @@ export default function EnviarCancion() {
         const res = await base44.integrations.Core.UploadPrivateFile({ file });
         audio_file_uri = res.file_uri;
       }
+      let cover_file_uri = null;
+      if (coverFile) {
+        const res = await base44.integrations.Core.UploadPrivateFile({ file: coverFile });
+        cover_file_uri = res.file_uri;
+      }
+      let artist_image_uri = null;
+      if (artistImageFile) {
+        const res = await base44.integrations.Core.UploadPrivateFile({ file: artistImageFile });
+        artist_image_uri = res.file_uri;
+      }
       await base44.entities.Submission.create({
         artist_name: form.artist_name.trim(),
         email: form.email.trim(),
@@ -71,6 +83,8 @@ export default function EnviarCancion() {
         genre: form.genre,
         audio_link: form.audio_link.trim(),
         audio_file_uri,
+        cover_file_uri,
+        artist_image_uri,
         tool: form.tool,
         lyrics: form.lyrics.trim(),
         confirmed: true,
@@ -141,6 +155,14 @@ export default function EnviarCancion() {
           <Input id="email" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="tu@email.com" />
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="artist_image">Imagen del artista (opcional)</Label>
+          <Input id="artist_image" type="file" accept="image/*" onChange={(e) => setArtistImageFile(e.target.files?.[0] ?? null)} />
+          {artistImageFile && (
+            <img src={URL.createObjectURL(artistImageFile)} alt="Imagen del artista" className="h-24 w-24 rounded-xl object-cover" />
+          )}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="song_title">Título de la canción <span className="text-primary">*</span></Label>
@@ -163,6 +185,14 @@ export default function EnviarCancion() {
           <p className="text-xs text-muted-foreground">O sube el archivo de audio (máx. 25 MB).</p>
           <Input type="file" accept="audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           {file && <p className="text-xs text-muted-foreground">Archivo: {file.name}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="cover">Carátula de la canción (opcional)</Label>
+          <Input id="cover" type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} />
+          {coverFile && (
+            <img src={URL.createObjectURL(coverFile)} alt="Carátula" className="h-24 w-24 rounded-xl object-cover" />
+          )}
         </div>
 
         <div className="space-y-2">

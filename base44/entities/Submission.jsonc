@@ -28,6 +28,12 @@
     "audio_file_uri": {
       "type": "string"
     },
+    "cover_file_uri": {
+      "type": "string"
+    },
+    "artist_image_uri": {
+      "type": "string"
+    },
     "tool": {
       "type": "string"
     },
