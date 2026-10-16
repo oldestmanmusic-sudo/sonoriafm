@@ -61,10 +61,12 @@ export default function EnviarCancion() {
     setSubmitting(true);
     setError('');
     try {
-      let audio_file_uri = null;
+      // El audio se sube a almacenamiento público: la radio necesita una URL
+      // permanente y accesible para emitirlo a todos los oyentes.
+      let audio_link = form.audio_link.trim();
       if (file) {
-        const res = await base44.integrations.Core.UploadPrivateFile({ file });
-        audio_file_uri = res.file_uri;
+        const res = await base44.integrations.Core.UploadPublicFile({ file });
+        audio_link = res.file_url;
       }
       let cover_file_uri = null;
       if (coverFile) {
@@ -81,8 +83,7 @@ export default function EnviarCancion() {
         email: form.email.trim(),
         song_title: form.song_title.trim(),
         genre: form.genre,
-        audio_link: form.audio_link.trim(),
-        audio_file_uri,
+        audio_link,
         cover_file_uri,
         artist_image_uri,
         tool: form.tool,
