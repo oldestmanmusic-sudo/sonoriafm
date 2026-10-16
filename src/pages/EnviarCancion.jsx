@@ -31,6 +31,7 @@ export default function EnviarCancion() {
     genre: 'Pop latino',
     audio_link: '',
     artist_bio: '',
+    description: '',
     tool: 'Suno',
     lyrics: '',
   });
@@ -92,6 +93,7 @@ export default function EnviarCancion() {
         artist_bio: form.artist_bio.trim(),
         tool: form.tool,
         lyrics: form.lyrics.trim(),
+        description: form.description.trim(),
         confirmed: true,
       });
       setSent(true);
@@ -219,6 +221,17 @@ export default function EnviarCancion() {
               {SUBMISSION_TOOLS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description">Descripción de la canción (opcional)</Label>
+          <Textarea
+            id="description"
+            rows={3}
+            value={form.description}
+            onChange={(e) => set('description', e.target.value)}
+            placeholder="Describe esta canción: de qué va, cómo la creaste… Aparecerá en su página."
+          />
         </div>
 
         <div className="space-y-2">

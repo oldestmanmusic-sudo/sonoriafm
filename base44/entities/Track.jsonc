@@ -14,6 +14,9 @@
     "cover_url": {
       "type": "string"
     },
+    "description": {
+      "type": "string"
+    },
     "played_at": {
       "type": "string",
       "format": "date-time"

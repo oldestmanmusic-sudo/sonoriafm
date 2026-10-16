@@ -117,6 +117,10 @@ export default function TrackDetail() {
             )}
           </p>
 
+          {track.description && (
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">{track.description}</p>
+          )}
+
           {meta.length > 0 && (
             <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {meta.map(([label, value]) => (

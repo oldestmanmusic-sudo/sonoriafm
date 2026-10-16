@@ -71,6 +71,7 @@ export default function AdminSubmissions() {
             artist_id: artistId,
             genre: item.genre || 'Otros',
             cover_url: item.cover_url || '',
+            description: item.description || '',
             audio_url: item.audio_link || '',
             played_at: new Date().toISOString(),
           });

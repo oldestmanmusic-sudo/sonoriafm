@@ -43,6 +43,9 @@
     "artist_bio": {
       "type": "string"
     },
+    "description": {
+      "type": "string"
+    },
     "tool": {
       "type": "string"
     },
