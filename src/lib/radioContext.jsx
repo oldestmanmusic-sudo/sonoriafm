@@ -68,7 +68,12 @@ function buildCycle(list, cycle) {
   const prevLast = cycle > 0
     ? interleaveArtists(seededShuffle(list, cycle - 1)).slice(-1)[0].artist
     : null;
-  const schedule = interleaveArtists(base, prevLast);
+  // El motor de emisión consume {track, dur}: envolvemos las canciones del
+  // barajado con su duración real (o el respaldo de 4 minutos).
+  const schedule = interleaveArtists(base, prevLast).map((t) => ({
+    track: t,
+    dur: parseDuration(t.duration) || FALLBACK_DURATION,
+  }));
   if (cycleCache.size > 500) cycleCache.clear();
   cycleCache.set(cycle, { list, schedule });
   return schedule;
@@ -272,27 +277,6 @@ export function RadioProvider({ children, playlist = [] }) {
     };
   }, [playlist, playScheduled]);
 
-  // Controles multimedia del sistema (Android/iOS): notificación y pantalla de
-  // bloqueo con título, artista, carátula y botones de reproducir/pausar.
-  useEffect(() => {
-    if (typeof navigator.mediaSession === 'undefined' || typeof MediaMetadata === 'undefined') return;
-    const track = currentTrack || scheduledTrack;
-    if (track) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: track.title || 'Radio en vivo',
-        artist: track.artist || 'SONORIA',
-        album: 'SONORIA',
-        artwork: track.cover_url ? [{ src: track.cover_url, sizes: '512x512', type: 'image/jpeg' }] : [],
-      });
-    }
-    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-    navigator.mediaSession.setActionHandler('play', () => toggle());
-    navigator.mediaSession.setActionHandler('pause', () => toggle());
-    return () => {
-      navigator.mediaSession.playbackState = 'none';
-    };
-  }, [currentTrack, scheduledTrack, isPlaying, toggle]);
-
   // Sincronización con la emisión: cada 20 s se comprueba qué toca y, si alguien
   // lleva la escucha descolgada (pausas, fuente lenta), se recoloca en el punto exacto.
   useEffect(() => {
@@ -330,6 +314,27 @@ export function RadioProvider({ children, playlist = [] }) {
     if (audioRef.current) audioRef.current.volume = v;
     setVol(v);
   }, []);
+
+  // Controles multimedia del sistema (Android/iOS): notificación y pantalla de
+  // bloqueo con título, artista, carátula y botones de reproducir/pausar.
+  useEffect(() => {
+    if (typeof navigator.mediaSession === 'undefined' || typeof MediaMetadata === 'undefined') return;
+    const track = currentTrack || scheduledTrack;
+    if (track) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title || 'Radio en vivo',
+        artist: track.artist || 'SONORIA',
+        album: 'SONORIA',
+        artwork: track.cover_url ? [{ src: track.cover_url, sizes: '512x512', type: 'image/jpeg' }] : [],
+      });
+    }
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    navigator.mediaSession.setActionHandler('play', () => toggle());
+    navigator.mediaSession.setActionHandler('pause', () => toggle());
+    return () => {
+      navigator.mediaSession.playbackState = 'none';
+    };
+  }, [currentTrack, scheduledTrack, isPlaying, toggle]);
 
   return (
     <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack, scheduledTrack }}>
