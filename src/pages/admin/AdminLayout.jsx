@@ -10,6 +10,7 @@ import {
   History,
   Inbox,
   Mail,
+  Lightbulb,
   LogOut,
   ArrowLeft,
   ShieldAlert,
@@ -23,6 +24,7 @@ const NAV = [
   { to: '/admin/historial', label: 'Historial', Icon: History },
   { to: '/admin/envios', label: 'Envíos', Icon: Inbox },
   { to: '/admin/mensajes', label: 'Mensajes', Icon: Mail },
+  { to: '/admin/sugerencias', label: 'Sugerencias', Icon: Lightbulb },
 ];
 
 export default function AdminLayout() {

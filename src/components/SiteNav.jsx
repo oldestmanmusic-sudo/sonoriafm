@@ -11,6 +11,7 @@ const links = [
   { to: '/noticias', label: 'Noticias' },
   { to: '/sobre-nosotros', label: 'Sobre Nosotros' },
   { to: '/contacto', label: 'Contacto' },
+  { to: '/sugerencias', label: 'Sugerencias' },
   { to: '/envia-tu-cancion', label: 'Envía tu canción' },
 ];
 

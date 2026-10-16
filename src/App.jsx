@@ -22,6 +22,7 @@ const Noticias = lazy(() => import('@/pages/Noticias'));
 const ArticleDetail = lazy(() => import('@/pages/ArticleDetail'));
 const SobreNosotros = lazy(() => import('@/pages/SobreNosotros'));
 const Contacto = lazy(() => import('@/pages/Contacto'));
+const Sugerencias = lazy(() => import('@/pages/Sugerencias'));
 const Login = lazy(() => import('@/pages/Login'));
 const Register = lazy(() => import('@/pages/Register'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
@@ -33,6 +34,7 @@ const AdminArtists = lazy(() => import('@/pages/admin/AdminArtists'));
 const AdminPrograms = lazy(() => import('@/pages/admin/AdminPrograms'));
 const AdminTracks = lazy(() => import('@/pages/admin/AdminTracks'));
 const AdminMessages = lazy(() => import('@/pages/admin/AdminMessages'));
+const AdminSuggestions = lazy(() => import('@/pages/admin/AdminSuggestions'));
 const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
 const Cuenta = lazy(() => import('@/pages/Cuenta'));
 
@@ -73,6 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/noticias/:id" element={<ArticleDetail />} />
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
         <Route path="/contacto" element={<Contacto />} />
+        <Route path="/sugerencias" element={<Sugerencias />} />
 
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/cuenta" replace />} />}>
           <Route path="/cuenta" element={<Cuenta />} />
@@ -93,6 +96,7 @@ const AuthenticatedApp = () => {
           <Route path="historial" element={<AdminTracks />} />
           <Route path="envios" element={<AdminSubmissions />} />
           <Route path="mensajes" element={<AdminMessages />} />
+          <Route path="sugerencias" element={<AdminSuggestions />} />
         </Route>
       </Route>
 

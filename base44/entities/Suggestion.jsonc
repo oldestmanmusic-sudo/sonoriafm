@@ -1,0 +1,47 @@
+{
+  "name": "Suggestion",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Mejora",
+        "Fallo",
+        "Idea"
+      ],
+      "default": "Mejora"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "nueva",
+        "revisada"
+      ],
+      "default": "nueva"
+    }
+  },
+  "required": [
+    "message"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
