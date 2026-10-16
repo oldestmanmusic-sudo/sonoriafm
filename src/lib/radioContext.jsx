@@ -272,6 +272,27 @@ export function RadioProvider({ children, playlist = [] }) {
     };
   }, [playlist, playScheduled]);
 
+  // Controles multimedia del sistema (Android/iOS): notificación y pantalla de
+  // bloqueo con título, artista, carátula y botones de reproducir/pausar.
+  useEffect(() => {
+    if (typeof navigator.mediaSession === 'undefined' || typeof MediaMetadata === 'undefined') return;
+    const track = currentTrack || scheduledTrack;
+    if (track) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title || 'Radio en vivo',
+        artist: track.artist || 'SONORIA',
+        album: 'SONORIA',
+        artwork: track.cover_url ? [{ src: track.cover_url, sizes: '512x512', type: 'image/jpeg' }] : [],
+      });
+    }
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    navigator.mediaSession.setActionHandler('play', () => toggle());
+    navigator.mediaSession.setActionHandler('pause', () => toggle());
+    return () => {
+      navigator.mediaSession.playbackState = 'none';
+    };
+  }, [currentTrack, scheduledTrack, isPlaying, toggle]);
+
   // Sincronización con la emisión: cada 20 s se comprueba qué toca y, si alguien
   // lleva la escucha descolgada (pausas, fuente lenta), se recoloca en el punto exacto.
   useEffect(() => {
