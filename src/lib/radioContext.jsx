@@ -1,17 +1,18 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 
-// RADIO 24H: la emisión es independiente del visitante. La lista suena en bucle
-// continuo anclada al reloj (medianoche local): quien entra a una hora cualquiera
-// conecta justo en el punto de la emisión que toca a esa hora, con su desfase.
+// RADIO 24H ALEATORIA: la emisión sigue anclada al reloj (medianoche local)
+// para que todo el mundo conecte en el mismo punto de la emisión, pero el orden
+// de cada vuelta completa es un barajado aleatorio (determinista por vuelta:
+// la vuelta es la semilla) que intercala artistas, sin dos canciones seguidas
+// del mismo artista. Al agotarse la lista, la siguiente vuelta se baraja de
+// nuevo con otra semilla: mezcla distinta y emisión 24/7 en bucle infinito.
 // Las canciones se saltan solo si su fuente de audio no funciona.
 
 const RadioContext = createContext(null);
 
 const FALLBACK_DURATION = 240; // 4 min si falta la duración declarada
 
-// Barajado determinista (basado en los propios identificadores): todo el mundo
-// calcula el mismo orden, así la emisión sigue anclada al reloj para cualquier
-// visitante. Después se reparte para que no se junten canciones del mismo artista.
+// Hash determinista: todo el mundo calcula la misma emisión.
 function hashStr(s) {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) {
@@ -20,16 +21,57 @@ function hashStr(s) {
   }
   return h >>> 0;
 }
-function shuffleDeterministic(list) {
-  const sorted = [...list].sort((a, b) => hashStr(String(a.id) + a.title) - hashStr(String(b.id) + b.title));
+
+// Barajado aleatorio determinista (Fisher-Yates con semilla): cada vuelta usa
+// su propio número de vuelta como semilla, así la mezcla cambia en cada vuelta
+// pero es idéntica para todos los oyentes.
+function seededShuffle(list, seed) {
+  const arr = [...list].sort((a, b) => hashStr(String(a.id)) - hashStr(String(b.id)));
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = hashStr(String(arr[i].id) + ':' + seed) % (i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Reparte las canciones alternando artistas: en cada paso se elige del grupo
+// (artista) con más canciones pendientes que no sea el artista anterior. Solo
+// si un artista concentra todas las restantes se fuerza la repetición.
+function interleaveArtists(order, prevArtist) {
+  const groups = new Map();
+  order.forEach((t) => {
+    if (!groups.has(t.artist)) groups.set(t.artist, []);
+    groups.get(t.artist).push(t);
+  });
   const out = [];
-  const pool = [...sorted];
-  while (pool.length) {
-    const prev = out[out.length - 1];
-    const idx = pool.findIndex((t) => !prev || t.artist !== prev.artist);
-    out.push(pool.splice(idx >= 0 ? idx : 0, 1)[0]);
+  let prev = prevArtist || null;
+  while (out.length < order.length) {
+    let candidates = [...groups.entries()].filter(([, g]) => g.length > 0 && g[0].artist !== prev);
+    if (!candidates.length) candidates = [...groups.entries()].filter(([, g]) => g.length > 0);
+    candidates.sort((a, b) => b[1].length - a[1].length);
+    const pick = candidates[0][1].shift();
+    prev = pick.artist;
+    out.push(pick);
   }
   return out;
+}
+
+// Orden de una vuelta completa: barajado con la semilla de la vuelta y artistas
+// intercalados; la primera pista no repite el artista con la última de la
+// vuelta anterior (así el borde entre vueltas tampoco junta artistas).
+const cycleCache = new Map();
+function buildCycle(list, cycle) {
+  if (cycle < 0) cycle = 0;
+  const cached = cycleCache.get(cycle);
+  if (cached && cached.list === list) return cached.schedule;
+  const base = seededShuffle(list, cycle);
+  const prevLast = cycle > 0
+    ? interleaveArtists(seededShuffle(list, cycle - 1)).slice(-1)[0].artist
+    : null;
+  const schedule = interleaveArtists(base, prevLast);
+  if (cycleCache.size > 500) cycleCache.clear();
+  cycleCache.set(cycle, { list, schedule });
+  return schedule;
 }
 
 function parseDuration(d) {
@@ -39,27 +81,35 @@ function parseDuration(d) {
   return parts.reduce((acc, p) => acc * 60 + p, 0);
 }
 
-function buildSchedule(list) {
-  const schedule = list.map((t) => ({ track: t, dur: parseDuration(t.duration) || FALLBACK_DURATION }));
-  const total = schedule.reduce((acc, s) => acc + s.dur, 0) || FALLBACK_DURATION;
-  return { schedule, total };
+function buildTotal(list) {
+  return list.reduce((acc, t) => acc + (parseDuration(t.duration) || FALLBACK_DURATION), 0) || FALLBACK_DURATION;
 }
 
-// Punto de la emisión que toca "ahora": índice de canción y desfase en segundos.
-function findPosition(schedule, total, nowMs) {
+// Punto de la emisión que toca "ahora": vuelta (barajado) actual, índice de
+// canción dentro de esa vuelta y desfase en segundos. Las vueltas se numeran
+// de forma continua desde el primer día (no reinician a medianoche), así el
+// borde entre vueltas siempre conecta dos barajados distintos: al agotarse la
+// lista, la siguiente vuelta es una nueva mezcla y sigue el bucle infinito.
+function findPosition(list, total, nowMs) {
   const d = new Date(nowMs);
   const midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  let t = (((nowMs - midnight) / 1000) % total + total) % total;
+  const dayIndex = Math.floor(midnight / 86400000);
+  const cyclesPerDay = Math.floor(86400 / total) || 1;
+  const secondsOfDay = (nowMs - midnight) / 1000;
+  const cycle = dayIndex * cyclesPerDay + Math.floor(secondsOfDay / total);
+  let t = secondsOfDay - Math.floor(secondsOfDay / total) * total;
+  const schedule = buildCycle(list, cycle);
   for (let i = 0; i < schedule.length; i++) {
-    if (t < schedule[i].dur) return { index: i, offset: t };
+    if (t < schedule[i].dur) return { schedule, index: i, offset: t };
     t -= schedule[i].dur;
   }
-  return { index: 0, offset: 0 };
+  return { schedule, index: 0, offset: 0 };
 }
 
 export function RadioProvider({ children, playlist = [] }) {
   const audioRef = useRef(null);
-  const scheduleRef = useRef({ schedule: [], total: FALLBACK_DURATION });
+  const playlistRef = useRef([]);
+  const totalRef = useRef(FALLBACK_DURATION);
   const currentRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [scheduledTrack, setScheduledTrack] = useState(null);
@@ -90,20 +140,19 @@ export function RadioProvider({ children, playlist = [] }) {
     });
   }, []);
 
-  // Entra en la emisión exactamente donde toca según la hora.
-  const playScheduled = useCallback(async () => {
-    if (inFlightRef.current) return;
+  // Entra en la emisión en la canción y desfase indicados. Si la fuente de una
+  // canción no funciona, prueba la siguiente del barajado (y así sucesivamente).
+  const enter = useCallback(async (schedule, index, offset) => {
     const audio = audioRef.current;
-    const { schedule, total } = scheduleRef.current;
     if (!audio || !schedule.length) {
       setIsLoading(false);
       setError(true);
       return;
     }
+    if (inFlightRef.current) return;
     inFlightRef.current = true;
     setIsLoading(true);
     setError(false);
-    const { index, offset } = findPosition(schedule, total, Date.now());
     for (let step = 0; step < schedule.length; step++) {
       const item = schedule[(index + step) % schedule.length];
       await startAt(item.track, step === 0 ? offset : 0);
@@ -121,7 +170,7 @@ export function RadioProvider({ children, playlist = [] }) {
           inFlightRef.current = false;
           return;
         }
-        // Esta fuente no funciona: prueba la siguiente canción de la emisión.
+        // Esta fuente no funciona: prueba la siguiente canción del barajado.
       }
     }
     setIsLoading(false);
@@ -129,22 +178,35 @@ export function RadioProvider({ children, playlist = [] }) {
     inFlightRef.current = false;
   }, [startAt]);
 
+  // Entra en la emisión exactamente donde toca según la hora (y vuelta actual).
+  const playScheduled = useCallback(() => {
+    if (!playlistRef.current.length) {
+      setIsLoading(false);
+      setError(true);
+      return;
+    }
+    const { schedule, index, offset } = findPosition(playlistRef.current, totalRef.current, Date.now());
+    enter(schedule, index, offset);
+  }, [enter]);
+
+  // Al terminar una canción (o si su fuente falla): si el reloj aún apunta a la
+  // pista que acaba de sonar, pasa a la siguiente del barajado; si ya empezó la
+  // siguiente, conecta donde está la emisión.
+  const advance = useCallback(() => {
+    if (!playlistRef.current.length || inFlightRef.current) return;
+    const { schedule, index } = findPosition(playlistRef.current, totalRef.current, Date.now());
+    let start = index;
+    if (schedule[start] && schedule[start].track.id === currentRef.current?.id) {
+      start = (start + 1) % schedule.length;
+    }
+    enter(schedule, start, 0);
+  }, [enter]);
+
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'none';
     audio.volume = 0.8;
     audioRef.current = audio;
-
-    // Al terminar una canción (o si su fuente falla) sigue la siguiente de la emisión.
-    const advance = () => {
-      const { schedule } = scheduleRef.current;
-      if (!schedule.length) return;
-      const i = schedule.findIndex((s) => s.track.id === currentRef.current?.id);
-      const next = schedule[(i + 1) % schedule.length];
-      currentRef.current = next.track;
-      setCurrentTrack(next.track);
-      startAt(next.track, 0).then(() => audio.play().catch(() => {}));
-    };
 
     const onPlaying = () => { setIsPlaying(true); setIsLoading(false); setError(false); };
     const onPause = () => setIsPlaying(false);
@@ -173,20 +235,20 @@ export function RadioProvider({ children, playlist = [] }) {
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('error', advance);
     };
-  }, [startAt]);
+  }, [advance]);
 
-  // La programación de la emisión se reconstruye cuando cambia la lista de canciones.
+  // La emisión se reconstruye cuando cambia la lista de canciones.
   useEffect(() => {
-    scheduleRef.current = buildSchedule(shuffleDeterministic((playlist || []).filter((t) => t && t.audio_url)));
+    playlistRef.current = (playlist || []).filter((t) => t && t.audio_url);
+    totalRef.current = buildTotal(playlistRef.current);
   }, [playlist]);
 
-  // "Sonando ahora" según el reloj: qué canción de la emisión toca en este
-  // momento, aunque nadie esté escuchando. Se actualiza cada 15 s.
+  // "Sonando ahora" según el reloj: qué canción del barajado de la vuelta
+  // actual toca en este momento, aunque nadie esté escuchando. Cada 15 s.
   useEffect(() => {
     const update = () => {
-      const { schedule, total } = scheduleRef.current;
-      if (!schedule.length) return;
-      const { index } = findPosition(schedule, total, Date.now());
+      if (!playlistRef.current.length) return;
+      const { schedule, index } = findPosition(playlistRef.current, totalRef.current, Date.now());
       setScheduledTrack(schedule[index].track);
     };
     update();
@@ -216,14 +278,11 @@ export function RadioProvider({ children, playlist = [] }) {
     const timer = setInterval(() => {
       const audio = audioRef.current;
       if (!audio || audio.paused || !currentRef.current) return;
-      const { schedule, total } = scheduleRef.current;
-      if (!schedule.length) return;
-      const { index, offset } = findPosition(schedule, total, Date.now());
+      if (!playlistRef.current.length) return;
+      const { schedule, index, offset } = findPosition(playlistRef.current, totalRef.current, Date.now());
       const item = schedule[index];
       if (item.track.id !== currentRef.current.id) {
-        startAt(item.track, offset).then(() => audio.play().catch(() => {}));
-        currentRef.current = item.track;
-        setCurrentTrack(item.track);
+        enter(schedule, index, offset);
         return;
       }
       if (Math.abs(audio.currentTime - offset) > 20) {
@@ -231,7 +290,7 @@ export function RadioProvider({ children, playlist = [] }) {
       }
     }, 20000);
     return () => clearInterval(timer);
-  }, [startAt]);
+  }, [enter]);
 
   const toggle = useCallback(() => {
     const audio = audioRef.current;
