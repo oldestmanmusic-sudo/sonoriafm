@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Play, Pause, Loader2, Upload } from 'lucide-react';
 
 export default function NowPlaying({ track }) {
-  const { isPlaying, isLoading, toggle } = useRadio();
+  const { isPlaying, isLoading, toggle, currentTrack, scheduledTrack } = useRadio();
+  const liveTrack = currentTrack || scheduledTrack || track;
   return (
     <section className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
@@ -37,19 +38,19 @@ export default function NowPlaying({ track }) {
           </Link>
         </div>
 
-        {track && (
+        {liveTrack && (
           <div className="mx-auto mt-12 flex max-w-md items-center gap-4 rounded-2xl border border-border bg-card/60 backdrop-blur p-4 text-left">
             <div className="h-16 w-16 overflow-hidden rounded-xl bg-secondary shrink-0">
-              {track.cover_url ? (
-                <img src={track.cover_url} alt="" className="h-full w-full object-cover" />
+              {liveTrack.cover_url ? (
+                <img src={liveTrack.cover_url} alt="" className="h-full w-full object-cover" />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-primary/40 to-accent/30" />
               )}
             </div>
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-wider text-accent">Sonando ahora</p>
-              <p className="truncate font-semibold">{track.title}</p>
-              <p className="truncate text-sm text-muted-foreground">{track.artist}</p>
+              <p className="truncate font-semibold">{liveTrack.title}</p>
+              <p className="truncate text-sm text-muted-foreground">{liveTrack.artist}</p>
             </div>
           </div>
         )}

@@ -62,6 +62,7 @@ export function RadioProvider({ children, playlist = [] }) {
   const scheduleRef = useRef({ schedule: [], total: FALLBACK_DURATION });
   const currentRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null);
+  const [scheduledTrack, setScheduledTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVol] = useState(0.8);
@@ -179,6 +180,20 @@ export function RadioProvider({ children, playlist = [] }) {
     scheduleRef.current = buildSchedule(shuffleDeterministic((playlist || []).filter((t) => t && t.audio_url)));
   }, [playlist]);
 
+  // "Sonando ahora" según el reloj: qué canción de la emisión toca en este
+  // momento, aunque nadie esté escuchando. Se actualiza cada 15 s.
+  useEffect(() => {
+    const update = () => {
+      const { schedule, total } = scheduleRef.current;
+      if (!schedule.length) return;
+      const { index } = findPosition(schedule, total, Date.now());
+      setScheduledTrack(schedule[index].track);
+    };
+    update();
+    const timer = setInterval(update, 15000);
+    return () => clearInterval(timer);
+  }, [playlist]);
+
   // Arranque automático: se intenta cuando ya hay canciones cargadas y, si el
   // navegador lo bloquea, se conecta con la primera interacción del visitante.
   useEffect(() => {
@@ -237,7 +252,7 @@ export function RadioProvider({ children, playlist = [] }) {
   }, []);
 
   return (
-    <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack }}>
+    <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack, scheduledTrack }}>
       {children}
     </RadioContext.Provider>
   );
