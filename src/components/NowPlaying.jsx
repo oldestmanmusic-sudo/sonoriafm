@@ -1,10 +1,31 @@
 import { useRadio } from '@/lib/radioContext';
 import { Link } from 'react-router-dom';
-import { Play, Pause, Loader2, Upload } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { useState, useEffect } from 'react';
+import { Play, Pause, Loader2, Upload, Heart } from 'lucide-react';
 
 export default function NowPlaying({ track }) {
   const { isPlaying, isLoading, toggle, currentTrack, scheduledTrack } = useRadio();
   const liveTrack = currentTrack || scheduledTrack || track;
+  const [likes, setLikes] = useState(0);
+  const [liking, setLiking] = useState(false);
+
+  useEffect(() => {
+    if (liveTrack) setLikes(liveTrack.likes ?? 0);
+  }, [liveTrack?.id]);
+
+  const like = async () => {
+    if (liking || !liveTrack?.id) return;
+    setLiking(true);
+    try {
+      const res = await base44.functions.invoke('likeTrack', { trackId: liveTrack.id });
+      setLikes(res.data.likes);
+    } catch {
+      /* el me gusta requiere sesión iniciada */
+    } finally {
+      setLiking(false);
+    }
+  };
   return (
     <section className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
@@ -47,11 +68,20 @@ export default function NowPlaying({ track }) {
                 <div className="h-full w-full bg-gradient-to-br from-primary/40 to-accent/30" />
               )}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-xs uppercase tracking-wider text-accent">Sonando ahora</p>
               <p className="truncate font-semibold">{liveTrack.title}</p>
               <p className="truncate text-sm text-muted-foreground">{liveTrack.artist}</p>
             </div>
+            <button
+              onClick={like}
+              disabled={liking}
+              className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent disabled:opacity-50"
+              aria-label="Me gusta esta canción"
+            >
+              {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4 text-accent" />}
+              {likes}
+            </button>
           </div>
         )}
 
