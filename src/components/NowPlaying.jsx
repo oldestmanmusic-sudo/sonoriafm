@@ -16,12 +16,17 @@ export default function NowPlaying({ track }) {
 
   const like = async () => {
     if (liking || !liveTrack?.id) return;
+    const authed = await base44.auth.isAuthenticated();
+    if (!authed) {
+      base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+      return;
+    }
     setLiking(true);
     try {
       const res = await base44.functions.invoke('likeTrack', { trackId: liveTrack.id });
       setLikes(res.data.likes);
     } catch {
-      /* el me gusta requiere sesión iniciada */
+      /* error puntual de red u otro fallo del servidor */
     } finally {
       setLiking(false);
     }
