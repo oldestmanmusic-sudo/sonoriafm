@@ -35,6 +35,11 @@ export default function TrackDetail() {
 
   const like = async () => {
     if (liking) return;
+    const authed = await base44.auth.isAuthenticated();
+    if (!authed) {
+      base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+      return;
+    }
     setLiking(true);
     try {
       const res = await base44.functions.invoke('likeTrack', { trackId: id });

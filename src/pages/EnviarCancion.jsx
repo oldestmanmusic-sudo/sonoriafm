@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { GENRES, SUBMISSION_TOOLS } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
@@ -12,9 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Mail, Loader2, Send, CheckCircle2 } from 'lucide-react';
+import { Mail, Loader2, Send, CheckCircle2, LogIn } from 'lucide-react';
 
 export default function EnviarCancion() {
+  const [authed, setAuthed] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    base44.auth.isAuthenticated().then((ok) => { if (active) setAuthed(ok); });
+    return () => { active = false; };
+  }, []);
+
   const [form, setForm] = useState({
     artist_name: '',
     email: '',
@@ -73,6 +82,34 @@ export default function EnviarCancion() {
       setSubmitting(false);
     }
   };
+
+  if (authed === null) {
+    return (
+      <div className="flex justify-center py-24">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!authed) {
+    return (
+      <section className="mx-auto max-w-2xl px-4 py-20 text-center">
+        <LogIn className="mx-auto h-12 w-12 text-primary" />
+        <h1 className="mt-4 font-heading text-3xl font-extrabold">Envía tu canción</h1>
+        <p className="mt-3 text-muted-foreground">
+          Necesitas una cuenta en SONORIA para enviarnos tu canción. Regístrate o inicia sesión y continúa donde estabas.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link to="/login?returnTo=/envia-tu-cancion">
+            <Button className="rounded-full">Iniciar sesión</Button>
+          </Link>
+          <Link to="/register?returnTo=/envia-tu-cancion">
+            <Button variant="outline" className="rounded-full">Crear cuenta</Button>
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   if (sent) {
     return (
