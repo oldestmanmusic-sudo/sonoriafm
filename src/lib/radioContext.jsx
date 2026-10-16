@@ -88,11 +88,13 @@ export function RadioProvider({ children, playlist = [] }) {
         currentRef.current = item.track;
         setCurrentTrack(item.track);
         setIsLoading(false);
+        inFlightRef.current = false;
         return;
       } catch (e) {
         // El navegador pide interacción previa (autoplay bloqueado): ni error ni salto.
         if (e && e.name === 'NotAllowedError') {
           setIsLoading(false);
+          inFlightRef.current = false;
           return;
         }
         // Esta fuente no funciona: prueba la siguiente canción de la emisión.
@@ -100,6 +102,7 @@ export function RadioProvider({ children, playlist = [] }) {
     }
     setIsLoading(false);
     setError(true);
+    inFlightRef.current = false;
   }, [startAt]);
 
   useEffect(() => {
