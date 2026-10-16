@@ -9,6 +9,29 @@ const RadioContext = createContext(null);
 
 const FALLBACK_DURATION = 240; // 4 min si falta la duración declarada
 
+// Barajado determinista (basado en los propios identificadores): todo el mundo
+// calcula el mismo orden, así la emisión sigue anclada al reloj para cualquier
+// visitante. Después se reparte para que no se junten canciones del mismo artista.
+function hashStr(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function shuffleDeterministic(list) {
+  const sorted = [...list].sort((a, b) => hashStr(String(a.id) + a.title) - hashStr(String(b.id) + b.title));
+  const out = [];
+  const pool = [...sorted];
+  while (pool.length) {
+    const prev = out[out.length - 1];
+    const idx = pool.findIndex((t) => !prev || t.artist !== prev.artist);
+    out.push(pool.splice(idx >= 0 ? idx : 0, 1)[0]);
+  }
+  return out;
+}
+
 function parseDuration(d) {
   if (!d || typeof d !== 'string') return 0;
   const parts = d.split(':').map((p) => parseInt(p, 10));
@@ -153,7 +176,7 @@ export function RadioProvider({ children, playlist = [] }) {
 
   // La programación de la emisión se reconstruye cuando cambia la lista de canciones.
   useEffect(() => {
-    scheduleRef.current = buildSchedule((playlist || []).filter((t) => t && t.audio_url));
+    scheduleRef.current = buildSchedule(shuffleDeterministic((playlist || []).filter((t) => t && t.audio_url)));
   }, [playlist]);
 
   // Arranque automático: se intenta cuando ya hay canciones cargadas y, si el
