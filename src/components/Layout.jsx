@@ -27,7 +27,9 @@ export default function Layout() {
     let active = true;
     (async () => {
       try {
-        const { items } = await base44.entities.Track.filter({}, { sort: '-played_at', limit: 12 });
+        // El reproductor emite TODO el catálogo de la web (barajado aleatorio,
+        // sin repetir artista), no solo las últimas canciones.
+        const { items } = await base44.entities.Track.filter({}, { sort: '-played_at', limit: 500 });
         if (active) setPlaylist(items);
       } catch {
         /* ignore */
