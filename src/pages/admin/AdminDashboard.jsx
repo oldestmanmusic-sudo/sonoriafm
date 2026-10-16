@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { Loader2, Newspaper, Users, CalendarClock, History, Mail, ArrowRight } from 'lucide-react';
+import { Loader2, Newspaper, Users, CalendarClock, History, Mail, Inbox, ArrowRight } from 'lucide-react';
 
 const SECTIONS = [
   { key: 'articles', to: '/admin/articulos', label: 'Artículos', Icon: Newspaper, hint: 'Publica y edita noticias' },
@@ -10,6 +10,7 @@ const SECTIONS = [
   { key: 'programs', to: '/admin/programacion', label: 'Programación', Icon: CalendarClock, hint: 'Parrilla semanal' },
   { key: 'tracks', to: '/admin/historial', label: 'Historial', Icon: History, hint: 'Temas emitidos' },
   { key: 'messages', to: '/admin/mensajes', label: 'Mensajes', Icon: Mail, hint: 'Contacto recibido' },
+  { key: 'submissions', to: '/admin/envios', label: 'Envíos', Icon: Inbox, hint: 'Canciones pendientes' },
 ];
 
 export default function AdminDashboard() {
@@ -20,14 +21,15 @@ export default function AdminDashboard() {
     let active = true;
     (async () => {
       try {
-        const [articles, artists, programs, tracks, messages] = await Promise.all([
+        const [articles, artists, programs, tracks, messages, submissions] = await Promise.all([
           base44.entities.Article.count(),
           base44.entities.Artist.count(),
           base44.entities.Program.count(),
           base44.entities.Track.count(),
           base44.entities.ContactMessage.count(),
+          base44.entities.Submission.count({ status: 'pending' }),
         ]);
-        if (active) setCounts({ articles, artists, programs, tracks, messages });
+        if (active) setCounts({ articles, artists, programs, tracks, messages, submissions });
       } catch {
         if (active) setCounts({});
       }

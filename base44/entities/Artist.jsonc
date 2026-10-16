@@ -17,6 +17,9 @@
     "image_url": {
       "type": "string"
     },
+    "social_url": {
+      "type": "string"
+    },
     "likes": {
       "type": "number",
       "default": 0

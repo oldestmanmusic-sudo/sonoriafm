@@ -1,11 +1,18 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 
-export const STREAM_URL = 'https://ice1.somafm.com/groovesalad-256-mp3';
+// Emisoras probadas que permiten reproducción desde el navegador (la primera en funcionar se usa).
+// SomaFM bloquea peticiones con Origin/Referer de la web (403), así que va al final como último recurso.
+export const STREAM_URLS = [
+  'https://stream.radioparadise.com/mp3-128',
+  'https://stream.radioparadise.com/aac-320',
+  'https://ice2.somafm.com/groovesalad-128-mp3',
+];
 
 const RadioContext = createContext(null);
 
 export function RadioProvider({ children }) {
   const audioRef = useRef(null);
+  const streamIndexRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVol] = useState(0.8);
@@ -13,16 +20,27 @@ export function RadioProvider({ children }) {
 
   useEffect(() => {
     const audio = new Audio();
-    audio.src = STREAM_URL;
     audio.preload = 'none';
-    audio.volume = volume;
+    audio.volume = 0.8;
     audioRef.current = audio;
+
+    const tryNextStream = () => {
+      if (streamIndexRef.current < STREAM_URLS.length - 1) {
+        streamIndexRef.current += 1;
+        audio.src = STREAM_URLS[streamIndexRef.current];
+        audio.play().catch(() => setError(true));
+      } else {
+        setIsPlaying(false);
+        setIsLoading(false);
+        setError(true);
+      }
+    };
 
     const onPlaying = () => { setIsPlaying(true); setIsLoading(false); setError(false); };
     const onPause = () => setIsPlaying(false);
     const onWaiting = () => setIsLoading(true);
     const onCanPlay = () => setIsLoading(false);
-    const onError = () => { setIsPlaying(false); setIsLoading(false); setError(true); };
+    const onError = () => { setIsPlaying(false); tryNextStream(); };
 
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
@@ -38,7 +56,6 @@ export function RadioProvider({ children }) {
       audio.removeEventListener('canplay', onCanPlay);
       audio.removeEventListener('error', onError);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggle = useCallback(() => {
@@ -49,6 +66,8 @@ export function RadioProvider({ children }) {
     } else {
       setIsLoading(true);
       setError(false);
+      streamIndexRef.current = 0;
+      audio.src = STREAM_URLS[0];
       audio.play().catch(() => { setIsLoading(false); setError(true); });
     }
   }, [isPlaying]);

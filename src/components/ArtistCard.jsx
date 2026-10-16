@@ -1,8 +1,12 @@
+import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
 export default function ArtistCard({ artist }) {
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-border bg-card">
+    <Link
+      to={`/artistas/${artist.id}`}
+      className="group relative block overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
+    >
       <div className="relative aspect-[4/5] overflow-hidden">
         {artist.image_url ? (
           <img src={artist.image_url} alt={artist.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -20,6 +24,6 @@ export default function ArtistCard({ artist }) {
         </div>
       </div>
       {artist.bio && <p className="p-4 text-sm text-muted-foreground line-clamp-3">{artist.bio}</p>}
-    </article>
+    </Link>
   );
 }

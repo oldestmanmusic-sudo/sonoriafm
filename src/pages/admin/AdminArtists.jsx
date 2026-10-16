@@ -6,6 +6,7 @@ const FIELDS = [
   { name: 'country', label: 'País', type: 'text', placeholder: 'España' },
   { name: 'likes', label: 'Me gusta', type: 'number' },
   { name: 'image_url', label: 'URL de la imagen', type: 'text', fullWidth: true, placeholder: 'https://…' },
+  { name: 'social_url', label: 'Enlace a redes (Spotify, Instagram…)', type: 'text', fullWidth: true, placeholder: 'https://…' },
   { name: 'bio', label: 'Biografía', type: 'textarea', rows: 5, fullWidth: true },
 ];
 

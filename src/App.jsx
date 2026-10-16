@@ -8,6 +8,9 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Home from '@/pages/Home';
 import Artists from '@/pages/Artists';
+import ArtistDetail from '@/pages/ArtistDetail';
+import TrackDetail from '@/pages/TrackDetail';
+import EnviarCancion from '@/pages/EnviarCancion';
 import Programming from '@/pages/Programming';
 import Noticias from '@/pages/Noticias';
 import ArticleDetail from '@/pages/ArticleDetail';
@@ -25,6 +28,7 @@ import AdminArtists from '@/pages/admin/AdminArtists';
 import AdminPrograms from '@/pages/admin/AdminPrograms';
 import AdminTracks from '@/pages/admin/AdminTracks';
 import AdminMessages from '@/pages/admin/AdminMessages';
+import AdminSubmissions from '@/pages/admin/AdminSubmissions';
 import Layout from '@/components/Layout';
 
 const AuthenticatedApp = () => {
@@ -56,6 +60,9 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/artistas" element={<Artists />} />
+        <Route path="/artistas/:id" element={<ArtistDetail />} />
+        <Route path="/cancion/:id" element={<TrackDetail />} />
+        <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
         <Route path="/programacion" element={<Programming />} />
         <Route path="/noticias" element={<Noticias />} />
         <Route path="/noticias/:id" element={<ArticleDetail />} />
@@ -75,6 +82,7 @@ const AuthenticatedApp = () => {
           <Route path="artistas" element={<AdminArtists />} />
           <Route path="programacion" element={<AdminPrograms />} />
           <Route path="historial" element={<AdminTracks />} />
+          <Route path="envios" element={<AdminSubmissions />} />
           <Route path="mensajes" element={<AdminMessages />} />
         </Route>
       </Route>

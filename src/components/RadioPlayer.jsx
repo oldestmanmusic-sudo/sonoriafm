@@ -1,4 +1,5 @@
 import { useRadio } from '@/lib/radioContext';
+import { DEFAULT_COVER } from '@/lib/brand';
 import { Play, Pause, Loader2, Volume2, VolumeX } from 'lucide-react';
 
 export default function RadioPlayer({ nowPlaying }) {
@@ -9,11 +10,7 @@ export default function RadioPlayer({ nowPlaying }) {
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl px-1">
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-card/80 backdrop-blur-2xl shadow-2xl shadow-primary/10 px-3 py-3 sm:px-4">
         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-secondary">
-          {track?.cover_url ? (
-            <img src={track.cover_url} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-br from-primary/40 to-accent/30" />
-          )}
+          <img src={track?.cover_url || DEFAULT_COVER} alt="" className="h-full w-full object-cover" />
           {isPlaying && (
             <div className="absolute inset-0 flex items-end justify-center gap-0.5 bg-black/40 p-2">
               <span className="eq-bar w-0.5 h-3 bg-accent" style={{ animationDelay: '0ms' }} />
@@ -28,8 +25,8 @@ export default function RadioPlayer({ nowPlaying }) {
           <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-accent">
             <span className="h-1.5 w-1.5 rounded-full bg-accent pulse-live" /> En vivo
           </span>
-          <p className="truncate text-sm font-semibold leading-tight">{track?.title ?? 'SONORIA Radio'}</p>
-          <p className="truncate text-xs text-muted-foreground">{track?.artist ?? 'Música variada 24/7'}</p>
+          <p className="line-clamp-2 text-sm font-semibold leading-tight">{track?.title ?? 'SONORIA Radio'}</p>
+          <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música IA hecha en España'}</p>
         </div>
 
         <button

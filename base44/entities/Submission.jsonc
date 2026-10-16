@@ -1,0 +1,86 @@
+{
+  "name": "Submission",
+  "type": "object",
+  "properties": {
+    "artist_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "song_title": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string",
+      "enum": [
+        "Pop latino",
+        "Urbano/Reguet\u00f3n",
+        "Baladas",
+        "Electr\u00f3nica",
+        "Otros"
+      ],
+      "default": "Otros"
+    },
+    "audio_link": {
+      "type": "string"
+    },
+    "audio_file_uri": {
+      "type": "string"
+    },
+    "tool": {
+      "type": "string"
+    },
+    "lyrics": {
+      "type": "string"
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "changes_requested"
+      ],
+      "default": "pending"
+    },
+    "admin_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "artist_name",
+    "email",
+    "song_title",
+    "confirmed"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

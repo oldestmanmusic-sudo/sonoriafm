@@ -17,6 +17,33 @@
     "played_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "genre": {
+      "type": "string",
+      "enum": [
+        "Pop latino",
+        "Urbano/Reguet\u00f3n",
+        "Baladas",
+        "Electr\u00f3nica",
+        "Otros"
+      ],
+      "default": "Otros"
+    },
+    "duration": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    },
+    "album": {
+      "type": "string"
+    },
+    "audio_url": {
+      "type": "string"
+    },
+    "likes": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

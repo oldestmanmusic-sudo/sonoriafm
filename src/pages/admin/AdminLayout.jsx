@@ -8,6 +8,7 @@ import {
   Users,
   CalendarClock,
   History,
+  Inbox,
   Mail,
   LogOut,
   ArrowLeft,
@@ -20,6 +21,7 @@ const NAV = [
   { to: '/admin/artistas', label: 'Artistas', Icon: Users },
   { to: '/admin/programacion', label: 'Programación', Icon: CalendarClock },
   { to: '/admin/historial', label: 'Historial', Icon: History },
+  { to: '/admin/envios', label: 'Envíos', Icon: Inbox },
   { to: '/admin/mensajes', label: 'Mensajes', Icon: Mail },
 ];
 

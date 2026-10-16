@@ -11,6 +11,7 @@ const links = [
   { to: '/noticias', label: 'Noticias' },
   { to: '/sobre-nosotros', label: 'Sobre Nosotros' },
   { to: '/contacto', label: 'Contacto' },
+  { to: '/envia-tu-cancion', label: 'Envía tu canción' },
 ];
 
 export default function SiteNav() {

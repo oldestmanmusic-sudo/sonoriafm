@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import NowPlaying from '@/components/NowPlaying';
+import GenreChips from '@/components/GenreChips';
 import TrackHistory from '@/components/TrackHistory';
 import ArtistCard from '@/components/ArtistCard';
 import { ArrowRight, Loader2 } from 'lucide-react';
@@ -9,6 +10,7 @@ import { ArrowRight, Loader2 } from 'lucide-react';
 export default function Home() {
   const [nowPlaying, setNowPlaying] = useState(null);
   const [artists, setArtists] = useState(null);
+  const [genre, setGenre] = useState('Todo SONORIA');
 
   useEffect(() => {
     let active = true;
@@ -31,7 +33,13 @@ export default function Home() {
   return (
     <>
       <NowPlaying track={nowPlaying} />
-      <TrackHistory />
+
+      <section className="mx-auto max-w-6xl px-4 pt-2">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Canales por estilo</p>
+        <GenreChips value={genre} onChange={setGenre} />
+      </section>
+
+      <TrackHistory genre={genre} />
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-end justify-between mb-6">

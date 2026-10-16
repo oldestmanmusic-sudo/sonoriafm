@@ -1,5 +1,6 @@
 import { useRadio } from '@/lib/radioContext';
-import { Play, Pause, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Play, Pause, Loader2, Upload } from 'lucide-react';
 
 export default function NowPlaying({ track }) {
   const { isPlaying, isLoading, toggle } = useRadio();
@@ -18,15 +19,23 @@ export default function NowPlaying({ track }) {
         <h1 className="mt-6 font-heading text-6xl sm:text-8xl font-extrabold tracking-tighter text-glow">
           SONOR<span className="text-primary">IA</span>
         </h1>
-        <p className="mt-3 text-lg text-muted-foreground">Estación de música variada · En vivo desde cualquier lugar</p>
+        <p className="mt-3 text-lg text-muted-foreground">La radio de la música IA hecha en España</p>
 
-        <button
-          onClick={toggle}
-          className="mt-10 inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-2xl shadow-primary/40 transition-transform hover:scale-105 active:scale-95"
-        >
-          {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-          {isLoading ? 'Conectando…' : isPlaying ? 'Pausar' : 'Escuchar ahora'}
-        </button>
+        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <button
+            onClick={toggle}
+            className="inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-2xl shadow-primary/40 transition-transform hover:scale-105 active:scale-95"
+          >
+            {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+            {isLoading ? 'Conectando…' : isPlaying ? 'Pausar' : 'Escuchar ahora'}
+          </button>
+          <Link
+            to="/envia-tu-cancion"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/50 px-8 py-4 text-base font-semibold text-primary transition-colors hover:bg-primary/10"
+          >
+            <Upload className="h-5 w-5" /> Envía tu canción
+          </Link>
+        </div>
 
         {track && (
           <div className="mx-auto mt-12 flex max-w-md items-center gap-4 rounded-2xl border border-border bg-card/60 backdrop-blur p-4 text-left">

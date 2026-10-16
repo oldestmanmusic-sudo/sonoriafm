@@ -1,9 +1,14 @@
 import EntityManager from '@/components/admin/EntityManager';
+import { GENRES } from '@/lib/brand';
 
 const FIELDS = [
   { name: 'title', label: 'Tema', type: 'text', required: true, fullWidth: true },
   { name: 'artist', label: 'Artista', type: 'text', required: true },
-  { name: 'artist_id', label: 'ID del artista', type: 'text', help: 'Opcional. Enlaza el tema con su perfil.' },
+  { name: 'genre', label: 'Canal', type: 'select', options: GENRES, help: 'Sin género asignado, entra en «Otros».' },
+  { name: 'duration', label: 'Duración', type: 'text', placeholder: '3:45' },
+  { name: 'year', label: 'Año', type: 'number' },
+  { name: 'album', label: 'Álbum', type: 'text' },
+  { name: 'audio_url', label: 'URL del audio', type: 'text', fullWidth: true, placeholder: 'https://…' },
   { name: 'played_at', label: 'Emitido el', type: 'datetime' },
   { name: 'cover_url', label: 'URL de la carátula', type: 'text', fullWidth: true, placeholder: 'https://…' },
 ];
@@ -13,14 +18,15 @@ export default function AdminTracks() {
     <EntityManager
       entity="Track"
       title="Historial"
-      description="Temas que aparecen en el historial musical de la web."
+      description="Temas publicados en la emisora y su ficha."
       fields={FIELDS}
       primaryField="title"
-      secondaryFields={['artist', 'played_at']}
+      secondaryFields={['artist', 'genre', 'played_at']}
       thumbnailField="cover_url"
       searchField="title"
       sort="-played_at"
-      emptyText="Aún no hay temas en el historial."
+      defaults={{ genre: 'Otros' }}
+      emptyText="Aún no hay temas en el catálogo."
     />
   );
 }
