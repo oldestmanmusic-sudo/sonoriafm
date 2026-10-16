@@ -90,6 +90,22 @@ export function RadioProvider({ children, playlist = [] }) {
     };
   }, [playFrom]);
 
+  // Reproducción automática: se intenta cuando ya hay canciones cargadas y, si
+  // el navegador lo bloquea, arranca con la primera interacción del visitante.
+  useEffect(() => {
+    if (!playlist || !playlist.some((t) => t && t.audio_url)) return;
+    const start = () => {
+      if (!currentRef.current) playFrom(0);
+    };
+    window.addEventListener('pointerdown', start);
+    window.addEventListener('keydown', start);
+    playFrom(0);
+    return () => {
+      window.removeEventListener('pointerdown', start);
+      window.removeEventListener('keydown', start);
+    };
+  }, [playlist, playFrom]);
+
   const toggle = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
