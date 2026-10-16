@@ -34,6 +34,15 @@
     "artist_image_uri": {
       "type": "string"
     },
+    "artist_image_url": {
+      "type": "string"
+    },
+    "cover_url": {
+      "type": "string"
+    },
+    "artist_bio": {
+      "type": "string"
+    },
     "tool": {
       "type": "string"
     },

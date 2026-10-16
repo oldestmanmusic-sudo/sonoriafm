@@ -48,8 +48,20 @@ export default function AdminSubmissions() {
         const { items: existing } = await base44.entities.Artist.filter({ name: item.artist_name }, { limit: 1 });
         let artistId = existing.length ? existing[0].id : null;
         if (!artistId) {
-          const created = await base44.entities.Artist.create({ name: item.artist_name, genre: item.genre, likes: 0 });
+          const created = await base44.entities.Artist.create({
+            name: item.artist_name,
+            genre: item.genre,
+            bio: item.artist_bio || '',
+            image_url: item.artist_image_url || '',
+            likes: 0,
+          });
           artistId = created.id;
+        } else if (item.artist_bio || item.artist_image_url) {
+          // Si el artista ya tenia ficha, completamos solo lo que le falte.
+          const patch = {};
+          if (item.artist_bio && !existing[0].bio) patch.bio = item.artist_bio;
+          if (item.artist_image_url && !existing[0].image_url) patch.image_url = item.artist_image_url;
+          if (Object.keys(patch).length) await base44.entities.Artist.update(artistId, patch);
         }
         const { items: exTrack } = await base44.entities.Track.filter({ title: item.song_title, artist: item.artist_name }, { limit: 1 });
         if (!exTrack.length) {
@@ -58,6 +70,7 @@ export default function AdminSubmissions() {
             artist: item.artist_name,
             artist_id: artistId,
             genre: item.genre || 'Otros',
+            cover_url: item.cover_url || '',
             audio_url: item.audio_link || '',
             played_at: new Date().toISOString(),
           });

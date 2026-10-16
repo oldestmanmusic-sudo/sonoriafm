@@ -30,6 +30,7 @@ export default function EnviarCancion() {
     song_title: '',
     genre: 'Pop latino',
     audio_link: '',
+    artist_bio: '',
     tool: 'Suno',
     lyrics: '',
   });
@@ -68,15 +69,17 @@ export default function EnviarCancion() {
         const res = await base44.integrations.Core.UploadPublicFile({ file });
         audio_link = res.file_url;
       }
-      let cover_file_uri = null;
+      // Caratula e imagen del artista en almacenamiento publico: la ficha del
+      // artista y la cancion son visibles en la web y necesitan URL permanente.
+      let cover_url = null;
       if (coverFile) {
-        const res = await base44.integrations.Core.UploadPrivateFile({ file: coverFile });
-        cover_file_uri = res.file_uri;
+        const res = await base44.integrations.Core.UploadPublicFile({ file: coverFile });
+        cover_url = res.file_url;
       }
-      let artist_image_uri = null;
+      let artist_image_url = null;
       if (artistImageFile) {
-        const res = await base44.integrations.Core.UploadPrivateFile({ file: artistImageFile });
-        artist_image_uri = res.file_uri;
+        const res = await base44.integrations.Core.UploadPublicFile({ file: artistImageFile });
+        artist_image_url = res.file_url;
       }
       await base44.entities.Submission.create({
         artist_name: form.artist_name.trim(),
@@ -84,8 +87,9 @@ export default function EnviarCancion() {
         song_title: form.song_title.trim(),
         genre: form.genre,
         audio_link,
-        cover_file_uri,
-        artist_image_uri,
+        cover_url,
+        artist_image_url,
+        artist_bio: form.artist_bio.trim(),
         tool: form.tool,
         lyrics: form.lyrics.trim(),
         confirmed: true,
@@ -162,6 +166,17 @@ export default function EnviarCancion() {
           {artistImageFile && (
             <img src={URL.createObjectURL(artistImageFile)} alt="Imagen del artista" className="h-24 w-24 rounded-xl object-cover" />
           )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="artist_bio">Descripción del artista (opcional)</Label>
+          <Textarea
+            id="artist_bio"
+            rows={3}
+            value={form.artist_bio}
+            onChange={(e) => set('artist_bio', e.target.value)}
+            placeholder="Cuéntanos quién eres: tu estilo, tus referencias, de dónde eres… Aparecerá en tu ficha de artista."
+          />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
