@@ -3,8 +3,8 @@ import { DEFAULT_COVER } from '@/lib/brand';
 import { Play, Pause, Loader2, Volume2, VolumeX } from 'lucide-react';
 
 export default function RadioPlayer({ nowPlaying }) {
-  const { isPlaying, isLoading, error, toggle, volume, setVolume } = useRadio();
-  const track = nowPlaying;
+  const { isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack } = useRadio();
+  const track = currentTrack || nowPlaying;
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl px-1">

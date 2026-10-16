@@ -1,22 +1,52 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 
-// Emisoras probadas que permiten reproducción desde el navegador (la primera en funcionar se usa).
-// SomaFM bloquea peticiones con Origin/Referer de la web (403), así que va al final como último recurso.
-export const STREAM_URLS = [
-  'https://stream.radioparadise.com/mp3-128',
-  'https://stream.radioparadise.com/aac-320',
-  'https://ice2.somafm.com/groovesalad-128-mp3',
-];
+// El reproductor EN VIVO emite los audio_url de los registros Track (MP3 propios,
+// servidos por media.base44.com). No usa ningún stream externo.
+// Si la canción programada no tiene audio_url, salta a la siguiente que sí lo tenga.
 
 const RadioContext = createContext(null);
 
-export function RadioProvider({ children }) {
+export function RadioProvider({ children, playlist = [] }) {
   const audioRef = useRef(null);
-  const streamIndexRef = useRef(0);
+  const playlistRef = useRef(playlist);
+  playlistRef.current = playlist;
+  const currentRef = useRef(null);
+  const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVol] = useState(0.8);
   const [error, setError] = useState(false);
+
+  const playFrom = useCallback(async (startIdx) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const list = playlistRef.current.filter((t) => t && t.audio_url);
+    if (!list.length) {
+      setIsLoading(false);
+      setError(true);
+      return;
+    }
+    for (let step = 0; step < list.length; step++) {
+      const track = list[(startIdx + step) % list.length];
+      audio.src = track.audio_url;
+      try {
+        await audio.play();
+        currentRef.current = track;
+        setCurrentTrack(track);
+        setIsLoading(false);
+        return;
+      } catch (e) {
+        // El navegador pide interacción previa (autoplay bloqueado): ni error ni salto.
+        if (e && e.name === 'NotAllowedError') {
+          setIsLoading(false);
+          return;
+        }
+        // Esta fuente no funciona: prueba la siguiente canción con audio.
+      }
+    }
+    setIsLoading(false);
+    setError(true);
+  }, []);
 
   useEffect(() => {
     const audio = new Audio();
@@ -24,36 +54,29 @@ export function RadioProvider({ children }) {
     audio.volume = 0.8;
     audioRef.current = audio;
 
-    const tryNextStream = () => {
-      const audio = audioRef.current;
-      if (!audio) return;
-      if (streamIndexRef.current < STREAM_URLS.length - 1) {
-        streamIndexRef.current += 1;
-        audio.src = STREAM_URLS[streamIndexRef.current];
-        audio.play().catch(() => setError(true));
-      } else {
-        setIsPlaying(false);
-        setIsLoading(false);
-        setError(true);
-      }
+    // Al terminar una canción (o si su fuente falla) pasa a la siguiente con audio.
+    const advance = () => {
+      const list = playlistRef.current.filter((t) => t && t.audio_url);
+      const i = list.findIndex((t) => t.id === currentRef.current?.id);
+      playFrom(i + 1);
     };
 
     const onPlaying = () => { setIsPlaying(true); setIsLoading(false); setError(false); };
     const onPause = () => setIsPlaying(false);
     const onWaiting = () => setIsLoading(true);
     const onCanPlay = () => setIsLoading(false);
+    const onEnded = () => { setIsPlaying(false); advance(); };
     const onStalled = () => {
-      // En navegadores de pruebas el audio a veces se corta solo; lo reanudamos.
       if (!audio.paused) { audio.load(); audio.play().catch(() => {}); }
     };
-    const onError = () => { setIsPlaying(false); tryNextStream(); };
 
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('waiting', onWaiting);
     audio.addEventListener('canplay', onCanPlay);
     audio.addEventListener('stalled', onStalled);
-    audio.addEventListener('error', onError);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('error', advance);
 
     return () => {
       audio.pause();
@@ -62,9 +85,10 @@ export function RadioProvider({ children }) {
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('canplay', onCanPlay);
       audio.removeEventListener('stalled', onStalled);
-      audio.removeEventListener('error', onError);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('error', advance);
     };
-  }, []);
+  }, [playFrom]);
 
   const toggle = useCallback(() => {
     const audio = audioRef.current;
@@ -74,11 +98,17 @@ export function RadioProvider({ children }) {
     } else {
       setIsLoading(true);
       setError(false);
-      streamIndexRef.current = 0;
-      audio.src = STREAM_URLS[0];
-      audio.play().catch(() => { setIsLoading(false); setError(true); });
+      const canResume = audio.src && currentRef.current && audio.currentTime > 0 && !audio.ended;
+      if (canResume) {
+        audio.play().catch((e) => {
+          setIsLoading(false);
+          if (!e || e.name !== 'NotAllowedError') setError(true);
+        });
+      } else {
+        playFrom(0);
+      }
     }
-  }, [isPlaying]);
+  }, [isPlaying, playFrom]);
 
   const setVolume = useCallback((v) => {
     if (audioRef.current) audioRef.current.volume = v;
@@ -86,7 +116,7 @@ export function RadioProvider({ children }) {
   }, []);
 
   return (
-    <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume }}>
+    <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack }}>
       {children}
     </RadioContext.Provider>
   );

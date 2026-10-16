@@ -7,14 +7,15 @@ import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';
 
 export default function Layout() {
-  const [nowPlaying, setNowPlaying] = useState(null);
+  const [playlist, setPlaylist] = useState([]);
+  const nowPlaying = playlist[0] || null;
 
   useEffect(() => {
     let active = true;
     (async () => {
       try {
-        const { items } = await base44.entities.Track.filter({}, { sort: '-played_at', limit: 1 });
-        if (active && items.length) setNowPlaying(items[0]);
+        const { items } = await base44.entities.Track.filter({}, { sort: '-played_at', limit: 12 });
+        if (active) setPlaylist(items);
       } catch {
         /* ignore */
       }
@@ -23,7 +24,7 @@ export default function Layout() {
   }, []);
 
   return (
-    <RadioProvider>
+    <RadioProvider playlist={playlist}>
       <div className="min-h-screen flex flex-col">
         <SiteNav />
         <main className="flex-1">
