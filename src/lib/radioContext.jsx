@@ -1,38 +1,92 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 
-// El reproductor EN VIVO emite los audio_url de los registros Track (MP3 propios,
-// servidos por media.base44.com). No usa ningún stream externo.
-// Si la canción programada no tiene audio_url, salta a la siguiente que sí lo tenga.
+// RADIO 24H: la emisión es independiente del visitante. La lista suena en bucle
+// continuo anclada al reloj (medianoche local): quien entra a una hora cualquiera
+// conecta justo en el punto de la emisión que toca a esa hora, con su desfase.
+// Las canciones se saltan solo si su fuente de audio no funciona.
 
 const RadioContext = createContext(null);
 
+const FALLBACK_DURATION = 240; // 4 min si falta la duración declarada
+
+function parseDuration(d) {
+  if (!d || typeof d !== 'string') return 0;
+  const parts = d.split(':').map((p) => parseInt(p, 10));
+  if (parts.some((p) => isNaN(p))) return 0;
+  return parts.reduce((acc, p) => acc * 60 + p, 0);
+}
+
+function buildSchedule(list) {
+  const schedule = list.map((t) => ({ track: t, dur: parseDuration(t.duration) || FALLBACK_DURATION }));
+  const total = schedule.reduce((acc, s) => acc + s.dur, 0) || FALLBACK_DURATION;
+  return { schedule, total };
+}
+
+// Punto de la emisión que toca "ahora": índice de canción y desfase en segundos.
+function findPosition(schedule, total, nowMs) {
+  const d = new Date(nowMs);
+  const midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  let t = (((nowMs - midnight) / 1000) % total + total) % total;
+  for (let i = 0; i < schedule.length; i++) {
+    if (t < schedule[i].dur) return { index: i, offset: t };
+    t -= schedule[i].dur;
+  }
+  return { index: 0, offset: 0 };
+}
+
 export function RadioProvider({ children, playlist = [] }) {
   const audioRef = useRef(null);
-  const playlistRef = useRef(playlist);
-  playlistRef.current = playlist;
+  const scheduleRef = useRef({ schedule: [], total: FALLBACK_DURATION });
   const currentRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVol] = useState(0.8);
   const [error, setError] = useState(false);
+  const inFlightRef = useRef(false);
 
-  const playFrom = useCallback(async (startIdx) => {
+  // Carga una canción y se coloca en el punto indicado cuando hay metadatos.
+  const startAt = useCallback((track, offset) => {
+    return new Promise((resolve) => {
+      const audio = audioRef.current;
+      if (!audio) { resolve(); return; }
+      const onMeta = () => {
+        audio.removeEventListener('loadedmetadata', onMeta);
+        try {
+          const max = audio.duration && audio.duration > 0 ? audio.duration - 1 : offset;
+          audio.currentTime = Math.max(0, Math.min(offset, max));
+        } catch {
+          /* sin metadatos de duración: empieza donde pueda */
+        }
+        resolve();
+      };
+      audio.addEventListener('loadedmetadata', onMeta);
+      audio.src = track.audio_url;
+      audio.load();
+    });
+  }, []);
+
+  // Entra en la emisión exactamente donde toca según la hora.
+  const playScheduled = useCallback(async () => {
+    if (inFlightRef.current) return;
     const audio = audioRef.current;
-    if (!audio) return;
-    const list = playlistRef.current.filter((t) => t && t.audio_url);
-    if (!list.length) {
+    const { schedule, total } = scheduleRef.current;
+    if (!audio || !schedule.length) {
       setIsLoading(false);
       setError(true);
       return;
     }
-    for (let step = 0; step < list.length; step++) {
-      const track = list[(startIdx + step) % list.length];
-      audio.src = track.audio_url;
+    inFlightRef.current = true;
+    setIsLoading(true);
+    setError(false);
+    const { index, offset } = findPosition(schedule, total, Date.now());
+    for (let step = 0; step < schedule.length; step++) {
+      const item = schedule[(index + step) % schedule.length];
+      await startAt(item.track, step === 0 ? offset : 0);
       try {
         await audio.play();
-        currentRef.current = track;
-        setCurrentTrack(track);
+        currentRef.current = item.track;
+        setCurrentTrack(item.track);
         setIsLoading(false);
         return;
       } catch (e) {
@@ -41,12 +95,12 @@ export function RadioProvider({ children, playlist = [] }) {
           setIsLoading(false);
           return;
         }
-        // Esta fuente no funciona: prueba la siguiente canción con audio.
+        // Esta fuente no funciona: prueba la siguiente canción de la emisión.
       }
     }
     setIsLoading(false);
     setError(true);
-  }, []);
+  }, [startAt]);
 
   useEffect(() => {
     const audio = new Audio();
@@ -54,11 +108,15 @@ export function RadioProvider({ children, playlist = [] }) {
     audio.volume = 0.8;
     audioRef.current = audio;
 
-    // Al terminar una canción (o si su fuente falla) pasa a la siguiente con audio.
+    // Al terminar una canción (o si su fuente falla) sigue la siguiente de la emisión.
     const advance = () => {
-      const list = playlistRef.current.filter((t) => t && t.audio_url);
-      const i = list.findIndex((t) => t.id === currentRef.current?.id);
-      playFrom(i + 1);
+      const { schedule } = scheduleRef.current;
+      if (!schedule.length) return;
+      const i = schedule.findIndex((s) => s.track.id === currentRef.current?.id);
+      const next = schedule[(i + 1) % schedule.length];
+      currentRef.current = next.track;
+      setCurrentTrack(next.track);
+      startAt(next.track, 0).then(() => audio.play().catch(() => {}));
     };
 
     const onPlaying = () => { setIsPlaying(true); setIsLoading(false); setError(false); };
@@ -88,43 +146,64 @@ export function RadioProvider({ children, playlist = [] }) {
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('error', advance);
     };
-  }, [playFrom]);
+  }, [startAt]);
 
-  // Reproducción automática: se intenta cuando ya hay canciones cargadas y, si
-  // el navegador lo bloquea, arranca con la primera interacción del visitante.
+  // La programación de la emisión se reconstruye cuando cambia la lista de canciones.
+  useEffect(() => {
+    scheduleRef.current = buildSchedule((playlist || []).filter((t) => t && t.audio_url));
+  }, [playlist]);
+
+  // Arranque automático: se intenta cuando ya hay canciones cargadas y, si el
+  // navegador lo bloquea, se conecta con la primera interacción del visitante.
   useEffect(() => {
     if (!playlist || !playlist.some((t) => t && t.audio_url)) return;
     const start = () => {
-      if (!currentRef.current) playFrom(0);
+      if (!currentRef.current) playScheduled();
     };
     window.addEventListener('pointerdown', start);
     window.addEventListener('keydown', start);
-    playFrom(0);
+    if (!currentRef.current) playScheduled();
     return () => {
       window.removeEventListener('pointerdown', start);
       window.removeEventListener('keydown', start);
     };
-  }, [playlist, playFrom]);
+  }, [playlist, playScheduled]);
+
+  // Sincronización con la emisión: cada 20 s se comprueba qué toca y, si alguien
+  // lleva la escucha descolgada (pausas, fuente lenta), se recoloca en el punto exacto.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const audio = audioRef.current;
+      if (!audio || audio.paused || !currentRef.current) return;
+      const { schedule, total } = scheduleRef.current;
+      if (!schedule.length) return;
+      const { index, offset } = findPosition(schedule, total, Date.now());
+      const item = schedule[index];
+      if (item.track.id !== currentRef.current.id) {
+        startAt(item.track, offset).then(() => audio.play().catch(() => {}));
+        currentRef.current = item.track;
+        setCurrentTrack(item.track);
+        return;
+      }
+      if (Math.abs(audio.currentTime - offset) > 20) {
+        try { audio.currentTime = offset; } catch { /* aún sin metadatos */ }
+      }
+    }, 20000);
+    return () => clearInterval(timer);
+  }, [startAt]);
 
   const toggle = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (isPlaying) {
+    if (!audio.paused) {
       audio.pause();
-    } else {
-      setIsLoading(true);
-      setError(false);
-      const canResume = audio.src && currentRef.current && audio.currentTime > 0 && !audio.ended;
-      if (canResume) {
-        audio.play().catch((e) => {
-          setIsLoading(false);
-          if (!e || e.name !== 'NotAllowedError') setError(true);
-        });
-      } else {
-        playFrom(0);
-      }
+      return;
     }
-  }, [isPlaying, playFrom]);
+    // Al volver a conectar, entra donde toca la emisión en este momento.
+    setIsLoading(true);
+    setError(false);
+    playScheduled();
+  }, [playScheduled]);
 
   const setVolume = useCallback((v) => {
     if (audioRef.current) audioRef.current.volume = v;
