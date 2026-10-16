@@ -5,6 +5,7 @@ import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
 import { Loader2, ExternalLink } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -52,6 +53,9 @@ export default function ArtistDetail() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-12">
+      <div className="mb-6">
+        <BackButton to="/artistas" label="Artistas" />
+      </div>
       <div className="grid items-center gap-8 sm:grid-cols-[220px_1fr]">
         <div className="aspect-square overflow-hidden rounded-3xl border border-border bg-secondary">
           <Image src={artist.image_url || DEFAULT_COVER} alt={artist.name} className="h-full w-full" />

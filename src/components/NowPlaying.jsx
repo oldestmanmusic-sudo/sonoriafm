@@ -22,11 +22,13 @@ export default function NowPlaying({ track }) {
       return;
     }
     setLiking(true);
+    const previous = likes;
+    setLikes((n) => n + 1); // optimista: se muestra al instante
     try {
       const res = await base44.functions.invoke('likeTrack', { trackId: liveTrack.id });
       setLikes(res.data.likes);
     } catch {
-      /* error puntual de red u otro fallo del servidor */
+      setLikes(previous); // error: se revierte
     } finally {
       setLiking(false);
     }

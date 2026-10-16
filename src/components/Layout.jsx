@@ -1,14 +1,27 @@
-import { Link, Outlet } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { Link, Outlet, useLocation, useNavigationType } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import SiteNav from '@/components/SiteNav';
 import SocialLinks from '@/components/SocialLinks';
 import RadioPlayer from '@/components/RadioPlayer';
+import BottomTabs from '@/components/BottomTabs';
 import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';
 
 export default function Layout() {
   const [playlist, setPlaylist] = useState([]);
   const nowPlaying = playlist[0] || null;
+  const location = useLocation();
+  const navType = useNavigationType();
+
+  // Transición de pantalla: empuje desde la derecha, regreso desde la izquierda.
+  const pageVariants =
+    navType === 'PUSH'
+      ? { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '-30%' } }
+      : navType === 'POP'
+        ? { initial: { x: '-30%' }, animate: { x: 0 }, exit: { x: '100%' } }
+        : { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } };
 
   useEffect(() => {
     let active = true;
@@ -28,7 +41,25 @@ export default function Layout() {
       <div className="min-h-screen flex flex-col">
         <SiteNav />
         <main className="flex-1">
-          <Outlet />
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={location.pathname}
+              initial={pageVariants.initial}
+              animate={pageVariants.animate}
+              exit={pageVariants.exit}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+            >
+              <Suspense
+                fallback={
+                  <div className="flex justify-center py-24">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                }
+              >
+                <Outlet />
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
         </main>
         <footer className="border-t border-border py-10 mt-12">
           <div className="mx-auto max-w-6xl px-4 grid gap-8 sm:grid-cols-[1.5fr_1fr_1.4fr]">
@@ -59,12 +90,14 @@ export default function Layout() {
             <p>SONORIA · Música variada en vivo 24/7</p>
             <div className="flex items-center gap-4">
               <Link to="/admin" className="hover:text-foreground">Panel de administración</Link>
+              <Link to="/cuenta" className="hover:text-foreground">Mi cuenta</Link>
               <p>© {new Date().getFullYear()} SONORIA</p>
             </div>
           </div>
         </footer>
-        <div className="h-24" aria-hidden />
+        <div className="h-44 md:h-24" aria-hidden />
         <RadioPlayer nowPlaying={nowPlaying} />
+        <BottomTabs />
       </div>
     </RadioProvider>
   );

@@ -21,7 +21,10 @@ export default function SiteNav() {
   const isActive = (to) => (to === '/' ? pathname === '/' : pathname.startsWith(to));
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
+    <header
+      className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       <nav className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group shrink-0">
           <span className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/40 transition-transform group-hover:scale-105">

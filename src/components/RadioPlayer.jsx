@@ -7,7 +7,7 @@ export default function RadioPlayer({ nowPlaying }) {
   const track = currentTrack || nowPlaying;
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl px-1">
+    <div className="fixed left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-2xl px-1 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] md:bottom-4">
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-card/80 backdrop-blur-2xl shadow-2xl shadow-primary/10 px-3 py-3 sm:px-4">
         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-secondary">
           <img src={track?.cover_url || DEFAULT_COVER} alt="" className="h-full w-full object-cover" />

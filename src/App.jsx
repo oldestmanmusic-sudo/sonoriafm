@@ -4,32 +4,37 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { ThemeProvider } from 'next-themes';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
-import Home from '@/pages/Home';
-import Artists from '@/pages/Artists';
-import ArtistDetail from '@/pages/ArtistDetail';
-import TrackDetail from '@/pages/TrackDetail';
-import EnviarCancion from '@/pages/EnviarCancion';
-import Programming from '@/pages/Programming';
-import Noticias from '@/pages/Noticias';
-import ArticleDetail from '@/pages/ArticleDetail';
-import SobreNosotros from '@/pages/SobreNosotros';
-import Contacto from '@/pages/Contacto';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
+import { lazy, Suspense } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import AdminLayout from '@/pages/admin/AdminLayout';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
-import AdminArticles from '@/pages/admin/AdminArticles';
-import AdminArtists from '@/pages/admin/AdminArtists';
-import AdminPrograms from '@/pages/admin/AdminPrograms';
-import AdminTracks from '@/pages/admin/AdminTracks';
-import AdminMessages from '@/pages/admin/AdminMessages';
-import AdminSubmissions from '@/pages/admin/AdminSubmissions';
 import Layout from '@/components/Layout';
+
+// Carga diferida: cada pantalla se descarga solo cuando se visita.
+const Home = lazy(() => import('@/pages/Home'));
+const Artists = lazy(() => import('@/pages/Artists'));
+const ArtistDetail = lazy(() => import('@/pages/ArtistDetail'));
+const TrackDetail = lazy(() => import('@/pages/TrackDetail'));
+const EnviarCancion = lazy(() => import('@/pages/EnviarCancion'));
+const Programming = lazy(() => import('@/pages/Programming'));
+const Noticias = lazy(() => import('@/pages/Noticias'));
+const ArticleDetail = lazy(() => import('@/pages/ArticleDetail'));
+const SobreNosotros = lazy(() => import('@/pages/SobreNosotros'));
+const Contacto = lazy(() => import('@/pages/Contacto'));
+const Login = lazy(() => import('@/pages/Login'));
+const Register = lazy(() => import('@/pages/Register'));
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
+const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const AdminArticles = lazy(() => import('@/pages/admin/AdminArticles'));
+const AdminArtists = lazy(() => import('@/pages/admin/AdminArtists'));
+const AdminPrograms = lazy(() => import('@/pages/admin/AdminPrograms'));
+const AdminTracks = lazy(() => import('@/pages/admin/AdminTracks'));
+const AdminMessages = lazy(() => import('@/pages/admin/AdminMessages'));
+const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
+const Cuenta = lazy(() => import('@/pages/Cuenta'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -68,6 +73,10 @@ const AuthenticatedApp = () => {
         <Route path="/noticias/:id" element={<ArticleDetail />} />
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
         <Route path="/contacto" element={<Contacto />} />
+
+        <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/cuenta" replace />} />}>
+          <Route path="/cuenta" element={<Cuenta />} />
+        </Route>
       </Route>
 
       <Route path="/login" element={<Login />} />
@@ -96,15 +105,19 @@ const AuthenticatedApp = () => {
 function App() {
 
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <ScrollToTop />
+            <Suspense fallback={null}>
+              <AuthenticatedApp />
+            </Suspense>
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

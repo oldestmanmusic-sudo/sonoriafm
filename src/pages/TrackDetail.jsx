@@ -5,6 +5,7 @@ import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
 import { Heart, Share2, Loader2 } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 
 export default function TrackDetail() {
   const { id } = useParams();
@@ -41,9 +42,13 @@ export default function TrackDetail() {
       return;
     }
     setLiking(true);
+    const previous = track?.likes ?? 0;
+    setTrack((t) => (t ? { ...t, likes: (t.likes ?? 0) + 1 } : t)); // optimista: se muestra al instante
     try {
       const res = await base44.functions.invoke('likeTrack', { trackId: id });
       setTrack((t) => (t ? { ...t, likes: res.data.likes } : t));
+    } catch {
+      setTrack((t) => (t ? { ...t, likes: previous } : t)); // error: se revierte
     } finally {
       setLiking(false);
     }
@@ -93,6 +98,9 @@ export default function TrackDetail() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-12">
+      <div className="mb-6">
+        <BackButton to="/" label="Radio en Vivo" />
+      </div>
       <div className="grid items-start gap-8 md:grid-cols-[300px_1fr]">
         <div className="aspect-square overflow-hidden rounded-3xl border border-border bg-secondary">
           <Image src={track.cover_url || DEFAULT_COVER} alt={track.title} className="h-full w-full" />

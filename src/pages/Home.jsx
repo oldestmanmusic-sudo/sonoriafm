@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import PullToRefresh from '@/components/PullToRefresh';
 import NowPlaying from '@/components/NowPlaying';
 import GenreChips from '@/components/GenreChips';
 import TrackHistory from '@/components/TrackHistory';
@@ -11,27 +12,39 @@ export default function Home() {
   const [nowPlaying, setNowPlaying] = useState(null);
   const [artists, setArtists] = useState(null);
   const [genre, setGenre] = useState('Todo SONORIA');
+  const [refreshKey, setRefreshKey] = useState(0);
+  const activeRef = useRef(true);
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const [trackRes, artistRes] = await Promise.all([
-          base44.entities.Track.filter({}, { sort: '-played_at', limit: 1 }),
-          base44.entities.Artist.filter({}, { sort: '-likes', limit: 4 }),
-        ]);
-        if (!active) return;
-        if (trackRes.items.length) setNowPlaying(trackRes.items[0]);
-        setArtists(artistRes.items);
-      } catch {
-        if (active) setArtists([]);
-      }
-    })();
-    return () => { active = false; };
+    activeRef.current = true;
+    return () => { activeRef.current = false; };
   }, []);
 
+  const load = useCallback(async () => {
+    try {
+      const [trackRes, artistRes] = await Promise.all([
+        base44.entities.Track.filter({}, { sort: '-played_at', limit: 1 }),
+        base44.entities.Artist.filter({}, { sort: '-likes', limit: 4 }),
+      ]);
+      if (!activeRef.current) return;
+      if (trackRes.items.length) setNowPlaying(trackRes.items[0]);
+      setArtists(artistRes.items);
+    } catch {
+      if (activeRef.current) setArtists([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const refresh = useCallback(async () => {
+    await load();
+    setRefreshKey((k) => k + 1); // también recarga el historial de canciones
+  }, [load]);
+
   return (
-    <>
+    <PullToRefresh onRefresh={refresh}>
       <NowPlaying track={nowPlaying} />
 
       <section className="mx-auto max-w-6xl px-4 pt-2">
@@ -39,7 +52,7 @@ export default function Home() {
         <GenreChips value={genre} onChange={setGenre} />
       </section>
 
-      <TrackHistory genre={genre} />
+      <TrackHistory genre={genre} key={refreshKey} />
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-end justify-between mb-6">
@@ -66,6 +79,6 @@ export default function Home() {
           </div>
         )}
       </section>
-    </>
+    </PullToRefresh>
   );
 }
