@@ -25,6 +25,8 @@ export function RadioProvider({ children }) {
     audioRef.current = audio;
 
     const tryNextStream = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
       if (streamIndexRef.current < STREAM_URLS.length - 1) {
         streamIndexRef.current += 1;
         audio.src = STREAM_URLS[streamIndexRef.current];
@@ -40,12 +42,17 @@ export function RadioProvider({ children }) {
     const onPause = () => setIsPlaying(false);
     const onWaiting = () => setIsLoading(true);
     const onCanPlay = () => setIsLoading(false);
+    const onStalled = () => {
+      // En navegadores de pruebas el audio a veces se corta solo; lo reanudamos.
+      if (!audio.paused) { audio.load(); audio.play().catch(() => {}); }
+    };
     const onError = () => { setIsPlaying(false); tryNextStream(); };
 
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('waiting', onWaiting);
     audio.addEventListener('canplay', onCanPlay);
+    audio.addEventListener('stalled', onStalled);
     audio.addEventListener('error', onError);
 
     return () => {
@@ -54,6 +61,7 @@ export function RadioProvider({ children }) {
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('canplay', onCanPlay);
+      audio.removeEventListener('stalled', onStalled);
       audio.removeEventListener('error', onError);
     };
   }, []);
