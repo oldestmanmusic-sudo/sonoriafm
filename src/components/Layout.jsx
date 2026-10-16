@@ -33,7 +33,7 @@ export default function Layout() {
           <div className="mx-auto max-w-6xl px-4 grid gap-8 sm:grid-cols-[1.5fr_1fr_1.4fr]">
             <div>
               <p className="font-heading text-lg font-extrabold tracking-tight">
-                SONO<span className="text-primary">RIA</span>
+                SONOR<span className="text-primary">IA</span>
               </p>
               <p className="mt-2 max-w-xs text-sm text-muted-foreground">
                 Música variada en vivo, las 24 horas. Una radio cercana, libre y sin etiquetas.

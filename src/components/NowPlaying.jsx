@@ -16,7 +16,7 @@ export default function NowPlaying({ track }) {
         </span>
 
         <h1 className="mt-6 font-heading text-6xl sm:text-8xl font-extrabold tracking-tighter text-glow">
-          SONO<span className="text-primary">RIA</span>
+          SONOR<span className="text-primary">IA</span>
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">Estación de música variada · En vivo desde cualquier lugar</p>
 

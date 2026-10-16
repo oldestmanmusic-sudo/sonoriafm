@@ -52,7 +52,7 @@ export default function AdminLayout() {
               <Radio className="h-5 w-5 text-primary" />
             </span>
             <span className="font-heading text-lg font-extrabold tracking-tight">
-              SONO<span className="text-primary">RIA</span>
+              SONOR<span className="text-primary">IA</span>
               <span className="ml-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Panel</span>
             </span>
           </Link>
