@@ -159,6 +159,9 @@ export function RadioProvider({ children, playlist = [] }) {
   const [volume, setVol] = useState(0.8);
   const [error, setError] = useState(false);
   const inFlightRef = useRef(false);
+  // Distingue la pausa que ordena el usuario (botón) de la que provoca el
+  // sistema al ceder el audio a otra app con la pestaña oculta.
+  const pausedByUserRef = useRef(false);
 
   // Carga una canción y se coloca en el punto indicado cuando hay metadatos.
   // Si la fuente no responde (enlace roto o no directo), un temporizador
@@ -202,6 +205,7 @@ export function RadioProvider({ children, playlist = [] }) {
     }
     if (inFlightRef.current) return;
     inFlightRef.current = true;
+    pausedByUserRef.current = false;
     const myEpoch = epochRef.current;
     setIsLoading(true);
     setError(false);
@@ -259,6 +263,7 @@ export function RadioProvider({ children, playlist = [] }) {
     inFlightRef.current = false;
     setError(false);
     setIsLoading(true);
+    pausedByUserRef.current = false;
     onDemandRef.current = track;
     setOnDemandTrack(track);
     try {
@@ -281,6 +286,7 @@ export function RadioProvider({ children, playlist = [] }) {
     inFlightRef.current = false;
     onDemandRef.current = null;
     setOnDemandTrack(null);
+    pausedByUserRef.current = false;
     setIsLoading(true);
     setError(false);
     playScheduled();
@@ -306,7 +312,7 @@ export function RadioProvider({ children, playlist = [] }) {
     audioRef.current = audio;
 
     const onPlaying = () => { setIsPlaying(true); setIsLoading(false); setError(false); };
-    const onPause = () => setIsPlaying(false);
+    const onPause = () => { setIsPlaying(false); setIsLoading(false); };
     const onWaiting = () => setIsLoading(true);
     const onCanPlay = () => setIsLoading(false);
     const onEnded = () => {
@@ -319,6 +325,18 @@ export function RadioProvider({ children, playlist = [] }) {
     const onStalled = () => {
       if (!audio.paused) { audio.load(); audio.play().catch(() => {}); }
     };
+    // Al volver a la pestaña: si el sistema pausó la radio mientras estaba
+    // oculta (p. ej. para dar el audio a otra app), reanuda donde toque la
+    // emisión. No aplica si la pausa la puso el usuario.
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      const a = audioRef.current;
+      if (!a || !a.paused) return;
+      if (!currentRef.current || onDemandRef.current || inFlightRef.current) return;
+      if (pausedByUserRef.current) return;
+      playScheduled();
+    };
+    document.addEventListener('visibilitychange', onVisible);
 
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
@@ -327,8 +345,10 @@ export function RadioProvider({ children, playlist = [] }) {
     audio.addEventListener('stalled', onStalled);
     audio.addEventListener('ended', onEnded);
     audio.addEventListener('error', onError);
+    document.addEventListener('visibilitychange', onVisible);
 
     return () => {
+      document.removeEventListener('visibilitychange', onVisible);
       audio.pause();
       audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('pause', onPause);
@@ -338,7 +358,7 @@ export function RadioProvider({ children, playlist = [] }) {
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('error', onError);
     };
-  }, [advance, onDemandFinished]);
+  }, [advance, onDemandFinished, playScheduled]);
 
   // La emisión se reconstruye cuando cambia la lista de canciones.
   useEffect(() => {
@@ -401,10 +421,12 @@ export function RadioProvider({ children, playlist = [] }) {
     if (!audio) return;
     if (!audio.paused) {
       audio.pause();
+      pausedByUserRef.current = true;
       return;
     }
     // Reanudar: si hay una canción a la carta, continúa donde estaba; si no,
     // entra en la emisión donde toca en este momento.
+    pausedByUserRef.current = false;
     setIsLoading(true);
     setError(false);
     if (onDemandRef.current) {
