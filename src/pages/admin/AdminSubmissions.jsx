@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { normalizeTrackTitle } from '@/lib/trackUtils';
 import { Loader2, Inbox, Check, X, ExternalLink, Sparkles } from 'lucide-react';
 
 const TABS = [
@@ -19,6 +20,7 @@ export default function AdminSubmissions() {
   const [audioUrls, setAudioUrls] = useState({});
   const [aiOpinions, setAiOpinions] = useState({});
   const [aiBusyId, setAiBusyId] = useState(null);
+  const [actionError, setActionError] = useState('');
 
   const getOpinion = async (item) => {
     if (aiBusyId) return;
@@ -33,6 +35,7 @@ export default function AdminSubmissions() {
 
   const load = useCallback(async () => {
     setItems(null);
+    setActionError('');
     try {
       const { items: rows } = await base44.entities.Submission.filter({ status }, { sort: '-created_date', limit: 100 });
       setItems(rows);
@@ -55,8 +58,23 @@ export default function AdminSubmissions() {
 
   const decide = async (item, decision) => {
     setBusyId(item.id);
+    setActionError('');
     try {
       if (decision === 'approve') {
+        if (!item.audio_link) {
+          setActionError('Este envío no tiene audio adjunto: no se puede crear la canción.');
+          return;
+        }
+        const esc = item.artist_name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const { items: candidates } = await base44.entities.Track.filter(
+          { artist: { $regex: `^${esc}$`, $options: 'i' } },
+          { limit: 500, fields: ['title'] }
+        );
+        const wanted = normalizeTrackTitle(item.song_title);
+        if (candidates.some((t) => normalizeTrackTitle(t.title) === wanted)) {
+          setActionError('Esa canción ya está en SONORIA');
+          return;
+        }
         const { items: existing } = await base44.entities.Artist.filter({ name: item.artist_name }, { limit: 1 });
         let artistId = existing.length ? existing[0].id : null;
         if (!artistId) {
@@ -75,19 +93,16 @@ export default function AdminSubmissions() {
           if (item.artist_image_url && !existing[0].image_url) patch.image_url = item.artist_image_url;
           if (Object.keys(patch).length) await base44.entities.Artist.update(artistId, patch);
         }
-        const { items: exTrack } = await base44.entities.Track.filter({ title: item.song_title, artist: item.artist_name }, { limit: 1 });
-        if (!exTrack.length) {
-          await base44.entities.Track.create({
-            title: item.song_title,
-            artist: item.artist_name,
-            artist_id: artistId,
-            genre: item.genre || 'Otros',
-            cover_url: item.cover_url || '',
-            description: item.description || '',
-            audio_url: item.audio_link || '',
-            played_at: new Date().toISOString(),
-          });
-        }
+        await base44.entities.Track.create({
+          title: item.song_title,
+          artist: item.artist_name,
+          artist_id: artistId,
+          genre: item.genre || 'Otros',
+          cover_url: item.cover_url || '',
+          description: item.description || '',
+          audio_url: item.audio_link,
+          played_at: new Date().toISOString(),
+        });
         await base44.entities.Submission.update(item.id, {
           status: 'approved',
           admin_note: notes[item.id] ?? item.admin_note ?? '',
@@ -146,7 +161,9 @@ export default function AdminSubmissions() {
             No hay envíos en esta bandeja.
           </p>
         ) : (
-          items.map((s) => {
+          <>
+          {actionError && <p className="mb-3 text-sm font-medium text-destructive">{actionError}</p>}
+          {items.map((s) => {
             const audioSrc = audioUrls[s.id] || s.audio_link || null;
             return (
               <article key={s.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5">
@@ -242,7 +259,8 @@ export default function AdminSubmissions() {
                 </div>
               </article>
             );
-          })
+          })}
+          </>
         )}
       </div>
     </div>

@@ -45,20 +45,46 @@ export default function EnviarCancion() {
 
   const set = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
 
+  const normalizeTitle = (s) =>
+    (s || '').toLowerCase().replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.artist_name.trim() || !form.email.trim() || !form.song_title.trim()) {
-      setError('Completa tu nombre artístico, email y título de la canción.');
+    if (!form.artist_name.trim() || !form.song_title.trim()) {
+      setError('Completa tu nombre artístico y el título de la canción.');
       return;
     }
-    if (!form.audio_link.trim() && !file) {
-      setError('Añade un enlace al audio o sube el archivo de tu canción.');
+    if (!form.email.trim()) {
+      setError('Completa tu email.');
+      return;
+    }
+    if (!file) {
+      setError('Debes adjuntar un archivo de audio (MP3).');
+      return;
+    }
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['mp3', 'wav'].includes(ext)) {
+      setError('Debes adjuntar un archivo de audio (MP3).');
       return;
     }
     if (!confirmed) {
       setError('Confirma que la música es tuya y que aceptas que se publique.');
       return;
     }
+    // Anti-duplicados: mismo artista y título equivalente (mayúsculas y
+    // paréntesis como "(Remastered)" no cuentan).
+    try {
+      const esc = form.artist_name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const { items: candidates } = await base44.entities.Track.filter(
+        { artist: { $regex: `^${esc}$`, $options: 'i' } },
+        { limit: 500, fields: ['title'] }
+      );
+      const wanted = normalizeTitle(form.song_title);
+      if (candidates.some((t) => normalizeTitle(t.title) === wanted)) {
+        setError('Esa canción ya está en SONORIA');
+        return;
+      }
+    } catch { /* si la comprobación falla, seguimos con el envío normal */ }
 
     setSubmitting(true);
     setError('');
@@ -201,7 +227,7 @@ export default function EnviarCancion() {
           <Label htmlFor="audio_link">Enlace al audio</Label>
           <Input id="audio_link" value={form.audio_link} onChange={(e) => set('audio_link', e.target.value)} placeholder="https://…" />
           <p className="text-xs text-muted-foreground">O sube el archivo de audio (máx. 25 MB).</p>
-          <Input type="file" accept="audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          <Input type="file" accept=".mp3,.wav,audio/mpeg,audio/wav" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           {file && <p className="text-xs text-muted-foreground">Archivo: {file.name}</p>}
         </div>
 
