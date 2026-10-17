@@ -24,7 +24,9 @@ export default async function(req) {
       submission.lyrics && `Letra:\n${submission.lyrics}`,
     ].filter(Boolean);
 
-    const prompt = `Eres el asesor musical de SONORIA, una radio online española que emite música variada 24/7 (pop latino, urbano/reguetón, baladas y electrónica), con foco en música hecha con IA en España. El administrador va a escuchar este envío y decidir si publicarlo en la radio. Evalúa el envío a partir de esta información y escribe tu consejo en español: 2 a 4 frases claras y honestas, sin adornos. Incluye qué te parece la propuesta, si encaja con la emisora, puntos fuertes, posibles dudas (por ejemplo letra, calidad o derechos) y una recomendación final clara (publicar, pedir cambios o descartar). No inventes datos que no consten en la información.
+    const prompt = `Actúa como curador musical profesional (perfil A&R) de SONORIA, una radio online española que emite música variada 24/7 (pop latino, urbano/reguetón, baladas y electrónica), con foco en música hecha con IA en España. El administrador va a escuchar este envío y decidir si lo publica en la radio.
+
+Analiza el envío como lo haría un curador experto y escribe tu consejo en español: 4 a 6 frases directas y honestas, sin paja. Cubre: (1) producción y sonido esperables según lo descrito (mezcla, voz, arreglos); (2) el gancho y la letra, citando algún detalle concreto si la letra está disponible; (3) encaje con la emisora y con qué momento de la programación funcionaría mejor (horario, canal de género); (4) riesgos: originalidad, posibles conflictos de derechos o Parecido con artistas conocidos; (5) veredicto final claro: PUBLICAR, PEDIR CAMBIOS o DESCARTAR, con nota de 0 a 10 como curador (por ejemplo "Veredicto: PUBLICAR, nota 7/10"). Si falta información clave para juzgar (sin letra, sin descripción), dilo y baja la seguridad del consejo. No inventes datos que no consten.
 
 Información del envío:
 ${parts.join('\n')}`;
