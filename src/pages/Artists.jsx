@@ -15,7 +15,8 @@ export default function Artists() {
 
   const load = useCallback(async () => {
     try {
-      const { items } = await base44.entities.Artist.filter({}, { sort: '-likes', limit: 50 });
+      // Ocultamos el artista interno "SONORIA" (solo se usa para las cuñas).
+      const { items } = await base44.entities.Artist.filter({ name: { $ne: 'SONORIA' } }, { sort: '-likes', limit: 50 });
       if (activeRef.current) setArtists(items);
     } catch {
       if (activeRef.current) setArtists([]);

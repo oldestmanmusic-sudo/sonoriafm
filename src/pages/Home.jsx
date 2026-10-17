@@ -24,7 +24,7 @@ export default function Home() {
     try {
       const [trackRes, artistRes] = await Promise.all([
         base44.entities.Track.filter({}, { sort: '-played_at', limit: 1 }),
-        base44.entities.Artist.filter({}, { sort: '-likes', limit: 4 }),
+        base44.entities.Artist.filter({ name: { $ne: 'SONORIA' } }, { sort: '-likes', limit: 4 }),
       ]);
       if (!activeRef.current) return;
       if (trackRes.items.length) setNowPlaying(trackRes.items[0]);
