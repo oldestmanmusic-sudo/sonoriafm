@@ -3,11 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { Loader2, Inbox, Check, X, MessageSquareWarning, ExternalLink, Sparkles } from 'lucide-react';
+import { Loader2, Inbox, Check, X, ExternalLink, Sparkles } from 'lucide-react';
 
 const TABS = [
   { key: 'pending', label: 'Pendientes' },
-  { key: 'changes_requested', label: 'Cambios pedidos' },
   { key: 'approved', label: 'Aprobadas' },
   { key: 'rejected', label: 'Rechazadas' },
 ];
@@ -93,16 +92,13 @@ export default function AdminSubmissions() {
           status: 'approved',
           admin_note: notes[item.id] ?? item.admin_note ?? '',
         });
+        await base44.functions.invoke('notifySubmissionDecision', { submission_id: item.id, decision: 'approved' });
       } else if (decision === 'reject') {
         await base44.entities.Submission.update(item.id, {
           status: 'rejected',
           admin_note: notes[item.id] ?? item.admin_note ?? '',
         });
-      } else {
-        await base44.entities.Submission.update(item.id, {
-          status: 'changes_requested',
-          admin_note: notes[item.id] ?? item.admin_note ?? '',
-        });
+        await base44.functions.invoke('notifySubmissionDecision', { submission_id: item.id, decision: 'rejected' });
       }
       await load();
     } finally {
@@ -172,15 +168,6 @@ export default function AdminSubmissions() {
                       onClick={() => decide(s, 'approve')}
                     >
                       {busyId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Aprobar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="rounded-full"
-                      disabled={busyId === s.id}
-                      onClick={() => decide(s, 'changes')}
-                    >
-                      <MessageSquareWarning className="h-4 w-4" /> Pedir cambios
                     </Button>
                     <Button
                       size="sm"
