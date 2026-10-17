@@ -229,7 +229,7 @@ export default function AdminSubmissions() {
                 <div className="mt-3">
                   <Textarea
                     rows={2}
-                    placeholder="Nota interna…"
+                    placeholder="Nota para el artista: se envía como motivo en el correo de rechazo…"
                     value={notes[s.id] ?? s.admin_note ?? ''}
                     onChange={(e) => setNotes((prev) => ({ ...prev, [s.id]: e.target.value }))}
                     onBlur={() => {

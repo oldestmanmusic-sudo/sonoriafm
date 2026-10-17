@@ -29,6 +29,9 @@ export default async function(req) {
       variables: {
         artist_name: submission.artist_name || 'artista',
         song_title: submission.song_title || 'tu canción',
+        reason: decision === 'rejected'
+          ? (submission.admin_note || 'Tras revisar tu envío, hemos decidido no incluirlo en nuestra programación actual, aunque te animamos a seguir enviándonos nueva música.')
+          : '',
       },
     });
     return Response.json({ ok: true, email_sent: true });
