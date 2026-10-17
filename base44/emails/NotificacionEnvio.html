@@ -1,0 +1,50 @@
+<mjml>
+  <mj-head>
+    <mj-title>Nueva canción: {{song_title}}, de {{artist_name}}</mj-title>
+    <mj-preview>Nuevo envío en SONORIA: escúchala y decide si sale al aire</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Plus Jakarta Sans, Arial, sans-serif" />
+      <mj-section background-color="#ffffff" padding="0 32px" />
+      <mj-text color="#14141f" font-size="15px" line-height="1.6" padding="0" />
+      <mj-button background-color="#8b33ff" border-radius="24px" font-weight="700" inner-padding="14px 28px" align="left" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f0f0f4">
+    <mj-section background-color="#8b33ff" padding="20px 32px">
+      <mj-column>
+        <mj-image src="https://media.base44.com/images/public/6ace0c27732bbb0f4d7504e1/48211085c_logo.png" alt="SONORIA" width="120px" align="center" padding="0" />
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="36px 32px 8px">
+      <mj-column>
+        <mj-text font-size="26px" font-weight="800" line-height="1.2">Nueva canción en el buzón</mj-text>
+        <mj-text color="#8b33ff" font-size="14px">Un artista acaba de enviar una canción. Escúchala en el panel y decide si sale al aire.</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="16px 32px">
+      <mj-column background-color="#f0f0f4" border-radius="24px" border="1px solid #e5e7eb" padding="20px 24px">
+        <mj-text font-size="13px" color="#8b33ff" font-weight="700" letter-spacing="1px">CANCIÓN</mj-text>
+        <mj-text font-size="18px" font-weight="700" padding-top="4px">{{song_title}}</mj-text>
+        <mj-text font-size="14px" color="#14141f">Artista: <strong>{{artist_name}}</strong></mj-text>
+        <mj-text font-size="14px" color="#14141f">Género: {{genre}}</mj-text>
+        <mj-text font-size="14px" color="#14141f">Contacto: {{sender_email}}</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="16px 32px">
+      <mj-column>
+        <mj-text font-size="13px" font-weight="700" letter-spacing="1px" color="#8b33ff">CONSEJO DE IA</mj-text>
+        <mj-text font-size="15px" line-height="1.6" padding-top="4px">{{opinion}}</mj-text>
+        <mj-button href="https://sonoriafm.com/admin/envios" align="left" padding-top="20px">Revisar y decidir en el panel</mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" border-top="1px solid #e5e7eb" padding="20px 32px">
+      <mj-column>
+        <mj-text font-size="12px" color="#8b33ff" align="center">SONORIA. La radio de la música IA hecha en España.</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

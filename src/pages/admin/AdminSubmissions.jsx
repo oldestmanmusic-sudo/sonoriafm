@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { Loader2, Inbox, Check, X, MessageSquareWarning, ExternalLink } from 'lucide-react';
+import { Loader2, Inbox, Check, X, MessageSquareWarning, ExternalLink, Sparkles } from 'lucide-react';
 
 const TABS = [
   { key: 'pending', label: 'Pendientes' },
@@ -18,6 +18,19 @@ export default function AdminSubmissions() {
   const [notes, setNotes] = useState({});
   const [busyId, setBusyId] = useState(null);
   const [audioUrls, setAudioUrls] = useState({});
+  const [aiOpinions, setAiOpinions] = useState({});
+  const [aiBusyId, setAiBusyId] = useState(null);
+
+  const getOpinion = async (item) => {
+    if (aiBusyId) return;
+    setAiBusyId(item.id);
+    try {
+      const res = await base44.functions.invoke('aiSubmissionOpinion', { submission_id: item.id });
+      if (res.data?.opinion) setAiOpinions((prev) => ({ ...prev, [item.id]: res.data.opinion }));
+    } finally {
+      setAiBusyId(null);
+    }
+  };
 
   const load = useCallback(async () => {
     setItems(null);
@@ -206,6 +219,25 @@ export default function AdminSubmissions() {
                     <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{s.lyrics}</p>
                   </details>
                 )}
+
+                <div className="mt-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full"
+                    disabled={aiBusyId === s.id}
+                    onClick={() => getOpinion(s)}
+                  >
+                    {aiBusyId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-primary" />}
+                    {(s.ai_opinion || aiOpinions[s.id]) ? 'Renovar consejo de IA' : 'Consejo de IA'}
+                  </Button>
+                  {(aiOpinions[s.id] || s.ai_opinion) && (
+                    <p className="mt-2 rounded-2xl border border-primary/30 bg-primary/5 p-3 text-sm leading-relaxed">
+                      <span className="font-semibold text-primary">Consejo de IA: </span>
+                      {aiOpinions[s.id] || s.ai_opinion}
+                    </p>
+                  )}
+                </div>
 
                 <div className="mt-3">
                   <Textarea

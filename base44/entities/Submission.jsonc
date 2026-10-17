@@ -68,6 +68,9 @@
     },
     "admin_note": {
       "type": "string"
+    },
+    "ai_opinion": {
+      "type": "string"
     }
   },
   "required": [

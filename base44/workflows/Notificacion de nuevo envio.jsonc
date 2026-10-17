@@ -1,0 +1,62 @@
+{
+  "name": "Notificaci\u00f3n de nuevo env\u00edo",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "notificacion_envio",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "genera_opinion": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "aiSubmissionOpinion",
+            "args": {
+              "submission_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "avisa_email",
+          "x-base44": {
+            "title": "Consejo de IA",
+            "description": "Opini\u00f3n sobre la canci\u00f3n enviada"
+          }
+        }
+      },
+      {
+        "avisa_email": {
+          "call": "send_email",
+          "with": {
+            "template_name": "NotificacionEnvio",
+            "to": "oldestmanmusic@gmail.com",
+            "description": "Avisa al administrador de un nuevo env\u00edo, con los datos de la canci\u00f3n y el consejo de IA",
+            "variables": {
+              "artist_name": "${ .trigger.data.artist_name }",
+              "song_title": "${ .trigger.data.song_title }",
+              "genre": "${ .trigger.data.genre }",
+              "sender_email": "${ .trigger.data.email }",
+              "opinion": "${ .genera_opinion.opinion }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Email al administrador",
+            "description": "Notificaci\u00f3n para escuchar y decidir"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Cuando un artista env\u00eda una canci\u00f3n, genera el consejo de IA y avisa por email para revisarla antes de publicarla",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "Submission"
+    }
+  }
+}
