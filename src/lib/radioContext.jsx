@@ -7,10 +7,17 @@ import { createContext, useContext, useRef, useState, useCallback, useEffect } f
 // del mismo artista. Al agotarse la lista, la siguiente vuelta se baraja de
 // nuevo con otra semilla: mezcla distinta y emisión 24/7 en bucle infinito.
 // Las canciones se saltan solo si su fuente de audio no funciona.
+// Las cuñas (pistas de género "Cuña") no van en el barajado: se insertan
+// entre canciones cada 3 temas, alternando entre las disponibles. La
+// colocación es determinista por vuelta, así que todos los oyentes las
+// oyen en el mismo punto de la emisión.
 
 const RadioContext = createContext(null);
 
 const FALLBACK_DURATION = 240; // 4 min si falta la duración declarada
+const CUÑA_FALLBACK_DURATION = 20; // 20 s si una cuña no declara duración
+const CUÑA_GENRE = 'Cuña';
+const SONGS_PER_CUÑA = 3; // cuña cada 3 canciones
 
 // Hash determinista: todo el mundo calcula la misma emisión.
 function hashStr(s) {
@@ -64,16 +71,40 @@ function buildCycle(list, cycle) {
   if (cycle < 0) cycle = 0;
   const cached = cycleCache.get(cycle);
   if (cached && cached.list === list) return cached.schedule;
-  const base = seededShuffle(list, cycle);
-  const prevLast = cycle > 0
-    ? interleaveArtists(seededShuffle(list, cycle - 1)).slice(-1)[0].artist
-    : null;
-  // El motor de emisión consume {track, dur}: envolvemos las canciones del
-  // barajado con su duración real (o el respaldo de 4 minutos).
-  const schedule = interleaveArtists(base, prevLast).map((t) => ({
-    track: t,
-    dur: parseDuration(t.duration) || FALLBACK_DURATION,
-  }));
+  const wrap = (t, fallback) => ({ track: t, dur: parseDuration(t.duration) || fallback });
+  const songs = list.filter((t) => t.genre !== CUÑA_GENRE);
+  const cuñas = list.filter((t) => t.genre === CUÑA_GENRE);
+  let schedule;
+  if (!songs.length) {
+    // Solo cuñas en el catálogo: rotan por sí solas.
+    schedule = list.map((t) => wrap(t, CUÑA_FALLBACK_DURATION));
+  } else {
+    const base = seededShuffle(songs, cycle);
+    const prevLast = cycle > 0
+      ? interleaveArtists(seededShuffle(songs, cycle - 1)).slice(-1)[0].artist
+      : null;
+    // El motor de emisión consume {track, dur}: envolvemos las canciones del
+    // barajado con su duración real (o el respaldo de 4 minutos).
+    const songItems = interleaveArtists(base, prevLast).map((t) => wrap(t, FALLBACK_DURATION));
+    // Cuñas entre canciones: cada 3 temas entra una, alternando entre las
+    // disponibles. El desplazamiento por vuelta (cycle) varía la alternancia.
+    if (cuñas.length) {
+      schedule = [];
+      let sinceCuña = 0;
+      let cuñaIdx = 0;
+      for (const item of songItems) {
+        schedule.push(item);
+        sinceCuña += 1;
+        if (sinceCuña === SONGS_PER_CUÑA) {
+          schedule.push(wrap(cuñas[(cuñaIdx + cycle) % cuñas.length], CUÑA_FALLBACK_DURATION));
+          cuñaIdx += 1;
+          sinceCuña = 0;
+        }
+      }
+    } else {
+      schedule = songItems;
+    }
+  }
   if (cycleCache.size > 500) cycleCache.clear();
   cycleCache.set(cycle, { list, schedule });
   return schedule;
