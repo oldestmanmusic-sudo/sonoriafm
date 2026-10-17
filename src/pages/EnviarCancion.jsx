@@ -54,8 +54,10 @@ export default function EnviarCancion() {
       setError('Completa tu nombre artístico y el título de la canción.');
       return;
     }
-    if (!form.email.trim()) {
-      setError('Completa tu email.');
+    // Email de contacto: obligatorio y con formato válido.
+    const emailTrim = form.email.trim();
+    if (!emailTrim || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrim)) {
+      setError('Necesitamos tu email para poder contactarte');
       return;
     }
     if (!file) {
