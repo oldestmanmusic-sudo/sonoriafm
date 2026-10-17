@@ -130,20 +130,30 @@ export function RadioProvider({ children, playlist = [] }) {
   const inFlightRef = useRef(false);
 
   // Carga una canción y se coloca en el punto indicado cuando hay metadatos.
+  // Si la fuente no responde (enlace roto o no directo), un temporizador
+  // resuelve a los 8 s: el motor nunca se queda bloqueado esperando.
   const startAt = useCallback((track, offset) => {
     return new Promise((resolve) => {
       const audio = audioRef.current;
       if (!audio) { resolve(); return; }
-      const onMeta = () => {
+      let settled = false;
+      const settle = (applyOffset) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
         audio.removeEventListener('loadedmetadata', onMeta);
-        try {
-          const max = audio.duration && audio.duration > 0 ? audio.duration - 1 : offset;
-          audio.currentTime = Math.max(0, Math.min(offset, max));
-        } catch {
-          /* sin metadatos de duración: empieza donde pueda */
+        if (applyOffset) {
+          try {
+            const max = audio.duration && audio.duration > 0 ? audio.duration - 1 : offset;
+            audio.currentTime = Math.max(0, Math.min(offset, max));
+          } catch {
+            /* sin metadatos de duración: empieza donde pueda */
+          }
         }
         resolve();
       };
+      const onMeta = () => settle(true);
+      const timer = setTimeout(() => settle(false), 8000);
       audio.addEventListener('loadedmetadata', onMeta);
       audio.src = track.audio_url;
       audio.load();
@@ -223,12 +233,14 @@ export function RadioProvider({ children, playlist = [] }) {
     try {
       audio.src = track.audio_url;
       await audio.play();
-    } catch {
-      /* autoplay bloqueado: queda preparada para reanudar con el botón */
+    } catch (e) {
+      // Autoplay bloqueado: queda preparada para reanudar con el botón.
+      // Si la fuente no carga (no es autoplay), se descarta y vuelve a la radio.
+      if (!e || e.name !== 'NotAllowedError') onDemandFinished();
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [onDemandFinished]);
 
   // Vuelve a la radio en vivo: corta la canción a la carta y conecta donde
   // toque la rotación aleatoria en este momento.
@@ -365,7 +377,11 @@ export function RadioProvider({ children, playlist = [] }) {
     setIsLoading(true);
     setError(false);
     if (onDemandRef.current) {
-      audio.play().catch(() => setIsLoading(false));
+      audio.play().catch(() => {
+        // La canción a la carta no se puede reproducir (fuente rota): se
+        // descarta y el motor reconecta con la emisión en vivo.
+        onDemandFinished();
+      });
       return;
     }
     playScheduled();
