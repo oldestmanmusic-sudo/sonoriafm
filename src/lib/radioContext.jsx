@@ -117,35 +117,39 @@ function parseDuration(d) {
   return parts.reduce((acc, p) => acc * 60 + p, 0);
 }
 
-function buildTotal(list) {
-  return list.reduce((acc, t) => acc + (parseDuration(t.duration) || FALLBACK_DURATION), 0) || FALLBACK_DURATION;
-}
-
 // Punto de la emisión que toca "ahora": vuelta (barajado) actual, índice de
-// canción dentro de esa vuelta y desfase en segundos. Las vueltas se numeran
-// de forma continua desde el primer día (no reinician a medianoche), así el
-// borde entre vueltas siempre conecta dos barajados distintos: al agotarse la
-// lista, la siguiente vuelta es una nueva mezcla y sigue el bucle infinito.
-function findPosition(list, total, nowMs) {
+// canción dentro de esa vuelta y desfase en segundos. Las vueltas no duran
+// todas lo mismo (las cuñas elegidas cambian en cada vuelta), así que el
+// tiempo del día se reparte recorriendo las vueltas reales una a una: el
+// punto de conexión es exacto y determinista, igual para todos los oyentes.
+// El índice de vuelta se ancla al día (base 1000 por día), así el borde entre
+// vueltas siempre conecta dos barajados distintos y el bucle es infinito.
+const MAX_CYCLES_PER_DAY = 500;
+function findPosition(list, nowMs) {
   const d = new Date(nowMs);
   const midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   const dayIndex = Math.floor(midnight / 86400000);
-  const cyclesPerDay = Math.floor(86400 / total) || 1;
   const secondsOfDay = (nowMs - midnight) / 1000;
-  const cycle = dayIndex * cyclesPerDay + Math.floor(secondsOfDay / total);
-  let t = secondsOfDay - Math.floor(secondsOfDay / total) * total;
-  const schedule = buildCycle(list, cycle);
-  for (let i = 0; i < schedule.length; i++) {
-    if (t < schedule[i].dur) return { schedule, index: i, offset: t };
-    t -= schedule[i].dur;
+  let acc = 0;
+  for (let k = 0; k < MAX_CYCLES_PER_DAY; k++) {
+    const schedule = buildCycle(list, dayIndex * 1000 + k);
+    const len = schedule.reduce((sum, item) => sum + item.dur, 0) || FALLBACK_DURATION;
+    if (secondsOfDay < acc + len) {
+      let t = secondsOfDay - acc;
+      for (let i = 0; i < schedule.length; i++) {
+        if (t < schedule[i].dur) return { schedule, index: i, offset: t };
+        t -= schedule[i].dur;
+      }
+      return { schedule, index: 0, offset: 0 };
+    }
+    acc += len;
   }
-  return { schedule, index: 0, offset: 0 };
+  return { schedule: buildCycle(list, dayIndex * 1000), index: 0, offset: 0 };
 }
 
 export function RadioProvider({ children, playlist = [] }) {
   const audioRef = useRef(null);
   const playlistRef = useRef([]);
-  const totalRef = useRef(FALLBACK_DURATION);
   const currentRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [scheduledTrack, setScheduledTrack] = useState(null);
@@ -242,7 +246,7 @@ export function RadioProvider({ children, playlist = [] }) {
       setError(true);
       return;
     }
-    const { schedule, index, offset } = findPosition(playlistRef.current, totalRef.current, Date.now());
+    const { schedule, index, offset } = findPosition(playlistRef.current, Date.now());
     enter(schedule, index, offset);
   }, [enter]);
 
@@ -297,7 +301,7 @@ export function RadioProvider({ children, playlist = [] }) {
   // siguiente, conecta donde está la emisión.
   const advance = useCallback(() => {
     if (!playlistRef.current.length || inFlightRef.current) return;
-    const { schedule, index } = findPosition(playlistRef.current, totalRef.current, Date.now());
+    const { schedule, index } = findPosition(playlistRef.current, Date.now());
     let start = index;
     if (schedule[start] && schedule[start].track.id === currentRef.current?.id) {
       start = (start + 1) % schedule.length;
@@ -363,7 +367,6 @@ export function RadioProvider({ children, playlist = [] }) {
   // La emisión se reconstruye cuando cambia la lista de canciones.
   useEffect(() => {
     playlistRef.current = (playlist || []).filter((t) => t && t.audio_url);
-    totalRef.current = buildTotal(playlistRef.current);
   }, [playlist]);
 
   // "Sonando ahora" según el reloj: qué canción del barajado de la vuelta
@@ -371,7 +374,7 @@ export function RadioProvider({ children, playlist = [] }) {
   useEffect(() => {
     const update = () => {
       if (!playlistRef.current.length) return;
-      const { schedule, index } = findPosition(playlistRef.current, totalRef.current, Date.now());
+      const { schedule, index } = findPosition(playlistRef.current, Date.now());
       setScheduledTrack(schedule[index].track);
     };
     update();
@@ -403,7 +406,7 @@ export function RadioProvider({ children, playlist = [] }) {
       if (!audio || audio.paused || !currentRef.current) return;
       if (onDemandRef.current) return;
       if (!playlistRef.current.length) return;
-      const { schedule, index, offset } = findPosition(playlistRef.current, totalRef.current, Date.now());
+      const { schedule, index, offset } = findPosition(playlistRef.current, Date.now());
       const item = schedule[index];
       if (item.track.id !== currentRef.current.id) {
         enter(schedule, index, offset);
