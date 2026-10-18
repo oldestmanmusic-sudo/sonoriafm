@@ -60,7 +60,14 @@
       ]
     }
   ],
-  "context_files": [],
+  "context_files": [
+    {
+      "asset_id": "6ad543ea65c31c07cf596e9c",
+      "file_name": "SONORIA-base-de-conocimiento_1_.pdf",
+      "file_url": "https://media.base44.com/files/public/6ace0c27732bbb0f4d7504e1/6f5863c92_SONORIA-base-de-conocimiento_1_.pdf",
+      "file_type": "pdf"
+    }
+  ],
   "app_user_connector_configs": [],
   "selected_skill_names": [
     "direccion-estrategia",
