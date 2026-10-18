@@ -37,7 +37,7 @@ const AdminMessages = lazy(() => import('@/pages/admin/AdminMessages'));
 const AdminSuggestions = lazy(() => import('@/pages/admin/AdminSuggestions'));
 const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
 const Cuenta = lazy(() => import('@/pages/Cuenta'));
-const Asistente = lazy(() => import('@/pages/Asistente'));
+
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -77,7 +77,6 @@ const AuthenticatedApp = () => {
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/sugerencias" element={<Sugerencias />} />
-        <Route path="/asistente" element={<Asistente />} />
 
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/cuenta" replace />} />}>
           <Route path="/cuenta" element={<Cuenta />} />
