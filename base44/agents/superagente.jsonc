@@ -89,7 +89,7 @@
     "enabled": true,
     "scope": "both",
     "include_other_conversation_context": false,
-    "instructions": null
+    "instructions": "Guarda recuerdos globales para: decisiones de V\u00edctor (precios, eslogan, normas), acuerdos con anunciantes y patrocinadores, campa\u00f1as de marketing y sus resultados, qu\u00e9 contenido funciona mejor, ideas aprobadas, tareas pendientes y aprendizajes sobre la radio.\nGuarda recuerdos por usuario para: artistas, anunciantes y oyentes que contactan, con solo lo necesario: nombre art\u00edstico o de empresa, correo de contacto, estado de sus env\u00edos o acuerdos, y el historial de conversaciones relevante.\nNo guardes datos sensibles ni personales innecesarios (contrase\u00f1as, datos bancarios, documentos de identidad, domicilio, salud, etc.). No guardes informaci\u00f3n no confirmada ni datos inventados. Cuando V\u00edctor cambie una decisi\u00f3n, actualiza el recuerdo anterior en lugar de duplicarlo."
   },
   "allow_anonymous_access": false,
   "name": "superagente"
