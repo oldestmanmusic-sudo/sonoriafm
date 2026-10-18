@@ -301,12 +301,17 @@ export function RadioProvider({ children, playlist = [] }) {
   // siguiente, conecta donde está la emisión.
   const advance = useCallback(() => {
     if (!playlistRef.current.length || inFlightRef.current) return;
-    const { schedule, index } = findPosition(playlistRef.current, Date.now());
+    const { schedule, index, offset } = findPosition(playlistRef.current, Date.now());
+    // Si el reloj ya avanzó (p. ej. la escucha se colgó con el móvil
+    // bloqueado), conectamos en el punto exacto de la emisión, no al inicio
+    // de la canción: así no salta al centro de otro tema.
     let start = index;
+    let startOffset = offset;
     if (schedule[start] && schedule[start].track.id === currentRef.current?.id) {
       start = (start + 1) % schedule.length;
+      startOffset = 0;
     }
-    enter(schedule, start, 0);
+    enter(schedule, start, startOffset);
   }, [enter]);
 
   useEffect(() => {
@@ -327,7 +332,9 @@ export function RadioProvider({ children, playlist = [] }) {
       if (onDemandRef.current) onDemandFinished(); else advance();
     };
     const onStalled = () => {
-      if (!audio.paused) { audio.load(); audio.play().catch(() => {}); }
+      // Sin audio.load(): resetearía la posición al inicio y la canción
+      // se reiniciaría de cero (un salto audible). Solo reanudamos.
+      if (!audio.paused) audio.play().catch(() => {});
     };
     // Al volver a la pestaña: si el sistema pausó la radio mientras estaba
     // oculta (p. ej. para dar el audio a otra app), reanuda donde toque la
@@ -335,9 +342,26 @@ export function RadioProvider({ children, playlist = [] }) {
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
       const a = audioRef.current;
-      if (!a || !a.paused) return;
-      if (!currentRef.current || onDemandRef.current || inFlightRef.current) return;
-      if (pausedByUserRef.current) return;
+      if (!a || !currentRef.current || !playlistRef.current.length) return;
+      // La canción a la carta y la pausa del usuario se quedan como están.
+      if (onDemandRef.current || pausedByUserRef.current || inFlightRef.current) return;
+      const { schedule, index, offset } = findPosition(playlistRef.current, Date.now());
+      const item = schedule[index];
+      const stale = item.track.id !== currentRef.current.id || Math.abs(a.currentTime - offset) > 30;
+      if (!a.paused) {
+        // Sigue sonando tras el bloqueo: solo recoloca si quedó descolgada
+        // de la emisión (quedarse con la canción anterior provoca saltos).
+        if (stale) {
+          if (item.track.id === currentRef.current.id) {
+            try { a.currentTime = offset; } catch { /* aún sin metadatos */ }
+          } else {
+            enter(schedule, index, offset);
+          }
+        }
+        return;
+      }
+      // Quedó en pausa o colgada en CONECTANDO: reconecta exactamente donde
+      // está la emisión en vivo en este momento.
       playScheduled();
     };
     document.addEventListener('visibilitychange', onVisible);
@@ -349,7 +373,6 @@ export function RadioProvider({ children, playlist = [] }) {
     audio.addEventListener('stalled', onStalled);
     audio.addEventListener('ended', onEnded);
     audio.addEventListener('error', onError);
-    document.addEventListener('visibilitychange', onVisible);
 
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
