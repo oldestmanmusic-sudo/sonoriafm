@@ -6,46 +6,73 @@
     {
       "entity_name": "Track",
       "allowed_operations": [
-        "read"
+        "read",
+        "update",
+        "create"
       ]
     },
     {
       "entity_name": "Artist",
       "allowed_operations": [
-        "read"
+        "read",
+        "update",
+        "create"
       ]
     },
     {
       "entity_name": "Program",
       "allowed_operations": [
-        "read"
+        "read",
+        "update",
+        "create"
       ]
     },
     {
       "entity_name": "Article",
       "allowed_operations": [
-        "read"
+        "read",
+        "update",
+        "create"
       ]
     },
     {
       "entity_name": "Submission",
       "allowed_operations": [
-        "read"
+        "read",
+        "update",
+        "create"
       ]
     },
     {
       "entity_name": "ContactMessage",
       "allowed_operations": [
-        "read"
+        "read",
+        "update",
+        "create"
       ]
     },
     {
       "entity_name": "Suggestion",
       "allowed_operations": [
         "read",
-        "create"
+        "create",
+        "update"
       ]
     }
   ],
+  "context_files": [],
+  "app_user_connector_configs": [],
+  "selected_skill_names": [],
+  "selected_workspace_skill_ids": [],
+  "model": "automatic",
+  "telegram_greeting": "",
+  "line_greeting": "",
+  "memory_config": {
+    "enabled": true,
+    "scope": "both",
+    "include_other_conversation_context": false,
+    "instructions": null
+  },
+  "allow_anonymous_access": false,
   "name": "superagente"
 }
