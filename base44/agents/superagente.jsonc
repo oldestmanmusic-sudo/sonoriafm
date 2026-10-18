@@ -66,7 +66,8 @@
     "direccion-estrategia",
     "programacion-musical",
     "recepcion-artistas",
-    "mantenimiento-radio"
+    "mantenimiento-radio",
+    "atencion-cliente"
   ],
   "selected_workspace_skill_ids": [],
   "model": "automatic",
