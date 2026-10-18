@@ -65,7 +65,8 @@
   "selected_skill_names": [
     "direccion-estrategia",
     "programacion-musical",
-    "recepcion-artistas"
+    "recepcion-artistas",
+    "mantenimiento-radio"
   ],
   "selected_workspace_skill_ids": [],
   "model": "automatic",
