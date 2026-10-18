@@ -68,7 +68,8 @@
     "recepcion-artistas",
     "mantenimiento-radio",
     "atencion-cliente",
-    "marketing-redes"
+    "marketing-redes",
+    "email-marketing"
   ],
   "selected_workspace_skill_ids": [],
   "model": "automatic",
