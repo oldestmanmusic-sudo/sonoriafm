@@ -49,7 +49,7 @@ export default function NowPlaying({ track }) {
         <h1 className="mt-6 font-heading text-6xl sm:text-8xl font-extrabold tracking-tighter text-glow">
           SONOR<span className="text-primary">IA</span>
         </h1>
-        <p className="mt-3 text-lg text-muted-foreground">La radio de la música IA hecha en España</p>
+        <p className="mt-3 text-lg text-muted-foreground">La radio de la música de todo el mundo</p>
 
         <div className="mt-10 flex justify-center">
           <Link
