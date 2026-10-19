@@ -66,6 +66,15 @@ export default function NowPlaying({ track }) {
           </Link>
         </div>
 
+        <div className="mt-3">
+          <Link
+            to="/donar"
+            className="inline-flex items-center gap-2 rounded-full border border-accent/50 px-6 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10"
+          >
+            <Heart className="h-4 w-4" /> Apóyanos con una donación
+          </Link>
+        </div>
+
         {liveTrack && (
           <div className="mx-auto mt-12 flex max-w-md items-center gap-4 rounded-2xl border border-border bg-card/60 backdrop-blur p-4 text-left">
             <div className="h-16 w-16 overflow-hidden rounded-xl bg-secondary shrink-0">
