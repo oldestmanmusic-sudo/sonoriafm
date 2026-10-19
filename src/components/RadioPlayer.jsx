@@ -1,9 +1,9 @@
 import { useRadio } from '@/lib/radioContext';
 import { DEFAULT_COVER } from '@/lib/brand';
-import { Play, Pause, Loader2, Volume2, VolumeX, Radio } from 'lucide-react';
+import { Volume2, VolumeX, Radio } from 'lucide-react';
 
 export default function RadioPlayer({ nowPlaying }) {
-  const { isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack, onDemandTrack, resumeLive } = useRadio();
+  const { isPlaying, error, volume, setVolume, currentTrack, onDemandTrack, resumeLive } = useRadio();
   const track = onDemandTrack || currentTrack || nowPlaying;
 
   return (
@@ -38,14 +38,6 @@ export default function RadioPlayer({ nowPlaying }) {
           <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música IA hecha en España'}</p>
         </div>
 
-        <button
-          onClick={toggle}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95"
-          aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
-        >
-          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
-        </button>
-
         <div className="hidden sm:flex items-center gap-2">
           <button
             onClick={() => setVolume(volume > 0 ? 0 : 0.8)}
@@ -67,7 +59,7 @@ export default function RadioPlayer({ nowPlaying }) {
         </div>
       </div>
       {error && (
-        <p className="mt-1 text-center text-xs text-destructive">No se pudo conectar al stream. Toca reintentar.</p>
+        <p className="mt-1 text-center text-xs text-destructive">No se pudo conectar al stream. Recarga la página para reintentar.</p>
       )}
     </div>
   );
