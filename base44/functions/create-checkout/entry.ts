@@ -82,15 +82,28 @@ Deno.serve(async (req: Request) => {
     if (!Number.isInteger(quantity) || quantity < 1) {
       return new Response(JSON.stringify({ error: "Invalid quantity" }), { status: 400 });
     }
-    // Example — replace with your real trusted product source:
-    //   const product = (await base44.asServiceRole.entities.Product.filter({ id: productId }))[0];
-    //   if (!product) return new Response(JSON.stringify({ error: "Unknown product" }), { status: 400 });
-    //   const productName = product.name; const price = String(product.price); const currency = product.currency ?? "USD";
-    const productName = "Purchase"; // TODO: from your trusted product source
-    const price = "0.00";           // TODO: authoritative per-unit price (major units), resolved server-side
-    const currency = "USD";
+
+    // DONACIÓN: el importe lo elige el propio donante, así que el único dato que viaja del
+    // cliente es ese importe. Se valida aquí de forma estricta (número real, entre 0.50 y
+    // 10000, dos decimales) para que nadie pueda enviar valores corruptos ni negativos.
+    // Cualquier otro productId se rechaza: la donación es el único producto de la app.
+    let productName: string;
+    let price: string;
+    let currency: string;
     // For a SUBSCRIPTION set this to Wix's subscriptionInfo; leave null for a one-time payment.
     const subscriptionInfo = null;
+    if (productId === "donation") {
+      const amount = Number(body.amount);
+      if (!Number.isFinite(amount) || amount < 0.5 || amount > 10000) {
+        return new Response(JSON.stringify({ error: "Importe de donación no válido" }), { status: 400 });
+      }
+      price = amount.toFixed(2);
+      currency = "EUR";
+      productName = "Donación a SONORIA";
+    } else {
+      console.error("create-checkout: unknown productId", productId);
+      return new Response(JSON.stringify({ error: "Unknown product" }), { status: 400 });
+    }
     // Where Wix returns the buyer. Both MUST be real, PUBLICLY reachable routes in this app: the
     // returning buyer is often anonymous, so a missing or login-gated route strands a paid customer.
     // Match your router exactly — `/ThankYou`, not `/thank-you`.

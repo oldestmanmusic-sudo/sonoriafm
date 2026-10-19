@@ -37,6 +37,8 @@ const AdminMessages = lazy(() => import('@/pages/admin/AdminMessages'));
 const AdminSuggestions = lazy(() => import('@/pages/admin/AdminSuggestions'));
 const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
 const Cuenta = lazy(() => import('@/pages/Cuenta'));
+const Donar = lazy(() => import('@/pages/Donar'));
+const ThankYou = lazy(() => import('@/pages/ThankYou'));
 
 
 const AuthenticatedApp = () => {
@@ -77,6 +79,7 @@ const AuthenticatedApp = () => {
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/sugerencias" element={<Sugerencias />} />
+        <Route path="/donar" element={<Donar />} />
 
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/cuenta" replace />} />}>
           <Route path="/cuenta" element={<Cuenta />} />
@@ -100,6 +103,8 @@ const AuthenticatedApp = () => {
           <Route path="sugerencias" element={<AdminSuggestions />} />
         </Route>
       </Route>
+
+      <Route path="/ThankYou" element={<ThankYou />} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>

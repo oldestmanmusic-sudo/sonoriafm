@@ -81,6 +81,7 @@ export default function Layout() {
                 <li><Link to="/noticias" className="hover:text-foreground">Noticias</Link></li>
                 <li><Link to="/sobre-nosotros" className="hover:text-foreground">Sobre Nosotros</Link></li>
                 <li><Link to="/contacto" className="hover:text-foreground">Contacto</Link></li>
+                <li><Link to="/donar" className="hover:text-foreground">Donar</Link></li>
               </ul>
             </div>
             <div>
