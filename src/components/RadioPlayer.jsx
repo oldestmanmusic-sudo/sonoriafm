@@ -3,8 +3,9 @@ import { DEFAULT_COVER } from '@/lib/brand';
 import { Volume2, VolumeX, Radio } from 'lucide-react';
 
 export default function RadioPlayer({ nowPlaying }) {
-  const { isPlaying, error, volume, setVolume, currentTrack, onDemandTrack, resumeLive } = useRadio();
-  const track = onDemandTrack || currentTrack || nowPlaying;
+  const { isPlaying, error, volume, setVolume, currentTrack, scheduledTrack, onDemandTrack, resumeLive } = useRadio();
+  // Misma canción en portada y banner: la de la emisión según el reloj.
+  const track = onDemandTrack || currentTrack || scheduledTrack || nowPlaying;
 
   return (
     <div className="fixed left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-2xl px-1 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] md:bottom-4">

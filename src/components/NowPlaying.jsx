@@ -5,8 +5,9 @@ import { useState, useEffect } from 'react';
 import { Loader2, Upload, Heart } from 'lucide-react';
 
 export default function NowPlaying({ track }) {
-  const { isPlaying, currentTrack, scheduledTrack } = useRadio();
-  const liveTrack = currentTrack || scheduledTrack || track;
+  const { isPlaying, currentTrack, scheduledTrack, onDemandTrack } = useRadio();
+  // Misma canción que muestra el banner inferior (reproducción a la carta o en vivo).
+  const liveTrack = onDemandTrack || currentTrack || scheduledTrack || track;
   const [likes, setLikes] = useState(0);
   const [liking, setLiking] = useState(false);
 
