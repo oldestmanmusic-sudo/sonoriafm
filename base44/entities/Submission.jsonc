@@ -56,6 +56,15 @@
       "type": "boolean",
       "default": false
     },
+    "terms_accepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "El remitente acept\u00f3 los T\u00e9rminos y Condiciones (cesi\u00f3n de derechos, renuncia de reclamaciones y tratamiento de datos)."
+    },
+    "terms_accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "status": {
       "type": "string",
       "enum": [

@@ -39,6 +39,7 @@ export default function EnviarCancion() {
   const [coverFile, setCoverFile] = useState(null);
   const [artistImageFile, setArtistImageFile] = useState(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -71,6 +72,10 @@ export default function EnviarCancion() {
     }
     if (!confirmed) {
       setError('Confirma que la música es tuya y que aceptas que se publique.');
+      return;
+    }
+    if (!termsAccepted) {
+      setError('Debes aceptar los Términos y Condiciones para enviar la canción.');
       return;
     }
     // Anti-duplicados: mismo artista y título equivalente (mayúsculas y
@@ -123,6 +128,8 @@ export default function EnviarCancion() {
         lyrics: form.lyrics.trim(),
         description: form.description.trim(),
         confirmed: true,
+        terms_accepted: true,
+        terms_accepted_at: new Date().toISOString(),
       });
       setSent(true);
     } catch {
@@ -276,6 +283,22 @@ export default function EnviarCancion() {
           />
           <span>
             Confirmo que la música es mía (o tengo permiso para publicarla) y acepto que SONORIA la emita en la radio.
+          </span>
+        </label>
+
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-4 text-sm">
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-[hsl(var(--primary))]"
+          />
+          <span>
+            He leído y acepto los{' '}
+            <Link to="/terminos" target="_blank" className="font-medium text-primary hover:underline">
+              Términos y Condiciones
+            </Link>
+            : autorizo a SONORIA a reproducir mi canción, renuncio a cualquier reclamación por ello y asumo la responsabilidad sobre el contenido y los datos que envío.
           </span>
         </label>
 

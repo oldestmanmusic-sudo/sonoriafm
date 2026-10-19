@@ -40,6 +40,7 @@ const Cuenta = lazy(() => import('@/pages/Cuenta'));
 const Donar = lazy(() => import('@/pages/Donar'));
 const ThankYou = lazy(() => import('@/pages/ThankYou'));
 const Promociona = lazy(() => import('@/pages/Promociona'));
+const Legal = lazy(() => import('@/pages/Legal'));
 
 
 const AuthenticatedApp = () => {
@@ -82,6 +83,7 @@ const AuthenticatedApp = () => {
         <Route path="/sugerencias" element={<Sugerencias />} />
         <Route path="/donar" element={<Donar />} />
         <Route path="/promociona-tu-musica" element={<Promociona />} />
+        <Route path="/terminos" element={<Legal />} />
 
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/cuenta" replace />} />}>
           <Route path="/cuenta" element={<Cuenta />} />
