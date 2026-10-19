@@ -133,6 +133,17 @@ export function RadioProvider({ children, playlist = [] }) {
   // Distingue la pausa que ordena el usuario (botón) de la que provoca el
   // sistema al ceder el audio a otra app con la pestaña oculta.
   const pausedByUserRef = useRef(false);
+  // Solo UNA pestaña del navegador suena a la vez: cada reproducción anuncia
+  // su arranque y las demás se silencian (evita dos radios superpuestas).
+  const channelRef = useRef(null);
+  const tabIdRef = useRef(Math.random().toString(36).slice(2));
+  const lastStartRef = useRef(0);
+
+  const announcePlay = useCallback(() => {
+    lastStartRef.current = Date.now();
+    const ch = channelRef.current;
+    if (ch) ch.postMessage({ id: tabIdRef.current, ts: lastStartRef.current });
+  }, []);
 
   // Carga una canción y se coloca en el punto indicado cuando hay metadatos.
   // Si la fuente no responde (enlace roto o no directo), un temporizador
@@ -188,6 +199,7 @@ export function RadioProvider({ children, playlist = [] }) {
         await audio.play();
         currentRef.current = item.track;
         setCurrentTrack(item.track);
+        announcePlay();
         setIsLoading(false);
         inFlightRef.current = false;
         return;
@@ -204,7 +216,7 @@ export function RadioProvider({ children, playlist = [] }) {
     setIsLoading(false);
     setError(true);
     inFlightRef.current = false;
-  }, [startAt]);
+  }, [startAt, announcePlay]);
 
   // Entra en la emisión exactamente donde toca según la hora (y vuelta actual).
   const playScheduled = useCallback(() => {
@@ -240,6 +252,7 @@ export function RadioProvider({ children, playlist = [] }) {
     try {
       audio.src = track.audio_url;
       await audio.play();
+      announcePlay();
     } catch (e) {
       // Autoplay bloqueado: queda preparada para reanudar con el botón.
       // Si la fuente no carga (no es autoplay), se descarta y vuelve a la radio.
@@ -360,6 +373,32 @@ export function RadioProvider({ children, playlist = [] }) {
     playlistRef.current = (playlist || []).filter((t) => t && t.audio_url && t.genre !== 'Cuña');
   }, [playlist]);
 
+  // Arbitraje entre pestañas: gana la reproducción más reciente (desempate
+  // estable por id); la pestaña perdedora se calla, y al volver a ella
+  // retoma la emisión en el punto exacto.
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return;
+    const ch = new BroadcastChannel('sonoria-radio');
+    channelRef.current = ch;
+    ch.onmessage = (e) => {
+      const msg = e.data || {};
+      if (msg.id === tabIdRef.current) return;
+      const otherWins = (msg.ts || 0) > lastStartRef.current ||
+        ((msg.ts || 0) === lastStartRef.current && String(msg.id) > tabIdRef.current);
+      if (otherWins) {
+        const a = audioRef.current;
+        if (a && !a.paused) a.pause();
+      } else {
+        const a = audioRef.current;
+        if (a && !a.paused) ch.postMessage({ id: tabIdRef.current, ts: lastStartRef.current });
+      }
+    };
+    return () => {
+      ch.close();
+      if (channelRef.current === ch) channelRef.current = null;
+    };
+  }, []);
+
   // "Sonando ahora" según el reloj: qué canción del barajado de la vuelta
   // actual toca en este momento, aunque nadie esté escuchando. Cada 15 s.
   useEffect(() => {
@@ -424,7 +463,7 @@ export function RadioProvider({ children, playlist = [] }) {
     setIsLoading(true);
     setError(false);
     if (onDemandRef.current) {
-      audio.play().catch(() => {
+      audio.play().then(announcePlay).catch(() => {
         // La canción a la carta no se puede reproducir (fuente rota): se
         // descarta y el motor reconecta con la emisión en vivo.
         onDemandFinished();
@@ -432,7 +471,7 @@ export function RadioProvider({ children, playlist = [] }) {
       return;
     }
     playScheduled();
-  }, [playScheduled]);
+  }, [playScheduled, announcePlay]);
 
   const setVolume = useCallback((v) => {
     if (audioRef.current) audioRef.current.volume = v;
