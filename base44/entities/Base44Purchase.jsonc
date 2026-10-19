@@ -32,6 +32,14 @@
     "productName": {
       "type": "string"
     },
+    "artistName": {
+      "type": "string",
+      "description": "Nombre art\u00edstico dado por el artista para un servicio de promoci\u00f3n."
+    },
+    "songTitle": {
+      "type": "string",
+      "description": "T\u00edtulo de la canci\u00f3n a promocionar en un servicio."
+    },
     "quantity": {
       "type": "number",
       "default": 1

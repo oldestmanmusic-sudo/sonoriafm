@@ -13,6 +13,7 @@ const links = [
   { to: '/contacto', label: 'Contacto' },
   { to: '/sugerencias', label: 'Sugerencias' },
   { to: '/envia-tu-cancion', label: 'Envía tu canción' },
+  { to: '/promociona-tu-musica', label: 'Promociona tu música' },
 ];
 
 export default function SiteNav() {

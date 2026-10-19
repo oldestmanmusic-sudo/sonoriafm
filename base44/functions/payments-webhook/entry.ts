@@ -166,6 +166,38 @@ async function handleOrderApproved(db: any, eventData: any): Promise<Response> {
   //   - Gate paid access on a WRITABLE field you set here (e.g. plan / has_paid on the user or an
   //     Entitlement row) — NEVER on is_verified: it is platform-protected and cannot be set here,
   //     even as service role, so gating access on it locks the paying buyer out.
+  // ===== APP-SPECIFIC =====
+  // Servicios a artistas: tras el cobro, email de confirmación al artista y aviso al equipo.
+  // Guardado por estado: solo corre mientras la compra está "pending" (una entrega duplicada
+  // corta arriba por "paid"/"canceled"), así que no se puede enviar dos veces por lo normal.
+  if (["destacado_semana", "resena_entrevista", "rotacion_mensual"].includes(purchase.productId)) {
+    try {
+      if (purchase.buyerEmail) {
+        await db.integrations.Core.SendEmail({
+          to: purchase.buyerEmail,
+          template_name: "ConfirmacionPromocion",
+          variables: {
+            artist_name: purchase.artistName || "artista",
+            song_title: purchase.songTitle || "tu canción",
+            service_name: purchase.productName || "tu servicio",
+          },
+        });
+      }
+      await db.integrations.Core.SendEmail({
+        to: "Oldestmanmusic@gmail.com",
+        template_name: "AvisoPromocion",
+        variables: {
+          service_name: purchase.productName || "servicio",
+          artist_name: purchase.artistName || "artista",
+          song_title: purchase.songTitle || "canción",
+          artist_email: purchase.buyerEmail || "sin email",
+        },
+      });
+    } catch (e) {
+      // Los emails no deben bloquear la entrega del pago ya cobrado; se registra y sigue.
+      console.error("payments-webhook: promo emails failed", e);
+    }
+  }
   // ===== END APP-SPECIFIC =====
 
   // Mark paid LAST, so "paid" always implies the grant above completed. The idempotency

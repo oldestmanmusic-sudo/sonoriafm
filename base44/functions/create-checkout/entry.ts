@@ -74,32 +74,63 @@ Deno.serve(async (req: Request) => {
     // product identifier; look up the authoritative price here (a Product entity, a config map,
     // etc.). For a subscription, set `subscriptionInfo` (frequency/interval/billingCycles).
     const productId = String(body.productId ?? "");
-    // Quantity is buyer-controlled, so VALIDATE it server-side. Check the RAW value is a positive
-    // integer BEFORE using it — do NOT Math.trunc first, or a fractional POST (e.g. 1.9) silently
-    // passes as 1 and charges a quantity the UI never allowed. For a plan / fixed-entitlement product,
-    // hard-code `1` and ignore the body; for a genuine multi-unit product, also enforce YOUR own max.
-    const quantity = Number(body.quantity ?? 1);
-    if (!Number.isInteger(quantity) || quantity < 1) {
-      return new Response(JSON.stringify({ error: "Invalid quantity" }), { status: 400 });
-    }
+    // Cantidad: 1 fija para los servicios promocionales (producto de titularidad fija, no se
+    // permite comprar unidades). La donación valida la suya en su propia rama.
+    let quantity = 1;
+    // Limpia un texto del cliente (nombre artístico, título): sin bordes, un solo espacio y límite.
+    const cleanText = (v: unknown, max: number): string | null => {
+      const s = typeof v === "string" ? v.trim().replace(/\s+/g, " ") : "";
+      return s ? s.slice(0, max) : null;
+    };
 
-    // DONACIÓN: el importe lo elige el propio donante, así que el único dato que viaja del
-    // cliente es ese importe. Se valida aquí de forma estricta (número real, entre 0.50 y
-    // 10000, dos decimales) para que nadie pueda enviar valores corruptos ni negativos.
-    // Cualquier otro productId se rechaza: la donación es el único producto de la app.
+    // DONACIÓN: el importe lo elige el propio donante. Se valida de forma estricta (número
+    // real, entre 0.50 y 10000, dos decimales) para que nadie pueda enviar valores corruptos.
+    // SERVICIOS A ARTISTAS: el cliente solo envía el identificador y los datos de la promoción;
+    // el precio autorizado vive SIEMPRE en este mapa, nunca viaja del cliente.
     let productName: string;
     let price: string;
     let currency: string;
-    // For a SUBSCRIPTION set this to Wix's subscriptionInfo; leave null for a one-time payment.
-    const subscriptionInfo = null;
+    let subscriptionInfo: Record<string, unknown> | null = null;
+    let artistName: string | null = null;
+    let songTitle: string | null = null;
     if (productId === "donation") {
       const amount = Number(body.amount);
       if (!Number.isFinite(amount) || amount < 0.5 || amount > 10000) {
         return new Response(JSON.stringify({ error: "Importe de donación no válido" }), { status: 400 });
       }
+      quantity = Number(body.quantity ?? 1);
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        return new Response(JSON.stringify({ error: "Invalid quantity" }), { status: 400 });
+      }
       price = amount.toFixed(2);
       currency = "EUR";
       productName = "Donación a SONORIA";
+    } else if (
+      productId === "destacado_semana" ||
+      productId === "resena_entrevista" ||
+      productId === "rotacion_mensual"
+    ) {
+      artistName = cleanText(body.artistName, 100);
+      songTitle = cleanText(body.songTitle, 150);
+      if (!artistName || !songTitle) {
+        return new Response(JSON.stringify({ error: "Indica tu nombre artístico y el título de la canción" }), { status: 400 });
+      }
+      currency = "EUR";
+      if (productId === "destacado_semana") {
+        price = "15.00";
+        productName = "Artista destacado de la semana";
+      } else if (productId === "resena_entrevista") {
+        price = "20.00";
+        productName = "Reseña o entrevista en la web";
+      } else {
+        price = "10.00";
+        productName = "Más rotación de tu tema";
+        subscriptionInfo = {
+          subscriptionSettings: { frequency: "MONTH" },
+          title: "Más rotación de tu tema en SONORIA",
+          description: "Rotación extra de tu canción en la programación, renovable cada mes",
+        };
+      }
     } else {
       console.error("create-checkout: unknown productId", productId);
       return new Response(JSON.stringify({ error: "Unknown product" }), { status: 400 });
@@ -173,6 +204,8 @@ Deno.serve(async (req: Request) => {
       // Charged total (unit price × quantity), so the record matches what Wix charged.
       amount: total.toFixed(2),
       currency,
+      artistName,
+      songTitle,
     });
 
     return new Response(JSON.stringify({ redirectUrl }), {
