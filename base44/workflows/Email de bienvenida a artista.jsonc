@@ -1,0 +1,43 @@
+{
+  "name": "Email de bienvenida a artista",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "email_bienvenida_artista",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "envia_bienvenida": {
+          "call": "send_email",
+          "with": {
+            "template_name": "BienvenidaArtista",
+            "to": "${ .trigger.data.email }",
+            "description": "Agradece al artista su canci\u00f3n y presenta los extras de pago de visibilidad",
+            "variables": {
+              "artist_name": "${ .trigger.data.artist_name }",
+              "song_title": "${ .trigger.data.song_title }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Email al artista",
+            "description": "Agradecimiento y extras de visibilidad"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Cuando un artista env\u00eda una canci\u00f3n en la web, le manda un email de bienvenida con los extras de visibilidad de pago",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "Submission"
+    }
+  }
+}
