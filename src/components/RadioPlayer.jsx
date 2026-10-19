@@ -1,9 +1,9 @@
 import { useRadio } from '@/lib/radioContext';
 import { DEFAULT_COVER } from '@/lib/brand';
-import { Volume2, VolumeX, Radio } from 'lucide-react';
+import { Radio } from 'lucide-react';
 
 export default function RadioPlayer({ nowPlaying }) {
-  const { isPlaying, error, volume, setVolume, currentTrack, scheduledTrack, onDemandTrack, resumeLive } = useRadio();
+  const { isPlaying, error, currentTrack, scheduledTrack, onDemandTrack, resumeLive } = useRadio();
   // Misma canción en portada y banner: la de la emisión según el reloj.
   const track = onDemandTrack || currentTrack || scheduledTrack || nowPlaying;
 
@@ -39,25 +39,6 @@ export default function RadioPlayer({ nowPlaying }) {
           <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música IA hecha en España'}</p>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2">
-          <button
-            onClick={() => setVolume(volume > 0 ? 0 : 0.8)}
-            className="text-muted-foreground hover:text-foreground"
-            aria-label="Silenciar"
-          >
-            {volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          </button>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={volume}
-            onChange={(e) => setVolume(parseFloat(e.target.value))}
-            className="w-20 accent-primary"
-            aria-label="Volumen"
-          />
-        </div>
       </div>
       {error && (
         <p className="mt-1 text-center text-xs text-destructive">No se pudo conectar al stream. Recarga la página para reintentar.</p>

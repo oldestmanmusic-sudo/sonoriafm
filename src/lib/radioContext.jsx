@@ -127,7 +127,7 @@ export function RadioProvider({ children, playlist = [] }) {
   const epochRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [volume, setVol] = useState(0.8);
+  const [volume, setVol] = useState(0.75);
   const [error, setError] = useState(false);
   const inFlightRef = useRef(false);
   // Distingue la pausa que ordena el usuario (botón) de la que provoca el
@@ -297,7 +297,7 @@ export function RadioProvider({ children, playlist = [] }) {
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'none';
-    audio.volume = 0.8;
+    audio.volume = 0.75;
     audioRef.current = audio;
 
     const onPlaying = () => { setIsPlaying(true); setIsLoading(false); setError(false); };
