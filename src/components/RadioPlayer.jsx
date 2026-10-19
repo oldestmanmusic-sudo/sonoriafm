@@ -64,7 +64,7 @@ export default function RadioPlayer({ nowPlaying }) {
             </span>
           )}
           <p className="line-clamp-2 text-sm font-semibold leading-tight">{track?.title ?? 'SONORIA Radio'}</p>
-          <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música de todo el mundo'}</p>
+          <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música hecha con IA'}</p>
         </div>
 
         {track?.id && (
