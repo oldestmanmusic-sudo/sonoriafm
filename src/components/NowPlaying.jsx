@@ -2,10 +2,10 @@ import { useRadio } from '@/lib/radioContext';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useState, useEffect } from 'react';
-import { Play, Pause, Loader2, Upload, Heart } from 'lucide-react';
+import { Loader2, Upload, Heart } from 'lucide-react';
 
 export default function NowPlaying({ track }) {
-  const { isPlaying, isLoading, toggle, currentTrack, scheduledTrack } = useRadio();
+  const { isPlaying, currentTrack, scheduledTrack } = useRadio();
   const liveTrack = currentTrack || scheduledTrack || track;
   const [likes, setLikes] = useState(0);
   const [liking, setLiking] = useState(false);
@@ -50,14 +50,7 @@ export default function NowPlaying({ track }) {
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">La radio de la música IA hecha en España</p>
 
-        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <button
-            onClick={toggle}
-            className="inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-2xl shadow-primary/40 transition-transform hover:scale-105 active:scale-95"
-          >
-            {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-            {isLoading ? 'Conectando…' : isPlaying ? 'Pausar' : 'Escuchar ahora'}
-          </button>
+        <div className="mt-10 flex justify-center">
           <Link
             to="/envia-tu-cancion"
             className="inline-flex items-center gap-2 rounded-full border border-primary/50 px-8 py-4 text-base font-semibold text-primary transition-colors hover:bg-primary/10"
