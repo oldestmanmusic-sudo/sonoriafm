@@ -1,11 +1,39 @@
+import { useState, useEffect } from 'react';
 import { useRadio } from '@/lib/radioContext';
 import { DEFAULT_COVER } from '@/lib/brand';
-import { Radio } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { Radio, Heart, Loader2 } from 'lucide-react';
 
 export default function RadioPlayer({ nowPlaying }) {
   const { isPlaying, error, currentTrack, scheduledTrack, onDemandTrack, resumeLive } = useRadio();
   // Misma canción en portada y banner: la de la emisión según el reloj.
   const track = onDemandTrack || currentTrack || scheduledTrack || nowPlaying;
+  const [likes, setLikes] = useState(0);
+  const [liking, setLiking] = useState(false);
+
+  useEffect(() => {
+    if (track) setLikes(track.likes ?? 0);
+  }, [track?.id]);
+
+  const like = async () => {
+    if (liking || !track?.id) return;
+    const authed = await base44.auth.isAuthenticated();
+    if (!authed) {
+      base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+      return;
+    }
+    setLiking(true);
+    const previous = likes;
+    setLikes((n) => n + 1); // optimista: se muestra al instante
+    try {
+      const res = await base44.functions.invoke('likeTrack', { trackId: track.id });
+      setLikes(res.data.likes);
+    } catch {
+      setLikes(previous); // error: se revierte
+    } finally {
+      setLiking(false);
+    }
+  };
 
   return (
     <div className="fixed left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-2xl px-1 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] md:bottom-4">
@@ -39,6 +67,17 @@ export default function RadioPlayer({ nowPlaying }) {
           <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música IA hecha en España'}</p>
         </div>
 
+        {track?.id && (
+          <button
+            onClick={like}
+            disabled={liking}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent disabled:opacity-50"
+            aria-label="Me gusta esta canción"
+          >
+            {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4 text-accent" />}
+            {likes}
+          </button>
+        )}
       </div>
       {error && (
         <p className="mt-1 text-center text-xs text-destructive">No se pudo conectar al stream. Recarga la página para reintentar.</p>
