@@ -16,25 +16,37 @@ export default async function(req) {
       return Response.json({ error: 'Parámetros inválidos' }, { status: 400 });
     }
 
-    const submission = await base44.asServiceRole.entities.Submission.get(submissionId);
+    let submission = null;
+    try {
+      submission = await base44.asServiceRole.entities.Submission.get(submissionId);
+    } catch {
+      submission = null;
+    }
     if (!submission) return Response.json({ error: 'Envío no encontrado' }, { status: 404 });
     if (submission.status !== decision) {
       return Response.json({ error: 'El estado del envío no coincide con la decisión' }, { status: 409 });
     }
     if (!submission.email) return Response.json({ ok: true, email_sent: false, reason: 'El envío no tiene email de contacto' });
 
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: submission.email,
-      template_name: decision === 'approved' ? 'AprobacionEnvio' : 'RechazoEnvio',
-      variables: {
-        artist_name: submission.artist_name || 'artista',
-        song_title: submission.song_title || 'tu canción',
-        reason: decision === 'rejected'
-          ? (submission.admin_note || 'Tras revisar tu envío, hemos decidido no incluirlo en nuestra programación actual, aunque te animamos a seguir enviándonos nueva música.')
-          : '',
-      },
-    });
-    return Response.json({ ok: true, email_sent: true });
+    // El fallo del correo no debe romper la decisión del administrador:
+    // se informa en la respuesta, pero la función responde 200 igualmente.
+    try {
+      await base44.asServiceRole.integrations.Core.SendEmail({
+        to: submission.email,
+        template_name: decision === 'approved' ? 'AprobacionEnvio' : 'RechazoEnvio',
+        variables: {
+          artist_name: submission.artist_name || 'artista',
+          song_title: submission.song_title || 'tu canción',
+          reason: decision === 'rejected'
+            ? (submission.admin_note || 'Tras revisar tu envío, hemos decidido no incluirlo en nuestra programación actual, aunque te animamos a seguir enviándonos nueva música.')
+            : '',
+        },
+      });
+      return Response.json({ ok: true, email_sent: true });
+    } catch (emailError) {
+      console.error('SendEmail falló:', emailError.message);
+      return Response.json({ ok: true, email_sent: false, reason: emailError.message });
+    }
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
