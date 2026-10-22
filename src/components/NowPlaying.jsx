@@ -1,39 +1,13 @@
 import { useRadio } from '@/lib/radioContext';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
-import { useState, useEffect } from 'react';
+import { useTrackLike } from '@/lib/useTrackLike';
 import { Loader2, Upload, Heart } from 'lucide-react';
 
 export default function NowPlaying({ track, sideLeft = null }) {
   const { isPlaying, currentTrack, scheduledTrack, onDemandTrack } = useRadio();
   // Misma canción que muestra el banner inferior (reproducción a la carta o en vivo).
   const liveTrack = onDemandTrack || currentTrack || scheduledTrack || track;
-  const [likes, setLikes] = useState(0);
-  const [liking, setLiking] = useState(false);
-
-  useEffect(() => {
-    if (liveTrack) setLikes(liveTrack.likes ?? 0);
-  }, [liveTrack?.id]);
-
-  const like = async () => {
-    if (liking || !liveTrack?.id) return;
-    const authed = await base44.auth.isAuthenticated();
-    if (!authed) {
-      base44.auth.redirectToLogin(window.location.pathname + window.location.search);
-      return;
-    }
-    setLiking(true);
-    const previous = likes;
-    setLikes((n) => n + 1); // optimista: se muestra al instante
-    try {
-      const res = await base44.functions.invoke('likeTrack', { trackId: liveTrack.id });
-      setLikes(res.data.likes);
-    } catch {
-      setLikes(previous); // error: se revierte
-    } finally {
-      setLiking(false);
-    }
-  };
+  const { likes, liked, liking, like } = useTrackLike(liveTrack?.id, liveTrack?.likes);
   return (
     <section className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
@@ -89,9 +63,10 @@ export default function NowPlaying({ track, sideLeft = null }) {
             onClick={like}
             disabled={liking}
             className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent disabled:opacity-50"
-            aria-label="Me gusta esta canción">
+            aria-label={liked ? 'Ya te gusta esta canción' : 'Me gusta esta canción'}
+            aria-pressed={liked}>
             
-              {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4 text-accent" />}
+              {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={`h-4 w-4 text-accent ${liked ? 'fill-accent' : ''}`} />}
               {likes}
             </button>
           </div>
