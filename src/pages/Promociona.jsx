@@ -28,7 +28,7 @@ const PRODUCTS = [
   title: 'Más rotación de tu tema',
   price: '10 €/mes',
   period: 'suscripción mensual',
-  desc: 'Repeticiones extra en la programación para que tu canción suene muchas más veces.'
+  desc: "Tu canci\xF3n suena hasta 3 veces m\xE1s en la programaci\xF3n."
 }];
 
 
