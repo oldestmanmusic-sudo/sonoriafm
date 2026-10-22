@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Heart, Share2, Loader2, Play, Pause } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { useRadio } from '@/lib/radioContext';
+import { useTrackLike } from '@/lib/useTrackLike';
 
 export default function TrackDetail() {
   const { id } = useParams();
   const [track, setTrack] = useState(null);
   const [artist, setArtist] = useState(null);
   const [notFound, setNotFound] = useState(false);
-  const [liking, setLiking] = useState(false);
+  const { likes, liked, liking, like } = useTrackLike(track?.id, track?.likes);
   const [copied, setCopied] = useState(false);
   const { onDemandTrack, isPlaying, isLoading, playOnDemand, toggle } = useRadio();
   const isThis = onDemandTrack?.id === id;
@@ -36,26 +37,6 @@ export default function TrackDetail() {
     })();
     return () => { active = false; };
   }, [id]);
-
-  const like = async () => {
-    if (liking) return;
-    const authed = await base44.auth.isAuthenticated();
-    if (!authed) {
-      base44.auth.redirectToLogin(window.location.pathname + window.location.search);
-      return;
-    }
-    setLiking(true);
-    const previous = track?.likes ?? 0;
-    setTrack((t) => (t ? { ...t, likes: (t.likes ?? 0) + 1 } : t)); // optimista: se muestra al instante
-    try {
-      const res = await base44.functions.invoke('likeTrack', { trackId: id });
-      setTrack((t) => (t ? { ...t, likes: res.data.likes } : t));
-    } catch {
-      setTrack((t) => (t ? { ...t, likes: previous } : t)); // error: se revierte
-    } finally {
-      setLiking(false);
-    }
-  };
 
   const share = async () => {
     const url = window.location.href;
@@ -147,8 +128,8 @@ export default function TrackDetail() {
               </Button>
             )}
             <Button onClick={like} variant="outline" className="rounded-full" disabled={liking}>
-              {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4 text-accent" />}
-              {track.likes ?? 0}
+              {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={`h-4 w-4 text-accent ${liked ? 'fill-accent' : ''}`} />}
+              {likes}
             </Button>
             <Button onClick={share} variant="outline" className="rounded-full">
               <Share2 className="h-4 w-4" /> {copied ? 'Enlace copiado' : 'Compartir'}
