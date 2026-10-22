@@ -486,8 +486,8 @@ export function RadioProvider({ children, playlist = [] }) {
     if (track) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title || 'Radio en vivo',
-        artist: track.artist || 'SONORIA',
-        album: 'SONORIA',
+        artist: track.artist || 'SONORIA FM',
+        album: 'SONORIA FM',
         artwork: track.cover_url ? [{ src: track.cover_url, sizes: '512x512', type: 'image/jpeg' }] : [],
       });
     }
