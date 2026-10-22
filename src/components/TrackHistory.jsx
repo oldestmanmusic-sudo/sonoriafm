@@ -14,7 +14,7 @@ function formatTime(d) {
   }
 }
 
-export default function TrackHistory({ genre = 'Todo SONORIA' }) {
+export default function TrackHistory({ genre = 'Todo SONORIA FM' }) {
   const [tracks, setTracks] = useState(null);
   const { onDemandTrack, isPlaying, isLoading, playOnDemand, toggle } = useRadio();
 
@@ -22,7 +22,7 @@ export default function TrackHistory({ genre = 'Todo SONORIA' }) {
     let active = true;
     (async () => {
       try {
-        const query = genre && genre !== 'Todo SONORIA' ? { genre } : {};
+        const query = genre && genre !== 'Todo SONORIA FM' ? { genre } : {};
         const { items } = await base44.entities.Track.filter(query, { sort: '-played_at', limit: 12 });
         if (active) setTracks(items);
       } catch {
@@ -44,7 +44,7 @@ export default function TrackHistory({ genre = 'Todo SONORIA' }) {
       <div className="flex items-center gap-2 mb-6">
         <History className="h-5 w-5 text-primary" />
         <h2 className="font-heading text-2xl font-bold">
-          {genre && genre !== 'Todo SONORIA' ? `Canal ${genre}` : 'Historial musical'}
+          {genre && genre !== 'Todo SONORIA FM' ? `Canal ${genre}` : 'Historial musical'}
         </h2>
       </div>
 
