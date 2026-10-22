@@ -48,7 +48,7 @@ export default function Sugerencias() {
         <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />
         <h1 className="mt-4 font-heading text-3xl font-extrabold">¡Sugerencia recibida!</h1>
         <p className="mt-3 text-muted-foreground">
-          Gracias por ayudarnos a mejorar SONORIA. El equipo la revisará en breve.
+          Gracias por ayudarnos a mejorar SONORIA FM. El equipo la revisará en breve.
         </p>
       </section>
     );
