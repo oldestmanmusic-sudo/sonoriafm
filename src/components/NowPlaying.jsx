@@ -49,13 +49,13 @@ export default function NowPlaying({ track }) {
         <h1 className="mt-6 font-heading text-6xl sm:text-8xl font-extrabold tracking-tighter text-glow">
           SONOR<span className="text-primary">IA</span>
         </h1>
-        <p className="mt-3 text-lg text-muted-foreground">La radio de la música hecha con IA</p>
+        <p className="mt-3 text-lg text-muted-foreground">La radio de la música hecha con IA. Música en español, artistas de todo el mundo, las 24 horas.</p>
 
         <div className="mt-10 flex justify-center">
           <Link
             to="/envia-tu-cancion"
-            className="inline-flex items-center gap-2 rounded-full border border-primary/50 px-8 py-4 text-base font-semibold text-primary transition-colors hover:bg-primary/10"
-          >
+            className="inline-flex items-center gap-2 rounded-full border border-primary/50 px-8 py-4 text-base font-semibold text-primary transition-colors hover:bg-primary/10">
+            
             <Upload className="h-5 w-5" /> Envía tu canción
           </Link>
         </div>
@@ -63,20 +63,20 @@ export default function NowPlaying({ track }) {
         <div className="mt-3">
           <Link
             to="/donar"
-            className="inline-flex items-center gap-2 rounded-full border border-accent/50 px-6 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10"
-          >
+            className="inline-flex items-center gap-2 rounded-full border border-accent/50 px-6 py-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10">
+            
             <Heart className="h-4 w-4" /> Apóyanos con una donación
           </Link>
         </div>
 
-        {liveTrack && (
-          <div className="mx-auto mt-12 flex max-w-md items-center gap-4 rounded-2xl border border-border bg-card/60 backdrop-blur p-4 text-left">
+        {liveTrack &&
+        <div className="mx-auto mt-12 flex max-w-md items-center gap-4 rounded-2xl border border-border bg-card/60 backdrop-blur p-4 text-left">
             <div className="h-16 w-16 overflow-hidden rounded-xl bg-secondary shrink-0">
-              {liveTrack.cover_url ? (
-                <img src={liveTrack.cover_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="h-full w-full bg-gradient-to-br from-primary/40 to-accent/30" />
-              )}
+              {liveTrack.cover_url ?
+            <img src={liveTrack.cover_url} alt="" className="h-full w-full object-cover" /> :
+
+            <div className="h-full w-full bg-gradient-to-br from-primary/40 to-accent/30" />
+            }
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs uppercase tracking-wider text-accent">Sonando ahora</p>
@@ -84,32 +84,32 @@ export default function NowPlaying({ track }) {
               <p className="truncate text-sm text-muted-foreground">{liveTrack.artist}</p>
             </div>
             <button
-              onClick={like}
-              disabled={liking}
-              className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent disabled:opacity-50"
-              aria-label="Me gusta esta canción"
-            >
+            onClick={like}
+            disabled={liking}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent disabled:opacity-50"
+            aria-label="Me gusta esta canción">
+            
               {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4 text-accent" />}
               {likes}
             </button>
           </div>
-        )}
+        }
 
         <div className="mt-10 flex items-end justify-center gap-1 h-16">
-          {Array.from({ length: 32 }).map((_, i) => (
-            <span
-              key={i}
-              className="eq-bar w-1 rounded-full bg-gradient-to-t from-primary to-accent"
-              style={{
-                height: '100%',
-                animationDelay: `${i * 60}ms`,
-                animationDuration: `${1 + (i % 4) * 0.25}s`,
-                opacity: isPlaying ? 1 : 0.35,
-              }}
-            />
-          ))}
+          {Array.from({ length: 32 }).map((_, i) =>
+          <span
+            key={i}
+            className="eq-bar w-1 rounded-full bg-gradient-to-t from-primary to-accent"
+            style={{
+              height: '100%',
+              animationDelay: `${i * 60}ms`,
+              animationDuration: `${1 + i % 4 * 0.25}s`,
+              opacity: isPlaying ? 1 : 0.35
+            }} />
+
+          )}
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
