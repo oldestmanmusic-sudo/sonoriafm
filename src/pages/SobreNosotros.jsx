@@ -33,7 +33,7 @@ export default function SobreNosotros() {
             La radio que suena <span className="text-primary">a todos</span>
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            SONORIA nació para devolverle a la radio su magia: música variada, sin cortes y con la sensación de que
+            SONORIA FM nació para devolverle a la radio su magia: música variada, sin cortes y con la sensación de que
             siempre hay algo nuevo por descubrir.
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function SobreNosotros() {
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-6">
           <h2 className="font-heading text-2xl font-bold">El equipo</h2>
-          <p className="text-sm text-muted-foreground">Las personas que hacen que SONORIA suene cada día.</p>
+          <p className="text-sm text-muted-foreground">Las personas que hacen que SONORIA FM suene cada día.</p>
         </div>
         <TeamGrid />
       </section>
