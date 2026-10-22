@@ -69,7 +69,7 @@ export default function Layout() {
               <p className="font-heading text-lg font-extrabold tracking-tight">
                 SONOR<span className="text-primary">IA</span> FM
               </p>
-              <p className="mt-2 max-w-xs text-sm text-muted-foreground">SONORIA FM · Música en español creada con IA, 24/7
+              <p className="mt-2 max-w-xs text-sm text-muted-foreground">Música en español creada con IA, 24/7
 
               </p>
             </div>
