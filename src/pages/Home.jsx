@@ -5,12 +5,14 @@ import PullToRefresh from '@/components/PullToRefresh';
 import NowPlaying from '@/components/NowPlaying';
 import GenreChips from '@/components/GenreChips';
 import TrackHistory from '@/components/TrackHistory';
+import TopTen from '@/components/TopTen';
 import ArtistCard from '@/components/ArtistCard';
 import { ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const [nowPlaying, setNowPlaying] = useState(null);
   const [artists, setArtists] = useState(null);
+  const [topTen, setTopTen] = useState(null);
   const [genre, setGenre] = useState('Todo SONORIA');
   const [refreshKey, setRefreshKey] = useState(0);
   const activeRef = useRef(true);
@@ -22,15 +24,20 @@ export default function Home() {
 
   const load = useCallback(async () => {
     try {
-      const [trackRes, artistRes] = await Promise.all([
+      const [trackRes, artistRes, topRes] = await Promise.all([
         base44.entities.Track.filter({}, { sort: '-played_at', limit: 1 }),
+        base44.entities.Track.filter({}, { sort: '-likes', limit: 10 }),
         base44.entities.Artist.filter({ name: { $ne: 'SONORIA' } }, { sort: '-likes', limit: 4 }),
       ]);
       if (!activeRef.current) return;
       if (trackRes.items.length) setNowPlaying(trackRes.items[0]);
       setArtists(artistRes.items);
+      setTopTen(topRes.items);
     } catch {
-      if (activeRef.current) setArtists([]);
+      if (activeRef.current) {
+        setArtists([]);
+        setTopTen([]);
+      }
     }
   }, []);
 
@@ -45,7 +52,11 @@ export default function Home() {
 
   return (
     <PullToRefresh onRefresh={refresh}>
-      <NowPlaying track={nowPlaying} />
+      <NowPlaying track={nowPlaying} sideLeft={<TopTen tracks={topTen} />} />
+
+      <section className="mx-auto max-w-md px-4 pb-8 lg:hidden">
+        <TopTen tracks={topTen} />
+      </section>
 
       <section className="mx-auto max-w-6xl px-4 pt-2">
         <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Canales por estilo</p>
