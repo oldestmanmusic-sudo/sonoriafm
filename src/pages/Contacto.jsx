@@ -11,7 +11,7 @@ export default function Contacto() {
         </span>
         <h1 className="mt-4 font-heading text-4xl font-extrabold tracking-tight sm:text-5xl">Contacto</h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          ¿Quieres pedir un tema, proponer una colaboración o anunciarte en SONORIA? Escríbenos, leemos cada mensaje.
+          ¿Quieres pedir un tema, proponer una colaboración o anunciarte en SONORIA FM? Escríbenos, leemos cada mensaje.
         </p>
       </div>
 
