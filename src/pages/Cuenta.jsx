@@ -52,14 +52,14 @@ export default function Cuenta() {
   return (
     <section className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="font-heading text-3xl font-extrabold tracking-tight">Mi cuenta</h1>
-      <p className="mt-2 text-muted-foreground">Datos de tu sesión en SONORIA.</p>
+      <p className="mt-2 text-muted-foreground">Datos de tu sesión en SONORIA FM.</p>
 
       <div className="mt-8 flex items-center gap-4 rounded-3xl border border-border bg-card p-6">
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/40">
           <UserRound className="h-6 w-6 text-primary" />
         </span>
         <div className="min-w-0">
-          <p className="truncate font-semibold">{user.full_name || 'Usuario de SONORIA'}</p>
+          <p className="truncate font-semibold">{user.full_name || 'Usuario de SONORIA FM'}</p>
           <p className="truncate text-sm text-muted-foreground">{user.email}</p>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function Cuenta() {
             <AlertDialogHeader>
               <AlertDialogTitle>¿Eliminar tu cuenta definitivamente?</AlertDialogTitle>
               <AlertDialogDescription>
-                Perderás el acceso a SONORIA y se eliminarán tu perfil y tus datos asociados. Esta acción es irreversible.
+                Perderás el acceso a SONORIA FM y se eliminarán tu perfil y tus datos asociados. Esta acción es irreversible.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
