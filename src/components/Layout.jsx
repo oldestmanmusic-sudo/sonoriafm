@@ -93,7 +93,6 @@ export default function Layout() {
           <div className="mx-auto max-w-6xl px-4 mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <p>La radio de la música hecha con IA. Música en español, artistas de todo el mundo, las 24 horas.</p>
             <div className="flex items-center gap-4">
-              <Link to="/admin" className="hover:text-foreground">Panel de administración</Link>
               <Link to="/cuenta" className="hover:text-foreground">Mi cuenta</Link>
               <p>© {new Date().getFullYear()} SONORIA</p>
             </div>
