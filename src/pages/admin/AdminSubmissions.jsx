@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { normalizeTrackTitle } from '@/lib/trackUtils';
+import { normalizeTrackTitle, safeAudioUrl } from '@/lib/trackUtils';
 import { Loader2, Inbox, Check, X, ExternalLink, Sparkles } from 'lucide-react';
 
 const TABS = [
@@ -65,6 +65,11 @@ export default function AdminSubmissions() {
           setActionError('Este envío no tiene audio adjunto: no se puede crear la canción.');
           return;
         }
+        const safeAudio = safeAudioUrl(item.audio_link);
+        if (!safeAudio) {
+          setActionError('El enlace del audio no es una URL http(s) válida: no se puede crear la canción. Rechaza el envío o pide al artista que lo reenvíe.');
+          return;
+        }
         const esc = item.artist_name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const { items: candidates } = await base44.entities.Track.filter(
           { artist: { $regex: `^${esc}$`, $options: 'i' } },
@@ -100,7 +105,7 @@ export default function AdminSubmissions() {
           genre: item.genre || 'Otros',
           cover_url: item.cover_url || '',
           description: item.description || '',
-          audio_url: item.audio_link,
+          audio_url: safeAudio,
           played_at: new Date().toISOString(),
         });
         await base44.entities.Submission.update(item.id, {
@@ -164,7 +169,8 @@ export default function AdminSubmissions() {
           <>
           {actionError && <p className="mb-3 text-sm font-medium text-destructive">{actionError}</p>}
           {items.map((s) => {
-            const audioSrc = audioUrls[s.id] || s.audio_link || null;
+            const safeLink = safeAudioUrl(s.audio_link);
+            const audioSrc = audioUrls[s.id] || safeLink || null;
             return (
               <article key={s.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -198,9 +204,9 @@ export default function AdminSubmissions() {
                   </div>
                 </div>
 
-                {s.audio_link && (
+                {safeLink && (
                   <a
-                    href={s.audio_link}
+                    href={safeLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
@@ -212,6 +218,9 @@ export default function AdminSubmissions() {
                   <audio controls src={audioSrc} className="mt-3 w-full max-w-xl">
                     Tu navegador no soporta audio.
                   </audio>
+                )}
+                {s.audio_link && !safeLink && (
+                  <p className="mt-3 text-xs font-medium text-destructive">Enlace de audio no válido (no es http/https): bloqueado.</p>
                 )}
                 {!audioSrc && !s.audio_link && (
                   <p className="mt-3 text-xs text-muted-foreground">Sin audio adjunto.</p>

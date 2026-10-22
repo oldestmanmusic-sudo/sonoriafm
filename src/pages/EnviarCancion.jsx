@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { GENRES, SUBMISSION_TOOLS } from '@/lib/brand';
+import { safeAudioUrl } from '@/lib/trackUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -102,6 +103,13 @@ export default function EnviarCancion() {
       if (file) {
         const res = await base44.integrations.Core.UploadPublicFile({ file });
         audio_link = res.file_url;
+      } else if (audio_link) {
+        // Solo URLs http(s): se rechazan otros esquemas por seguridad.
+        audio_link = safeAudioUrl(audio_link);
+        if (!audio_link) {
+          setError('El enlace al audio debe ser una URL web válida (que empiece por http o https).');
+          return;
+        }
       }
       // Caratula e imagen del artista en almacenamiento publico: la ficha del
       // artista y la cancion son visibles en la web y necesitan URL permanente.
