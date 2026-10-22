@@ -37,7 +37,7 @@ export default function AdminLayout() {
           <ShieldAlert className="mx-auto h-10 w-10 text-destructive" />
           <h1 className="mt-4 font-heading text-xl font-bold">Acceso restringido</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Esta zona es solo para administradores de SONORIA. Si crees que es un error, pide acceso al equipo.
+            Esta zona es solo para administradores de SONORIA FM. Si crees que es un error, pide acceso al equipo.
           </p>
           <Link to="/" className="mt-6 inline-block text-sm font-medium text-primary hover:underline">
             Volver a la web
@@ -56,7 +56,7 @@ export default function AdminLayout() {
               <Radio className="h-5 w-5 text-primary" />
             </span>
             <span className="font-heading text-lg font-extrabold tracking-tight">
-              SONOR<span className="text-primary">IA</span>
+              SONOR<span className="text-primary">IA</span> FM
               <span className="ml-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Panel</span>
             </span>
           </Link>
