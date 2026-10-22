@@ -77,7 +77,7 @@ export default function AdminSubmissions() {
         );
         const wanted = normalizeTrackTitle(item.song_title);
         if (candidates.some((t) => normalizeTrackTitle(t.title) === wanted)) {
-          setActionError('Esa canción ya está en SONORIA');
+          setActionError('Esa canción ya está en SONORIA FM');
           return;
         }
         const { items: existing } = await base44.entities.Artist.filter({ name: item.artist_name }, { limit: 1 });
