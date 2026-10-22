@@ -1,82 +1,140 @@
 import { Link } from 'react-router-dom';
 
-const SECTIONS = [
-  {
-    title: '1. Objeto y naturaleza del servicio',
-    body: `SONORIA es una plataforma web de radiodifusión musical que reproduce música facilitada voluntariamente por los propios autores o titulares de los derechos correspondientes. SONORIA actúa en todo momento como un mero intermediario técnico: no compone, no edita, no comercializa ni distribuye la música que emite, y se limita a reproducir los ficheros de audio que los usuarios remiten de forma voluntaria y expresa a través del formulario de envío de canciones.`,
-  },
-  {
-    title: '2. Autorización expresa de reproducción',
-    body: `Al enviar una canción a SONORIA, el remitente declara y garantiza que es el autor, intérprete o titular legítimo de todos los derechos de propiedad intelectual e industrial sobre la obra remitida (incluidos la música, la letra, la grabación, la carátula y las imágenes asociadas), o que dispone de todas las licencias y autorizaciones necesarias para su difusión pública.
-Al completar el envío, el remitente otorga a SONORIA una autorización expresa, gratuita, mundial y por tiempo indefinido (revocable mediante solicitud escrita a Oldestmanmusic@gmail.com) para reproducir, comunicar públicamente y poner a disposición del público la obra remitida en su radio en línea y en su sitio web, sin obligación de compensación económica alguna.`,
-  },
-  {
-    title: '3. Renuncia de reclamaciones',
-    body: `El remitente renuncia de forma expresa a formular contra SONORIA cualquier reclamación derivada de la reproducción de los contenidos que él mismo ha enviado, incluidas reclamaciones por derechos de autor, derechos conexos, gestión colectiva (SGAE u otras entidades), remuneración equitativa, uso de imagen, o cualquier otra naturaleza económica o moral.
-Asimismo, el remitente exime a SONORIA de toda responsabilidad civil, mercantil o administrativa que pudiera derivarse de la publicación y difusión de los contenidos por él remitidos.`,
-  },
-  {
-    title: '4. Responsabilidad del remitente',
-    body: `La total responsabilidad sobre la legalidad, titularidad, originalidad y licitud de los contenidos remitidos corresponde íntegra y exclusivamente a la persona que los envía.
-En caso de que un tercero reclame contra SONORIA por la reproducción de un contenido (por infracción de derechos de autor, derechos de imagen, difamación o cualquier otro motivo), el remitente de dicho contenido asumirá íntegramente la responsabilidad del hecho generador, y se obliga a mantener a SONORIA indemne frente a cualquier demanda, perjuicio, coste o gasto (incluidos honorarios de defensa jurídica) derivado de tales reclamaciones.`,
-  },
-  {
-    title: '5. Datos personales del remitente',
-    body: `Para poder emitir una canción y disponer en todo momento de la identificación de la persona responsable de cada contenido, SONORIA solicita datos personales en el momento del envío (nombre artístico, nombre real si se facilita, dirección de correo electrónico y datos de contacto adicionales que el remitente facilite voluntariamente).
-Estos datos se tratan con las siguientes finalidades: (a) identificar al remitente del contenido; (b) gestionar la revisión, aprobación y emisión de la canción; (c) contactar con el remitente en relación con su envío; y (d) atender a los deberes legales de identificación del responsable de cada obra ante reclamaciones de terceros o requerimientos de autoridades competentes.
-Los datos se conservan mientras la canción permanezca publicada y, en cualquier caso, durante los plazos legalmente exigibles para la atención de posibles reclamaciones. El remitente puede ejercitar sus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a Oldestmanmusic@gmail.com. Si su contenido se retira de la emisión, sus datos identificativos podrán conservarse de forma bloqueada por el plazo de prescripción legal.`,
-  },
-  {
-    title: '6. Retirada de contenidos',
-    body: `SONORIA se reserva el derecho de no publicar, o de retirar de la emisión en cualquier momento y sin necesidad de justificación previa, cualquier contenido remitido, sin que ello genere derecho a indemnización alguna. Igualmente, ante una reclamación fundada de un tercero, el contenido afectado podrá suspenderse cautelarmente de forma inmediata.`,
-  },
-  {
-    title: '7. Limitación general de responsabilidad',
-    body: `Dentro de lo permitido por la ley, SONORIA no responde de: (a) la veracidad, titularidad y licitud de los contenidos remitidos por los usuarios; (b) la indisponibilidad, interrupciones o fallos técnicos de la emisión; (c) los usos que terceros hagan de los contenidos publicados en la plataforma; ni (d) daños indirectos, lucro cesante o pérdida de beneficios alegados por cualquier usuario o tercero en relación con el servicio.`,
-  },
-  {
-    title: '8. Aceptación',
-    body: `El envío de una canción a través del formulario de SONORIA implica el conocimiento y la aceptación plena y sin reservas de estas condiciones. SONORIA podrá actualizar este texto; las relaciones ya iniciadas se regirán por las condiciones vigentes en el momento de cada envío.`,
-  },
-];
+const CONTACT_EMAIL = 'Oldestmanmusic@gmail.com';
+
+function Section({ title, children }) {
+  return (
+    <article className="rounded-2xl border border-border bg-card p-6">
+      <h2 className="font-heading text-lg font-bold">{title}</h2>
+      <div className="mt-2 space-y-2 text-sm leading-relaxed text-muted-foreground">{children}</div>
+    </article>
+  );
+}
+
+function List({ children }) {
+  return <ul className="list-disc space-y-1 pl-5">{children}</ul>;
+}
 
 export default function Legal() {
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-        Términos y Condiciones
+        Términos para Artistas de Sonoria FM
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Última actualización: 19/10/2026
-      </p>
+      <p className="mt-2 text-sm text-muted-foreground">Última actualización: 22/10/2026</p>
       <p className="mt-4 text-muted-foreground">
-        El envío de una canción a SONORIA implica la aceptación plena de este texto. En particular,
-        el remitente <strong>declara ser el titular de los derechos</strong> sobre lo que envía,
-        <strong> autoriza su reproducción</strong> en la radio, <strong>renuncia a reclamar</strong>
-        contra SONORIA por ello y <strong>asume toda la responsabilidad</strong> sobre el contenido
-        remitido.
+        <strong>¡Hola, artista!</strong> 👋 Si quieres que tu música generada por IA suene en Sonoria FM,
+        es importante que leas y aceptes estas condiciones. Así nos aseguramos de que todo esté claro y de
+        que tu arte llegue a nuestros oyentes de forma legal y transparente.
       </p>
 
       <div className="mt-8 space-y-6">
-        {SECTIONS.map((s) => (
-          <article key={s.title} className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-heading text-lg font-bold">{s.title}</h2>
-            <div className="mt-2 space-y-2 text-sm leading-relaxed text-muted-foreground">
-              {s.body.split('\n\n').map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          </article>
-        ))}
+        <Section title="1. ¿Quién puede enviar música?">
+          <p>
+            Solo pueden enviar música los artistas o titulares de derechos que hayan creado o posean los
+            derechos de la música generada por inteligencia artificial. Al enviar tu música, confirmas que
+            tienes todos los permisos necesarios y que eres el único y legítimo titular de los derechos de
+            propiedad intelectual sobre la obra.
+          </p>
+        </Section>
+
+        <Section title="2. Tu música y la IA">
+          <p>
+            En Sonoria FM nos centramos en la música creada con inteligencia artificial. Al enviarnos tu
+            obra, garantizas que ha sido generada total o parcialmente con IA bajo tu dirección creativa,
+            que cumples con las políticas de uso de las herramientas de IA que hayas utilizado, y que la
+            obra resultante es original y no infringe derechos de terceros.
+          </p>
+        </Section>
+
+        <Section title="3. Autorización para la emisión (¡esto es clave!)">
+          <p>
+            Al enviar tu música a Sonoria FM, nos concedes una licencia no exclusiva, mundial y gratuita
+            para:
+          </p>
+          <List>
+            <li><strong>Emitir y reproducir técnicamente</strong> tu música en nuestra radio online.</li>
+            <li><strong>Almacenar</strong> tu música en nuestros servidores para poder emitirla.</li>
+            <li>
+              <strong>Promocionar</strong> tu música y Sonoria FM usando fragmentos de tus obras en
+              nuestros canales de comunicación.
+            </li>
+            <li>
+              <strong>Asociar publicidad</strong> junto o durante la emisión de tu música, sin que esto
+              genere derecho a compensación adicional por tu parte.
+            </li>
+          </List>
+          <p>
+            Esta licencia nos permite emitir tu música, pero <strong>tú sigues siendo el dueño de tus
+            derechos de autor</strong>. No te preocupes, no vendemos tu música ni la usamos para otros
+            fines sin tu permiso expreso.
+          </p>
+        </Section>
+
+        <Section title="4. Tus responsabilidades como artista">
+          <p>Al enviar tu música, te comprometes a:</p>
+          <List>
+            <li>
+              Asegurarte de que tienes todos los derechos y permisos sobre la música que nos envías,
+              incluyendo los derechos de las fuentes de datos utilizadas por la IA si fuera relevante.
+            </li>
+            <li>
+              Garantizar que tu música no infringe derechos de autor de terceros, marcas registradas,
+              derechos de privacidad, derechos de imagen, o cualquier otra ley o derecho de propiedad
+              intelectual.
+            </li>
+            <li>
+              No enviar contenido ilegal, ofensivo, difamatorio o que promueva la violencia o la
+              discriminación.
+            </li>
+            <li>
+              <strong>Indemnizar y eximir de responsabilidad a Sonoria FM</strong> frente a cualquier
+              reclamación, demanda, daño, pérdida o gasto (incluidos los honorarios de abogados) que
+              surja de cualquier incumplimiento de estas garantías por tu parte o de cualquier
+              reclamación de terceros relacionada con la música que nos has enviado.
+            </li>
+          </List>
+        </Section>
+
+        <Section title="5. Nuestros derechos (Sonoria FM)">
+          <p>Nos reservamos el derecho de:</p>
+          <List>
+            <li>
+              <strong>Seleccionar</strong> la música que emitimos. No toda la música enviada será
+              emitida.
+            </li>
+            <li><strong>Programar</strong> tu música en el momento que consideremos oportuno.</li>
+            <li>
+              <strong>Retirar</strong> tu música de nuestra programación en cualquier momento y por
+              cualquier motivo, sin previo aviso.
+            </li>
+            <li>
+              <strong>Editar</strong> tu música para adaptarla a los formatos de emisión (por ejemplo,
+              ajustar el volumen o cortar intros/outros si es necesario), siempre respetando la
+              integridad de la obra.
+            </li>
+          </List>
+        </Section>
+
+        <Section title="6. Contacto para derechos y reclamaciones">
+          <p>
+            Si tienes alguna duda sobre los derechos de tu música, o si crees que tu música ha sido
+            utilizada de forma indebida, puedes contactarnos en:{' '}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-primary hover:underline">
+              {CONTACT_EMAIL}
+            </a>
+          </p>
+        </Section>
+
+        <Section title="7. Ley aplicable y jurisdicción">
+          <p>
+            Estos términos se rigen por la ley española. Para cualquier disputa, los tribunales del
+            domicilio legal del titular de Sonoria FM serán los competentes.
+          </p>
+        </Section>
       </div>
 
-      <p className="mt-10 text-center text-sm text-muted-foreground">
-        Dudas sobre este texto: escríbenos a{' '}
-        <a href="mailto:Oldestmanmusic@gmail.com" className="font-medium text-primary hover:underline">
-          Oldestmanmusic@gmail.com
-        </a>
-      </p>
-      <p className="mt-2 text-center text-xs text-muted-foreground">
+      <p className="mt-10 text-center text-xs text-muted-foreground">
         <Link to="/envia-tu-cancion" className="hover:text-foreground">Volver a enviar tu canción</Link>
       </p>
     </section>
