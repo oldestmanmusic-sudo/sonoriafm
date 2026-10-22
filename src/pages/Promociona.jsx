@@ -11,7 +11,7 @@ const PRODUCTS = [
   icon: Star,
   title: 'Artista destacado de la semana',
   price: '15 €',
-  period: 'pago único',
+  period: "pago \xFAnico - IVA incl",
   desc: "Tu nombre y tu m\xFAsica en un hueco protagonista de la portada durante siete d\xEDas. Plazas limitadas: un artista por semana."
 },
 {
