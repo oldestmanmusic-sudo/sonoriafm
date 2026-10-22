@@ -49,9 +49,9 @@ export default function Donar() {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
           <Heart className="h-7 w-7 text-primary" />
         </div>
-        <h1 className="mt-4 font-heading text-3xl font-extrabold tracking-tight">Apoya SONORIA</h1>
+        <h1 className="mt-4 font-heading text-3xl font-extrabold tracking-tight">Apoya SONORIA FM</h1>
         <p className="mt-3 text-muted-foreground">
-          SONORIA es una radio libre e independiente. Con tu donación seguimos descubriendo artistas y emitiendo música 24/7. Cada euro cuenta.
+          SONORIA FM es una radio libre e independiente. Con tu donación seguimos descubriendo artistas y emitiendo música 24/7. Cada euro cuenta.
         </p>
 
         <div className="mt-8 grid grid-cols-4 gap-2">
@@ -94,7 +94,7 @@ export default function Donar() {
         </Button>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          Pago seguro con tarjeta. Al finalizar vuelves automáticamente a SONORIA.
+          Pago seguro con tarjeta. Al finalizar vuelves automáticamente a SONORIA FM.
         </p>
       </div>
     </section>
