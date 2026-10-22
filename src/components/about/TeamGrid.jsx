@@ -4,7 +4,7 @@ const TEAM = [
   {
     name: 'Marta Ibáñez',
     role: 'Fundadora y directora',
-    bio: 'Puso en marcha SONORIA con una idea sencilla: que la buena música no entienda de fronteras ni de géneros.',
+    bio: 'Puso en marcha SONORIA FM con una idea sencilla: que la buena música no entienda de fronteras ni de géneros.',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80',
   },
   {
