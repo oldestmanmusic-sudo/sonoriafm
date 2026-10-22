@@ -19,7 +19,7 @@ const PRODUCTS = [
   icon: PenLine,
   title: 'Reseña o entrevista en la web',
   price: '20 €',
-  period: 'pago único',
+  period: "pago \xFAnico - IVA incluido",
   desc: 'Un artículo contando quién eres y qué llevas entre manos, publicado en Noticias.'
 },
 {
