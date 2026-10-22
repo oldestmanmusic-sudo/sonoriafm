@@ -6,31 +6,31 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Star, PenLine, Repeat, Sparkles, ShieldCheck } from 'lucide-react';
 
 const PRODUCTS = [
-  {
-    id: 'destacado_semana',
-    icon: Star,
-    title: 'Artista destacado de la semana',
-    price: '15 €',
-    period: 'pago único',
-    desc: 'Tu cara y tu música en un hueco protagonista de la portada durante siete días.',
-  },
-  {
-    id: 'resena_entrevista',
-    icon: PenLine,
-    title: 'Reseña o entrevista en la web',
-    price: '20 €',
-    period: 'pago único',
-    desc: 'Un artículo contando quién eres y qué llevas entre manos, publicado en Noticias.',
-  },
-  {
-    id: 'rotacion_mensual',
-    icon: Repeat,
-    title: 'Más rotación de tu tema',
-    price: '10 €/mes',
-    period: 'suscripción mensual',
-    desc: 'Repeticiones extra en la programación para que tu canción suene muchas más veces.',
-  },
-];
+{
+  id: 'destacado_semana',
+  icon: Star,
+  title: 'Artista destacado de la semana',
+  price: '15 €',
+  period: 'pago único',
+  desc: "Tu nombre y tu m\xFAsica en un hueco protagonista de la portada durante siete d\xEDas. Plazas limitadas: un artista por semana."
+},
+{
+  id: 'resena_entrevista',
+  icon: PenLine,
+  title: 'Reseña o entrevista en la web',
+  price: '20 €',
+  period: 'pago único',
+  desc: 'Un artículo contando quién eres y qué llevas entre manos, publicado en Noticias.'
+},
+{
+  id: 'rotacion_mensual',
+  icon: Repeat,
+  title: 'Más rotación de tu tema',
+  price: '10 €/mes',
+  period: 'suscripción mensual',
+  desc: 'Repeticiones extra en la programación para que tu canción suene muchas más veces.'
+}];
+
 
 export default function Promociona() {
   const [artistName, setArtistName] = useState('');
@@ -51,7 +51,7 @@ export default function Promociona() {
       const res = await base44.functions.invoke('create-checkout', {
         productId,
         artistName: artistName.trim(),
-        songTitle: songTitle.trim(),
+        songTitle: songTitle.trim()
       });
       if (res?.data?.redirectUrl) {
         window.location.href = res.data.redirectUrl;
@@ -87,8 +87,8 @@ export default function Promociona() {
               value={artistName}
               onChange={(e) => setArtistName(e.target.value)}
               placeholder="Ej. INERT.IA"
-              maxLength={100}
-            />
+              maxLength={100} />
+            
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="song-title">Título de la canción</Label>
@@ -97,8 +97,8 @@ export default function Promociona() {
               value={songTitle}
               onChange={(e) => setSongTitle(e.target.value)}
               placeholder="Ej. mi nuevo single"
-              maxLength={150}
-            />
+              maxLength={150} />
+            
           </div>
         </div>
         {formError && <p className="mt-3 text-sm text-destructive">{formError}</p>}
@@ -121,13 +121,13 @@ export default function Promociona() {
               <Button
                 onClick={() => hire(p.id)}
                 disabled={loadingId !== null}
-                className="mt-5 w-full rounded-full"
-              >
+                className="mt-5 w-full rounded-full">
+                
                 {loadingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {loadingId === p.id ? 'Abriendo pago...' : 'Contratar'}
               </Button>
-            </div>
-          );
+            </div>);
+
         })}
       </div>
 
@@ -136,6 +136,6 @@ export default function Promociona() {
       <p className="mt-10 flex items-center justify-center gap-2 text-xs text-muted-foreground">
         <ShieldCheck className="h-4 w-4 text-accent" /> Pago seguro gestionado por la pasarela oficial. Te contactaremos por email tras el pago.
       </p>
-    </section>
-  );
+    </section>);
+
 }
