@@ -133,7 +133,7 @@ export default function Promociona() {
 
       {payError && <p className="mt-6 text-center text-sm text-destructive">{payError}</p>}
 
-      <p className="mt-10 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+      <p className="mt-10 flex items-center justify-center gap-2 text-muted-foreground text-sm">
         <ShieldCheck className="h-4 w-4 text-accent" /> Pago seguro gestionado por la pasarela oficial. Te contactaremos por email tras el pago.
 Después de contratar, te escribiremos en menos de 48 horas para preparar tu servicio.
       </p>
