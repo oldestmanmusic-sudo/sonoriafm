@@ -32,7 +32,7 @@ export default function Contacto() {
               <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
                 <p className="text-sm font-semibold">Correo</p>
-                <p className="text-sm text-muted-foreground">hola@sonoria.fm</p>
+                <p className="text-sm text-muted-foreground">Oldestmanmusic@</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -52,6 +52,6 @@ export default function Contacto() {
           </div>
         </aside>
       </div>
-    </div>
-  );
+    </div>);
+
 }
