@@ -16,9 +16,24 @@ export default async function(req) {
     const track = await base44.asServiceRole.entities.Track.get(trackId);
     if (!track) return Response.json({ error: 'Canción no encontrada' }, { status: 404 });
 
-    const likes = (track.likes ?? 0) + 1;
-    await base44.asServiceRole.entities.Track.update(trackId, { likes });
-    return Response.json({ likes });
+    // Deduplicación por usuario: un "me gusta" por usuario y canción.
+    const existing = await base44.asServiceRole.entities.TrackLike.filter({
+      track_id: trackId,
+      user_id: user.id,
+    }, { limit: 1 });
+    const alreadyLiked = (existing && existing.length > 0) || (existing && existing.items && existing.items.length > 0);
+
+    if (!alreadyLiked) {
+      await base44.asServiceRole.entities.TrackLike.create({
+        track_id: trackId,
+        user_id: user.id,
+      });
+      // Incremento atómico del contador en el servidor.
+      await base44.asServiceRole.entities.Track.updateMany({ id: trackId }, { $inc: { likes: 1 } });
+    }
+
+    const updated = await base44.asServiceRole.entities.Track.get(trackId);
+    return Response.json({ likes: updated.likes ?? track.likes ?? 0, liked: true, already: alreadyLiked });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

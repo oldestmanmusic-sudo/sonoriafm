@@ -1,0 +1,45 @@
+{
+  "name": "TrackLike",
+  "type": "object",
+  "properties": {
+    "track_id": {
+      "type": "string",
+      "description": "Id de la canci\u00f3n a la que el usuario dio me gusta."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Id del usuario que dio me gusta."
+    }
+  },
+  "required": [
+    "track_id",
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
