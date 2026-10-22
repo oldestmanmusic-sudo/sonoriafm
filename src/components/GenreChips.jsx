@@ -1,7 +1,7 @@
 import { GENRES } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
-export const CHANNELS = ['Todo SONORIA', ...GENRES];
+export const CHANNELS = ['Todo SONORIA FM', ...GENRES];
 
 export default function GenreChips({ value, onChange }) {
   return (
