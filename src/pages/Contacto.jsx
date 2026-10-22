@@ -39,7 +39,7 @@ export default function Contacto() {
               <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
                 <p className="text-sm font-semibold">Estudios</p>
-                <p className="text-sm text-muted-foreground">Madrid, España · emitiendo para todo el mundo</p>
+                <p className="text-sm text-muted-foreground">Alicante, España · emitiendo para todo el mundo</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
