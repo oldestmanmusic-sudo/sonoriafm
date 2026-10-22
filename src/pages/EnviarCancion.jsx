@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { GENRES, SUBMISSION_TOOLS } from '@/lib/brand';
-import { safeAudioUrl } from '@/lib/trackUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +14,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Mail, Loader2, Send, CheckCircle2, LogIn } from 'lucide-react';
+
+const Req = () => <span className="text-primary">*</span>;
 
 export default function EnviarCancion() {
   const [authed, setAuthed] = useState(null);
@@ -29,11 +30,10 @@ export default function EnviarCancion() {
     artist_name: '',
     email: '',
     song_title: '',
-    genre: 'Pop latino',
-    audio_link: '',
+    genre: '',
     artist_bio: '',
     description: '',
-    tool: 'Suno',
+    tool: '',
     lyrics: '',
   });
   const [file, setFile] = useState(null);
@@ -52,33 +52,47 @@ export default function EnviarCancion() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.artist_name.trim() || !form.song_title.trim()) {
-      setError('Completa tu nombre artístico y el título de la canción.');
+
+    // Todos los campos son obligatorios.
+    const missing = [];
+    if (!form.artist_name.trim()) missing.push('nombre artístico');
+    if (!form.email.trim()) missing.push('email');
+    if (!artistImageFile) missing.push('imagen del artista');
+    if (!form.artist_bio.trim()) missing.push('descripción del artista');
+    if (!form.song_title.trim()) missing.push('título de la canción');
+    if (!form.genre) missing.push('género');
+    if (!file) missing.push('archivo de audio');
+    if (!coverFile) missing.push('carátula de la canción');
+    if (!form.tool) missing.push('herramienta usada');
+    if (!form.description.trim()) missing.push('descripción de la canción');
+    if (!form.lyrics.trim()) missing.push('letra');
+    if (missing.length) {
+      setError(`Todos los campos son obligatorios. Falta: ${missing.join(', ')}.`);
       return;
     }
-    // Email de contacto: obligatorio y con formato válido.
-    const emailTrim = form.email.trim();
-    if (!emailTrim || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrim)) {
-      setError('Necesitamos tu email para poder contactarte');
-      return;
-    }
-    if (!file) {
-      setError('Debes adjuntar un archivo de audio (MP3).');
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setError('Introduce un email válido para que podamos contactarte.');
       return;
     }
     const ext = file.name.split('.').pop().toLowerCase();
     if (!['mp3', 'wav'].includes(ext)) {
-      setError('Debes adjuntar un archivo de audio (MP3).');
+      setError('El archivo de audio debe ser MP3 o WAV.');
+      return;
+    }
+    if (!artistImageFile.type.startsWith('image/') || !coverFile.type.startsWith('image/')) {
+      setError('La imagen del artista y la carátula deben ser archivos de imagen.');
       return;
     }
     if (!confirmed) {
-      setError('Confirma que la música es tuya y que aceptas que se publique.');
+      setError('Debes confirmar las declaraciones sobre la titularidad y el origen de la música.');
       return;
     }
     if (!termsAccepted) {
-      setError('Debes aceptar los Términos y Condiciones para enviar la canción.');
+      setError('Debes aceptar los Términos para Artistas para enviar la canción.');
       return;
     }
+
     // Anti-duplicados: mismo artista y título equivalente (mayúsculas y
     // paréntesis como "(Remastered)" no cuentan).
     try {
@@ -97,40 +111,20 @@ export default function EnviarCancion() {
     setSubmitting(true);
     setError('');
     try {
-      // El audio se sube a almacenamiento público: la radio necesita una URL
-      // permanente y accesible para emitirlo a todos los oyentes.
-      let audio_link = form.audio_link.trim();
-      if (file) {
-        const res = await base44.integrations.Core.UploadPublicFile({ file });
-        audio_link = res.file_url;
-      } else if (audio_link) {
-        // Solo URLs http(s): se rechazan otros esquemas por seguridad.
-        audio_link = safeAudioUrl(audio_link);
-        if (!audio_link) {
-          setError('El enlace al audio debe ser una URL web válida (que empiece por http o https).');
-          return;
-        }
-      }
-      // Caratula e imagen del artista en almacenamiento publico: la ficha del
-      // artista y la cancion son visibles en la web y necesitan URL permanente.
-      let cover_url = null;
-      if (coverFile) {
-        const res = await base44.integrations.Core.UploadPublicFile({ file: coverFile });
-        cover_url = res.file_url;
-      }
-      let artist_image_url = null;
-      if (artistImageFile) {
-        const res = await base44.integrations.Core.UploadPublicFile({ file: artistImageFile });
-        artist_image_url = res.file_url;
-      }
+      // El audio, la carátula y la imagen del artista se suben a almacenamiento
+      // público: la radio y las fichas de la web necesitan una URL permanente.
+      const audioRes = await base44.integrations.Core.UploadPublicFile({ file });
+      const coverRes = await base44.integrations.Core.UploadPublicFile({ file: coverFile });
+      const imageRes = await base44.integrations.Core.UploadPublicFile({ file: artistImageFile });
+
       await base44.entities.Submission.create({
         artist_name: form.artist_name.trim(),
         email: form.email.trim(),
         song_title: form.song_title.trim(),
         genre: form.genre,
-        audio_link,
-        cover_url,
-        artist_image_url,
+        audio_link: audioRes.file_url,
+        cover_url: coverRes.file_url,
+        artist_image_url: imageRes.file_url,
         artist_bio: form.artist_bio.trim(),
         tool: form.tool,
         lyrics: form.lyrics.trim(),
@@ -192,32 +186,34 @@ export default function EnviarCancion() {
       <h1 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">Envía tu canción</h1>
       <p className="mt-2 text-muted-foreground">
         ¿Haces música con IA? Envíanos tu tema: entrará como pendiente y el equipo de SONORIA la revisará antes de publicarla.
+        Las canciones solo se aceptan a través de este formulario y <strong>todos los campos son obligatorios</strong>.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5 rounded-3xl border border-border bg-card p-6 sm:p-8">
         <div className="space-y-2">
-          <Label htmlFor="artist_name">Nombre artístico <span className="text-primary">*</span></Label>
-          <Input id="artist_name" value={form.artist_name} onChange={(e) => set('artist_name', e.target.value)} placeholder="Tu nombre de artista" />
+          <Label htmlFor="artist_name">Nombre artístico <Req /></Label>
+          <Input id="artist_name" required value={form.artist_name} onChange={(e) => set('artist_name', e.target.value)} placeholder="Tu nombre de artista" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email <span className="text-primary">*</span></Label>
-          <Input id="email" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="tu@email.com" />
+          <Label htmlFor="email">Email <Req /></Label>
+          <Input id="email" type="email" required value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="tu@email.com" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="artist_image">Imagen del artista (opcional)</Label>
-          <Input id="artist_image" type="file" accept="image/*" onChange={(e) => setArtistImageFile(e.target.files?.[0] ?? null)} />
+          <Label htmlFor="artist_image">Imagen del artista <Req /></Label>
+          <Input id="artist_image" type="file" accept="image/*" required onChange={(e) => setArtistImageFile(e.target.files?.[0] ?? null)} />
           {artistImageFile && (
             <img src={URL.createObjectURL(artistImageFile)} alt="Imagen del artista" className="h-24 w-24 rounded-xl object-cover" />
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="artist_bio">Descripción del artista (opcional)</Label>
+          <Label htmlFor="artist_bio">Descripción del artista <Req /></Label>
           <Textarea
             id="artist_bio"
             rows={3}
+            required
             value={form.artist_bio}
             onChange={(e) => set('artist_bio', e.target.value)}
             placeholder="Cuéntanos quién eres: tu estilo, tus referencias, de dónde eres… Aparecerá en tu ficha de artista."
@@ -226,13 +222,13 @@ export default function EnviarCancion() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="song_title">Título de la canción <span className="text-primary">*</span></Label>
-            <Input id="song_title" value={form.song_title} onChange={(e) => set('song_title', e.target.value)} placeholder="Título" />
+            <Label htmlFor="song_title">Título de la canción <Req /></Label>
+            <Input id="song_title" required value={form.song_title} onChange={(e) => set('song_title', e.target.value)} placeholder="Título" />
           </div>
           <div className="space-y-2">
-            <Label>Género</Label>
+            <Label>Género <Req /></Label>
             <Select value={form.genre} onValueChange={(v) => set('genre', v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Elige un género" /></SelectTrigger>
               <SelectContent>
                 {GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
               </SelectContent>
@@ -241,25 +237,23 @@ export default function EnviarCancion() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="audio_link">Enlace al audio</Label>
-          <Input id="audio_link" value={form.audio_link} onChange={(e) => set('audio_link', e.target.value)} placeholder="https://…" />
-          <p className="text-xs text-muted-foreground">O sube el archivo de audio (máx. 25 MB).</p>
-          <Input type="file" accept=".mp3,.wav,audio/mpeg,audio/wav" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          <Label htmlFor="audio_file">Archivo de audio (MP3 o WAV, máx. 25 MB) <Req /></Label>
+          <Input id="audio_file" type="file" required accept=".mp3,.wav,audio/mpeg,audio/wav" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           {file && <p className="text-xs text-muted-foreground">Archivo: {file.name}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="cover">Carátula de la canción (opcional)</Label>
-          <Input id="cover" type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} />
+          <Label htmlFor="cover">Carátula de la canción <Req /></Label>
+          <Input id="cover" type="file" accept="image/*" required onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} />
           {coverFile && (
             <img src={URL.createObjectURL(coverFile)} alt="Carátula" className="h-24 w-24 rounded-xl object-cover" />
           )}
         </div>
 
         <div className="space-y-2">
-          <Label>Herramienta usada</Label>
+          <Label>Herramienta de IA usada <Req /></Label>
           <Select value={form.tool} onValueChange={(v) => set('tool', v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Elige la herramienta" /></SelectTrigger>
             <SelectContent>
               {SUBMISSION_TOOLS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>
@@ -267,10 +261,11 @@ export default function EnviarCancion() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Descripción de la canción (opcional)</Label>
+          <Label htmlFor="description">Descripción de la canción <Req /></Label>
           <Textarea
             id="description"
             rows={3}
+            required
             value={form.description}
             onChange={(e) => set('description', e.target.value)}
             placeholder="Describe esta canción: de qué va, cómo la creaste… Aparecerá en su página."
@@ -278,8 +273,8 @@ export default function EnviarCancion() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lyrics">Letra (opcional)</Label>
-          <Textarea id="lyrics" rows={4} value={form.lyrics} onChange={(e) => set('lyrics', e.target.value)} placeholder="Letra de la canción…" />
+          <Label htmlFor="lyrics">Letra <Req /></Label>
+          <Textarea id="lyrics" rows={4} required value={form.lyrics} onChange={(e) => set('lyrics', e.target.value)} placeholder="Letra de la canción…" />
         </div>
 
         <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-4 text-sm">
@@ -290,7 +285,9 @@ export default function EnviarCancion() {
             className="mt-0.5 h-4 w-4 accent-[hsl(var(--primary))]"
           />
           <span>
-            Confirmo que la música es mía (o tengo permiso para publicarla) y acepto que SONORIA la emita en la radio.
+            Declaro que soy el artista o titular legítimo de los derechos de esta música, que ha sido generada total o
+            parcialmente con IA bajo mi dirección creativa, que cumplo las políticas de uso de la herramienta de IA
+            utilizada y que la obra es original y no infringe derechos de terceros.
           </span>
         </label>
 
@@ -304,9 +301,11 @@ export default function EnviarCancion() {
           <span>
             He leído y acepto los{' '}
             <Link to="/terminos" target="_blank" className="font-medium text-primary hover:underline">
-              Términos y Condiciones
+              Términos para Artistas
             </Link>
-            : autorizo a SONORIA a reproducir mi canción, renuncio a cualquier reclamación por ello y asumo la responsabilidad sobre el contenido y los datos que envío.
+            : concedo a Sonoria FM una licencia no exclusiva, mundial y gratuita para emitir, almacenar y promocionar mi
+            música y asociar publicidad a su emisión, conservo la titularidad de mis derechos y asumo las
+            responsabilidades e indemnización que se indican en ellos.
           </span>
         </label>
 
@@ -318,9 +317,9 @@ export default function EnviarCancion() {
         </Button>
       </form>
 
-      <p className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+      <p className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
         <Mail className="h-4 w-4" />
-        ¿Prefieres el correo? Escríbenos a
+        ¿Dudas sobre tu envío o tus derechos? Escríbenos a
         <a href="mailto:Oldestmanmusic@gmail.com" className="font-medium text-primary hover:underline">Oldestmanmusic@gmail.com</a>
       </p>
     </section>
