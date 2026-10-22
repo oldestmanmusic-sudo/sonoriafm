@@ -9,7 +9,7 @@ export default function ThankYou() {
         <HeartHandshake className="mx-auto h-14 w-14 text-primary" />
         <h1 className="mt-4 font-heading text-3xl font-extrabold tracking-tight">¡Gracias de corazón!</h1>
         <p className="mt-3 text-muted-foreground">
-          Tu pago ya está registrado. Si contrataste un servicio de promoción, te escribimos en breve por email para prepararlo; si fue una donación, hace posible que SONORIA siga emitiendo música independiente las 24 horas.
+          Tu pago ya está registrado. Si contrataste un servicio de promoción, te escribimos en breve por email para prepararlo; si fue una donación, hace posible que SONORIA FM siga emitiendo música independiente las 24 horas.
         </p>
         <Link to="/" className="mt-8 inline-block">
           <Button className="rounded-full">Volver a la radio</Button>
