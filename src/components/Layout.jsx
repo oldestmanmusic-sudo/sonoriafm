@@ -17,11 +17,11 @@ export default function Layout() {
 
   // Transición de pantalla: empuje desde la derecha, regreso desde la izquierda.
   const pageVariants =
-    navType === 'PUSH'
-      ? { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '-30%' } }
-      : navType === 'POP'
-        ? { initial: { x: '-30%' }, animate: { x: 0 }, exit: { x: '100%' } }
-        : { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } };
+  navType === 'PUSH' ?
+  { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '-30%' } } :
+  navType === 'POP' ?
+  { initial: { x: '-30%' }, animate: { x: 0 }, exit: { x: '100%' } } :
+  { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } };
 
   useEffect(() => {
     let active = true;
@@ -32,10 +32,10 @@ export default function Layout() {
         const { items } = await base44.entities.Track.filter({}, { sort: '-played_at', limit: 500 });
         if (active) setPlaylist(items);
       } catch {
-        /* ignore */
-      }
+
+        /* ignore */}
     })();
-    return () => { active = false; };
+    return () => {active = false;};
   }, []);
 
   return (
@@ -49,15 +49,15 @@ export default function Layout() {
               initial={pageVariants.initial}
               animate={pageVariants.animate}
               exit={pageVariants.exit}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-            >
+              transition={{ duration: 0.25, ease: 'easeOut' }}>
+              
               <Suspense
                 fallback={
-                  <div className="flex justify-center py-24">
+                <div className="flex justify-center py-24">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
-                }
-              >
+                }>
+                
                 <Outlet />
               </Suspense>
             </motion.div>
@@ -91,7 +91,7 @@ export default function Layout() {
             </div>
           </div>
           <div className="mx-auto max-w-6xl px-4 mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-            <p>SONORIA · Música variada en vivo 24/7</p>
+            <p>La radio de la música hecha con IA. Música en español, artistas de todo el mundo, las 24 horas.</p>
             <div className="flex items-center gap-4">
               <Link to="/admin" className="hover:text-foreground">Panel de administración</Link>
               <Link to="/cuenta" className="hover:text-foreground">Mi cuenta</Link>
@@ -103,6 +103,6 @@ export default function Layout() {
         <RadioPlayer nowPlaying={nowPlaying} />
         <BottomTabs />
       </div>
-    </RadioProvider>
-  );
+    </RadioProvider>);
+
 }
