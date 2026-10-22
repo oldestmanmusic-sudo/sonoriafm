@@ -27,7 +27,7 @@ const PRODUCTS = [
   icon: Repeat,
   title: 'Más rotación de tu tema',
   price: '10 €/mes',
-  period: 'suscripción mensual',
+  period: "Sus.Mens. ",
   desc: "Tu canci\xF3n suena hasta 3 veces m\xE1s en la programaci\xF3n."
 }];
 
