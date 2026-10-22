@@ -33,7 +33,7 @@ export default function SiteNav() {
             <Radio className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </span>
           <span className="font-heading text-lg sm:text-xl font-extrabold tracking-tight">
-            SONOR<span className="text-primary">IA</span>
+            SONOR<span className="text-primary">IA</span> FM
           </span>
         </Link>
 
@@ -66,7 +66,7 @@ export default function SiteNav() {
           </SheetTrigger>
           <SheetContent side="right" className="w-72">
             <SheetTitle className="font-heading text-lg font-extrabold tracking-tight">
-              SONOR<span className="text-primary">IA</span>
+              SONOR<span className="text-primary">IA</span> FM
             </SheetTitle>
             <div className="mt-6 flex flex-col gap-1">
               {links.map((l) => (
