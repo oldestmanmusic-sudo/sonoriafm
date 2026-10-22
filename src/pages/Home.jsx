@@ -24,7 +24,7 @@ export default function Home() {
 
   const load = useCallback(async () => {
     try {
-      const [trackRes, artistRes, topRes] = await Promise.all([
+      const [trackRes, topRes, artistRes] = await Promise.all([
         base44.entities.Track.filter({}, { sort: '-played_at', limit: 1 }),
         base44.entities.Track.filter({}, { sort: '-likes', limit: 10 }),
         base44.entities.Artist.filter({ name: { $ne: 'SONORIA' } }, { sort: '-likes', limit: 4 }),
