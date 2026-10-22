@@ -67,7 +67,7 @@ export default function Layout() {
           <div className="mx-auto max-w-6xl px-4 grid gap-8 sm:grid-cols-[1.5fr_1fr_1.4fr]">
             <div>
               <p className="font-heading text-lg font-extrabold tracking-tight">
-                SONOR<span className="text-primary">IA</span>
+                SONOR<span className="text-primary">IA</span> FM
               </p>
               <p className="mt-2 max-w-xs text-sm text-muted-foreground">SONORIA FM · Música en español creada con IA, 24/7
 
@@ -93,7 +93,7 @@ export default function Layout() {
           <div className="mx-auto max-w-6xl px-4 mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <p>La radio de la música hecha con IA. Música en español, artistas de todo el mundo, las 24 horas.</p>
             <div className="flex items-center gap-4">
-              <p>© {new Date().getFullYear()} SONORIA</p>
+              <p>© {new Date().getFullYear()} SONORIA FM</p>
             </div>
           </div>
         </footer>
