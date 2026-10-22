@@ -13,7 +13,7 @@ export default function Home() {
   const [nowPlaying, setNowPlaying] = useState(null);
   const [artists, setArtists] = useState(null);
   const [topTen, setTopTen] = useState(null);
-  const [genre, setGenre] = useState('Todo SONORIA');
+  const [genre, setGenre] = useState('Todo SONORIA FM');
   const [refreshKey, setRefreshKey] = useState(0);
   const activeRef = useRef(true);
 
@@ -69,7 +69,7 @@ export default function Home() {
         <div className="flex items-end justify-between mb-6">
           <div>
             <h2 className="font-heading text-2xl font-bold">Artistas destacados</h2>
-            <p className="text-muted-foreground text-sm">Voces y sonidos que suenan en SONORIA</p>
+            <p className="text-muted-foreground text-sm">Voces y sonidos que suenan en SONORIA FM</p>
           </div>
           <Link to="/artistas" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
             Ver todos <ArrowRight className="h-4 w-4" />
