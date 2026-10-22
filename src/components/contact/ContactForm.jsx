@@ -46,7 +46,7 @@ export default function ContactForm() {
         <CheckCircle2 className="mx-auto h-10 w-10 text-primary" />
         <h3 className="mt-4 font-heading text-xl font-bold">¡Mensaje enviado!</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Gracias por escribirnos. El equipo de SONORIA te responderá lo antes posible.
+          Gracias por escribirnos. El equipo de SONORIA FM te responderá lo antes posible.
         </p>
         <Button variant="outline" className="mt-6 rounded-full" onClick={() => setSent(false)}>
           Enviar otro mensaje
