@@ -43,7 +43,7 @@ export default function AdminDashboard() {
         Hola{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Gestiona el contenido de SONORIA: publica artículos y actualiza artistas, programación e historial.
+        Gestiona el contenido de SONORIA FM: publica artículos y actualiza artistas, programación e historial.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
