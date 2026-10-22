@@ -37,7 +37,7 @@ export default function RadioPlayer({ nowPlaying }) {
               <span className="h-1.5 w-1.5 rounded-full bg-accent pulse-live" /> En vivo
             </span>
           )}
-          <p className="line-clamp-2 text-sm font-semibold leading-tight">{track?.title ?? 'SONORIA Radio'}</p>
+          <p className="line-clamp-2 text-sm font-semibold leading-tight">{track?.title ?? 'SONORIA FM'}</p>
           <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música hecha con IA'}</p>
         </div>
 
