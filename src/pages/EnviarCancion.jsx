@@ -103,7 +103,7 @@ export default function EnviarCancion() {
       );
       const wanted = normalizeTitle(form.song_title);
       if (candidates.some((t) => normalizeTitle(t.title) === wanted)) {
-        setError('Esa canción ya está en SONORIA');
+        setError('Esa canción ya está en SONORIA FM');
         return;
       }
     } catch { /* si la comprobación falla, seguimos con el envío normal */ }
@@ -155,7 +155,7 @@ export default function EnviarCancion() {
         <LogIn className="mx-auto h-12 w-12 text-primary" />
         <h1 className="mt-4 font-heading text-3xl font-extrabold">Envía tu canción</h1>
         <p className="mt-3 text-muted-foreground">
-          Necesitas una cuenta en SONORIA para enviarnos tu canción. Regístrate o inicia sesión y continúa donde estabas.
+          Necesitas una cuenta en SONORIA FM para enviarnos tu canción. Regístrate o inicia sesión y continúa donde estabas.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link to="/login?returnTo=/envia-tu-cancion">
@@ -175,7 +175,7 @@ export default function EnviarCancion() {
         <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />
         <h1 className="mt-4 font-heading text-3xl font-extrabold">¡Canción recibida!</h1>
         <p className="mt-3 text-muted-foreground">
-          Tu canción está pendiente de revisión. Si la aprobamos, sonará pronto en SONORIA.
+          Tu canción está pendiente de revisión. Si la aprobamos, sonará pronto en SONORIA FM.
         </p>
       </section>
     );
@@ -185,7 +185,7 @@ export default function EnviarCancion() {
     <section className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">Envía tu canción</h1>
       <p className="mt-2 text-muted-foreground">
-        ¿Haces música con IA? Envíanos tu tema: entrará como pendiente y el equipo de SONORIA la revisará antes de publicarla.
+        ¿Haces música con IA? Envíanos tu tema: entrará como pendiente y el equipo de SONORIA FM la revisará antes de publicarla.
         Las canciones solo se aceptan a través de este formulario y <strong>todos los campos son obligatorios</strong>.
       </p>
 
