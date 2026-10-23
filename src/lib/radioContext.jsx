@@ -1,6 +1,13 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 
-// RADIO 24H ALEATORIA: la emisión sigue anclada al reloj (medianoche local)
+// PARRILLA SONORIA FM (hora de Madrid, igual para todos los oyentes):
+//   00:00-08:00  Club Electrónico  -> música electrónica
+//   08:00-16:00  Top Sonoria        -> variada; el Top 10 (más likes) suena el doble
+//   16:00-24:00  Latino Total       -> pop y rock latino
+// Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
+// Dentro de cada franja, la rotación funciona como se explica a continuación.
+//
+// RADIO 24H ALEATORIA: la emisión sigue anclada al reloj (hora de Madrid)
 // para que todo el mundo conecte en el mismo punto de la emisión, pero el orden
 // de cada vuelta completa es un barajado aleatorio (determinista por vuelta:
 // la vuelta es la semilla) que intercala artistas, sin dos canciones seguidas
@@ -60,20 +67,20 @@ function interleaveArtists(order, prevArtist) {
 // intercalados; la primera pista no repite el artista con la última de la
 // vuelta anterior (así el borde entre vueltas tampoco junta artistas).
 const cycleCache = new Map();
-function buildCycle(list, cycle) {
+function buildCycle(list, cycle, prevList) {
   if (cycle < 0) cycle = 0;
   const cached = cycleCache.get(cycle);
-  if (cached && cached.list === list) return cached.schedule;
+  if (cached && cached.list === list && cached.prevList === prevList) return cached.schedule;
   const wrap = (t, fallback) => ({ track: t, dur: parseDuration(t.duration) || fallback });
   // El motor de emisión consume {track, dur}: envolvemos las canciones del
   // barajado con su duración real (o el respaldo de 4 minutos).
   const base = seededShuffle(list, cycle);
-  const prevLast = cycle > 0
-    ? interleaveArtists(seededShuffle(list, cycle - 1)).slice(-1)[0].artist
+  const prevLast = prevList
+    ? interleaveArtists(seededShuffle(prevList, cycle - 1)).slice(-1)[0].artist
     : null;
   const schedule = interleaveArtists(base, prevLast).map((t) => wrap(t, FALLBACK_DURATION));
   if (cycleCache.size > 500) cycleCache.clear();
-  cycleCache.set(cycle, { list, schedule });
+  cycleCache.set(cycle, { list, prevList, schedule });
   return schedule;
 }
 
@@ -92,17 +99,83 @@ function parseDuration(d) {
 // El índice de vuelta se ancla al día (base 1000 por día), así el borde entre
 // vueltas siempre conecta dos barajados distintos y el bucle es infinito.
 const MAX_CYCLES_PER_DAY = 500;
+
+// --- Parrilla por franjas ------------------------------------------------
+const PARRILLA_TZ = 'Europe/Madrid';
+const SLOT_SECONDS = 8 * 3600; // 3 franjas de 8 h: 0 Club Electrónico, 1 Top Sonoria, 2 Latino Total
+const ELECTRONIC_GENRES = new Set(['electrónica']);
+const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'pop rock']);
+const TOP_SIZE = 10;
+
+const madridFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: PARRILLA_TZ,
+  hourCycle: 'h23',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+});
+
+// Día y segundo del día según el reloj de Madrid (no el del navegador).
+function madridClock(nowMs) {
+  const p = {};
+  for (const part of madridFmt.formatToParts(new Date(nowMs))) p[part.type] = part.value;
+  const dayIndex = Math.floor(Date.UTC(+p.year, +p.month - 1, +p.day) / 86400000);
+  const frac = (((nowMs % 1000) + 1000) % 1000) / 1000;
+  const secondsOfDay = (+p.hour % 24) * 3600 + +p.minute * 60 + +p.second + frac;
+  return { dayIndex, secondsOfDay };
+}
+
+const normGenre = (g) => (g || '').toString().trim().toLowerCase();
+
+// Listas de canciones de cada franja (memoizadas por catálogo). Si una franja
+// se queda sin canciones de su estilo, suena todo el catálogo en lugar de silencio.
+const slotMemo = new WeakMap();
+function slotLists(list) {
+  let memo = slotMemo.get(list);
+  if (memo) return memo;
+  const electronic = list.filter((t) => ELECTRONIC_GENRES.has(normGenre(t.genre)));
+  const latino = list.filter((t) => LATINO_GENRES.has(normGenre(t.genre)));
+  const byLikes = [...list].sort(
+    (a, b) => (b.likes || 0) - (a.likes || 0) || String(a.id).localeCompare(String(b.id))
+  );
+  const top = byLikes.slice(0, TOP_SIZE);
+  const topIds = new Set(top.map((t) => t.id));
+  const rest = list.filter((t) => !topIds.has(t.id));
+  memo = {
+    electronic: electronic.length ? electronic : list,
+    latino: latino.length ? latino : list,
+    top,
+    rest,
+  };
+  slotMemo.set(list, memo);
+  return memo;
+}
+
+// Lista que se baraja en la vuelta k de una franja. Top Sonoria alterna:
+// Top 10, resto del catálogo (variedad), Top 10... así los 10 éxitos suenan el doble.
+function cycleList(lists, slot, k) {
+  if (slot === 0) return lists.electronic;
+  if (slot === 2) return lists.latino;
+  if (!lists.rest.length) return lists.top;
+  return k % 3 === 1 ? lists.rest : lists.top;
+}
 function findPosition(list, nowMs) {
-  const d = new Date(nowMs);
-  const midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const dayIndex = Math.floor(midnight / 86400000);
-  const secondsOfDay = (nowMs - midnight) / 1000;
+  const { dayIndex, secondsOfDay } = madridClock(nowMs);
+  const slot = Math.min(2, Math.floor(secondsOfDay / SLOT_SECONDS));
+  const secondsInSlot = secondsOfDay - slot * SLOT_SECONDS;
+  const lists = slotLists(list);
+  const listFor = (k) => cycleList(lists, slot, k);
+  const cycleAt = (k) =>
+    buildCycle(listFor(k), dayIndex * 100000 + slot * 1000 + k, k > 0 ? listFor(k - 1) : null);
   let acc = 0;
   for (let k = 0; k < MAX_CYCLES_PER_DAY; k++) {
-    const schedule = buildCycle(list, dayIndex * 1000 + k);
+    const schedule = cycleAt(k);
     const len = schedule.reduce((sum, item) => sum + item.dur, 0) || FALLBACK_DURATION;
-    if (secondsOfDay < acc + len) {
-      let t = secondsOfDay - acc;
+    if (secondsInSlot < acc + len) {
+      let t = secondsInSlot - acc;
       for (let i = 0; i < schedule.length; i++) {
         if (t < schedule[i].dur) return { schedule, index: i, offset: t };
         t -= schedule[i].dur;
@@ -111,7 +184,7 @@ function findPosition(list, nowMs) {
     }
     acc += len;
   }
-  return { schedule: buildCycle(list, dayIndex * 1000), index: 0, offset: 0 };
+  return { schedule: cycleAt(0), index: 0, offset: 0 };
 }
 
 export function RadioProvider({ children, playlist = [] }) {
