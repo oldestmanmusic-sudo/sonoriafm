@@ -9,6 +9,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import { lazy, Suspense } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import RedirectToLogin from '@/components/RedirectToLogin';
 import Layout from '@/components/Layout';
 
 // Carga diferida: cada pantalla se descarga solo cuando se visita.
@@ -72,22 +73,24 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/artistas" element={<Artists />} />
-        <Route path="/artistas/:id" element={<ArtistDetail />} />
-        <Route path="/cancion/:id" element={<TrackDetail />} />
-        <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
-        <Route path="/subir-cancion" element={<SubirCancion />} />
-        <Route path="/programacion" element={<Programming />} />
-        <Route path="/noticias" element={<Noticias />} />
-        <Route path="/noticias/:id" element={<ArticleDetail />} />
-        <Route path="/sobre-nosotros" element={<SobreNosotros />} />
-        <Route path="/contacto" element={<Contacto />} />
-        <Route path="/sugerencias" element={<Sugerencias />} />
-        <Route path="/donar" element={<Donar />} />
-        <Route path="/promociona-tu-musica" element={<Promociona />} />
+        {/* Los términos se pueden leer antes de registrarse. */}
         <Route path="/terminos" element={<Legal />} />
 
-        <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/cuenta" replace />} />}>
+        {/* Solo la radio (inicio) es libre: todo lo demás exige iniciar sesión o registrarse. */}
+        <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
+          <Route path="/artistas" element={<Artists />} />
+          <Route path="/artistas/:id" element={<ArtistDetail />} />
+          <Route path="/cancion/:id" element={<TrackDetail />} />
+          <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
+          <Route path="/subir-cancion" element={<SubirCancion />} />
+          <Route path="/programacion" element={<Programming />} />
+          <Route path="/noticias" element={<Noticias />} />
+          <Route path="/noticias/:id" element={<ArticleDetail />} />
+          <Route path="/sobre-nosotros" element={<SobreNosotros />} />
+          <Route path="/contacto" element={<Contacto />} />
+          <Route path="/sugerencias" element={<Sugerencias />} />
+          <Route path="/donar" element={<Donar />} />
+          <Route path="/promociona-tu-musica" element={<Promociona />} />
           <Route path="/cuenta" element={<Cuenta />} />
         </Route>
       </Route>
