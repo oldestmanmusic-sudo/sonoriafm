@@ -158,7 +158,7 @@ export default function EnviarCancion() {
           Necesitas una cuenta en SONORIA FM para enviarnos tu canción. Regístrate o inicia sesión y continúa donde estabas.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link to="/login?returnTo=/envia-tu-cancion">
+          <Link to="/login?returnTo=/subir-cancion">
             <Button className="rounded-full">Iniciar sesión</Button>
           </Link>
           <Link to="/register?returnTo=/envia-tu-cancion">
