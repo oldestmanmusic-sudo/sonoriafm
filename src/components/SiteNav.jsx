@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Radio, Menu } from 'lucide-react';
+import { Radio, Menu, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/AuthContext';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 const links = [
@@ -16,11 +17,18 @@ const links = [
   { to: '/promociona-tu-musica', label: 'Promociona tu música' },
 ];
 
+// Con la sesión iniciada, "Envía tu canción" se sustituye por el botón de subida rápida.
+const UPLOAD_LINK = { to: '/subir-cancion', label: 'Subir canción', highlight: true };
+
 export default function SiteNav() {
   const { pathname } = useLocation();
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
 
   const isActive = (to) => (to === '/' ? pathname === '/' : pathname.startsWith(to));
+  const navLinks = isAuthenticated
+    ? links.map((l) => (l.to === '/envia-tu-cancion' ? UPLOAD_LINK : l))
+    : links;
 
   return (
     <header
@@ -39,15 +47,20 @@ export default function SiteNav() {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-1">
-          {links.map((l) => (
+          {navLinks.map((l) => (
             <Link
               key={l.to}
               to={l.to}
               className={cn(
                 'px-3 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap',
-                isActive(l.to) ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                l.highlight
+                  ? 'inline-flex items-center gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90'
+                  : isActive(l.to)
+                    ? 'bg-primary/15 text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
               )}
             >
+              {l.highlight && <Upload className="h-3.5 w-3.5" />}
               {l.label}
             </Link>
           ))}
@@ -69,16 +82,21 @@ export default function SiteNav() {
               SONOR<span className="text-primary">IA</span> FM
             </SheetTitle>
             <div className="mt-6 flex flex-col gap-1">
-              {links.map((l) => (
+              {navLinks.map((l) => (
                 <Link
                   key={l.to}
                   to={l.to}
                   onClick={() => setOpen(false)}
                   className={cn(
                     'rounded-xl px-4 py-3 text-sm font-medium transition-colors',
-                    isActive(l.to) ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    l.highlight
+                      ? 'flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90'
+                      : isActive(l.to)
+                        ? 'bg-primary/15 text-primary'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                   )}
                 >
+                  {l.highlight && <Upload className="h-4 w-4" />}
                   {l.label}
                 </Link>
               ))}
