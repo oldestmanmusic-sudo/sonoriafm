@@ -4,14 +4,28 @@ import { Loader2 } from 'lucide-react';
 
 const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-function isOnAir(start, end) {
-  const now = new Date();
-  const cur = now.getHours() * 60 + now.getMinutes();
+const WEEKDAY_KEYS = { Mon: 'Lun', Tue: 'Mar', Wed: 'Mié', Thu: 'Jue', Fri: 'Vie', Sat: 'Sáb', Sun: 'Dom' };
+const madridFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Europe/Madrid',
+  weekday: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
+// Día y hora actuales en Madrid, igual que la emisión de la radio.
+function madridNow() {
+  const p = {};
+  for (const part of madridFmt.formatToParts(new Date())) p[part.type] = part.value;
+  return { dayKey: WEEKDAY_KEYS[p.weekday], minutes: (+p.hour % 24) * 60 + +p.minute };
+}
+
+function isOnAir(start, end, cur) {
   const [sh, sm] = start.split(':').map(Number);
   const [eh, em] = end.split(':').map(Number);
   const s = sh * 60 + sm;
   const e = eh * 60 + em;
-  return cur >= s && cur <= e;
+  return cur >= s && cur < e;
 }
 
 export default function ProgramSchedule() {
@@ -31,8 +45,7 @@ export default function ProgramSchedule() {
     return () => { active = false; };
   }, []);
 
-  const today = new Date().getDay(); // 0 Sun .. 6 Sat
-  const todayKey = DAYS[(today + 6) % 7];
+  const { dayKey: todayKey, minutes: nowMinutes } = madridNow();
   const filtered = (programs ?? []).filter((p) => p.day === day).sort((a, b) => a.start_time.localeCompare(b.start_time));
 
   return (
@@ -62,7 +75,7 @@ export default function ProgramSchedule() {
           ) : (
             <div className="space-y-3">
               {filtered.map((p) => {
-                const onAir = day === todayKey && isOnAir(p.start_time, p.end_time);
+                const onAir = day === todayKey && isOnAir(p.start_time, p.end_time, nowMinutes);
                 return (
                   <div
                     key={p.id}
