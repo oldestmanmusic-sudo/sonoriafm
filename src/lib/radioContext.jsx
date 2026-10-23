@@ -96,7 +96,7 @@ function parseDuration(d) {
 // todas lo mismo, así que el tiempo del día se reparte recorriendo las vueltas
 // reales una a una: el punto de conexión es exacto y determinista, igual para
 // todos los oyentes.
-// El índice de vuelta se ancla al día (base 1000 por día), así el borde entre
+// El índice de vuelta se ancla al día y a la franja (base 100000 por día, 1000 por franja), así el borde entre
 // vueltas siempre conecta dos barajados distintos y el bucle es infinito.
 const MAX_CYCLES_PER_DAY = 500;
 
