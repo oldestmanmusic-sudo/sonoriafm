@@ -17,6 +17,7 @@ const Artists = lazy(() => import('@/pages/Artists'));
 const ArtistDetail = lazy(() => import('@/pages/ArtistDetail'));
 const TrackDetail = lazy(() => import('@/pages/TrackDetail'));
 const EnviarCancion = lazy(() => import('@/pages/EnviarCancion'));
+const SubirCancion = lazy(() => import('@/pages/SubirCancion'));
 const Programming = lazy(() => import('@/pages/Programming'));
 const Noticias = lazy(() => import('@/pages/Noticias'));
 const ArticleDetail = lazy(() => import('@/pages/ArticleDetail'));
@@ -75,6 +76,7 @@ const AuthenticatedApp = () => {
         <Route path="/artistas/:id" element={<ArtistDetail />} />
         <Route path="/cancion/:id" element={<TrackDetail />} />
         <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
+        <Route path="/subir-cancion" element={<SubirCancion />} />
         <Route path="/programacion" element={<Programming />} />
         <Route path="/noticias" element={<Noticias />} />
         <Route path="/noticias/:id" element={<ArticleDetail />} />
