@@ -24,13 +24,22 @@
       }
     ]
   },
-  "description": "Cada domingo a las 00:00 (hora de Madrid) guarda el TOP 3 con fecha en \"Semanas en el TOP\" y reinicia los me gusta",
   "trigger": {
     "condition": null,
     "config": {
       "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
       "cron_expression": "0 0 * * 0",
-      "timezone": "Europe/Madrid"
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
     }
-  }
+  },
+  "description": "Cada domingo a las 00:00 (hora de Madrid) guarda el TOP 3 con fecha en \"Semanas en el TOP\" y reinicia los me gusta"
 }
