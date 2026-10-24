@@ -16,6 +16,7 @@ export default async function(req) {
     const suggestionId = body.suggestion_id;
     if (!suggestionId) return Response.json({ error: 'Falta suggestion_id' }, { status: 400 });
 
+    console.log('paso: leyendo sugerencia', suggestionId);
     let suggestion = null;
     try {
       suggestion = await base44.asServiceRole.entities.Suggestion.get(suggestionId);
@@ -24,6 +25,7 @@ export default async function(req) {
     }
     if (!suggestion) return Response.json({ error: 'Sugerencia no encontrada' }, { status: 404 });
 
+    console.log('paso: sugerencia leída, enviando email');
     const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: ADMIN_EMAIL,
@@ -37,6 +39,7 @@ export default async function(req) {
         `<p><a href="https://sonoriafm.com/sugerencias" style="color:#8b33ff">Revisar en el panel</a></p></div>`,
     });
 
+    console.log('paso: email enviado');
     return Response.json({ sent: true });
   } catch (error) {
     console.error('notifyNewSuggestion falló:', error?.message);
