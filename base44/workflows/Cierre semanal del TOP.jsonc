@@ -1,0 +1,36 @@
+{
+  "name": "Cierre semanal del TOP",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "cierre_semanal_top",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "cierra_top": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "closeWeeklyTop",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Guardar TOP y reiniciar likes",
+            "description": "Registra los puestos 1 a 3 en la web y en la hoja de Drive y pone los me gusta a cero"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Cada domingo a las 00:00 (hora de Madrid) guarda el TOP 3 con fecha en \"Semanas en el TOP\" y reinicia los me gusta",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "cron_expression": "0 0 * * 0",
+      "timezone": "Europe/Madrid"
+    }
+  }
+}
