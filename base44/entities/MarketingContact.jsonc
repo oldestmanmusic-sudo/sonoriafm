@@ -1,0 +1,70 @@
+{
+  "name": "MarketingContact",
+  "type": "object",
+  "properties": {
+    "company": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "locality": {
+      "type": "string"
+    },
+    "province": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string",
+      "description": "Token \u00fanico para el enlace de baja."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "unsubscribed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
