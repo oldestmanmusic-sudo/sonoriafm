@@ -24,15 +24,17 @@ export default async function(req) {
     }
     if (!suggestion) return Response.json({ error: 'Sugerencia no encontrada' }, { status: 404 });
 
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: ADMIN_EMAIL,
-      template_name: 'NuevaSugerencia',
       from_name: 'SONORIA FM',
-      variables: {
-        app_name: 'SONORIA FM',
-        category: suggestion.category || 'Mejora',
-        message: suggestion.message || '',
-      },
+      subject: `Nueva sugerencia en SONORIA FM (${suggestion.category || 'Mejora'})`,
+      body:
+        `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto">` +
+        `<h2 style="color:#8b33ff">Nueva sugerencia</h2>` +
+        `<p><strong>Tipo:</strong> ${esc(suggestion.category || 'Mejora')}</p>` +
+        `<p style="white-space:pre-wrap">${esc(suggestion.message)}</p>` +
+        `<p><a href="https://sonoriafm.com/sugerencias" style="color:#8b33ff">Revisar en el panel</a></p></div>`,
     });
 
     return Response.json({ sent: true });
