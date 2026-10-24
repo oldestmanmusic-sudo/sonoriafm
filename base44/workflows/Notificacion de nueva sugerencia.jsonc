@@ -14,7 +14,9 @@
           "with": {
             "function_name": "notifyNewSuggestion",
             "args": {
-              "suggestion_id": "${ .trigger.entity_id }"
+              "suggestion_id": "${ .trigger.entity_id }",
+              "category": "${ .trigger.data.category }",
+              "message": "${ .trigger.data.message }"
             }
           },
           "then": "end",
