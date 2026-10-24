@@ -24,6 +24,7 @@ export default async function(req) {
     const existing = new Set(toList(await db.MarketingContact.list('-created_date', 2000)).map((c) => String(c.email).toLowerCase()));
     let added = 0;
     let skipped = 0;
+    const batch = [];
     for (const row of rows) {
       const [company = '', contact = '', email = '', locality = '', province = '', phone = '', active = ''] = row;
       const e = String(email).trim().toLowerCase();
@@ -32,7 +33,7 @@ export default async function(req) {
         continue;
       }
       existing.add(e);
-      await db.MarketingContact.create({
+      batch.push({
         company: company.trim(),
         contact_name: /^\d+$/.test(contact.trim()) ? '' : contact.trim(),
         email: e,
@@ -42,7 +43,12 @@ export default async function(req) {
         token: crypto.randomUUID().replace(/-/g, ''),
         status: 'pending',
       });
-      added += 1;
+    }
+    // Altas en bloque (la creación una a una supera el límite de peticiones por minuto).
+    for (let i = 0; i < batch.length; i += 50) {
+      const chunk = batch.slice(i, i + 50);
+      await db.MarketingContact.bulkCreate(chunk);
+      added += chunk.length;
     }
     return Response.json({ added, skipped });
   } catch (error) {
