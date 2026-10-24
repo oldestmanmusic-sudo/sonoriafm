@@ -10,12 +10,11 @@
     "do": [
       {
         "envia_bienvenida": {
-          "call": "send_email",
+          "call": "invoke_backend_function",
           "with": {
-            "template_name": "BienvenidaArtista",
-            "to": "${ .trigger.data.email }",
-            "description": "Agradece al artista su canci\u00f3n y presenta los extras de pago de visibilidad",
-            "variables": {
+            "function_name": "welcomeArtist",
+            "args": {
+              "email": "${ .trigger.data.email }",
               "artist_name": "${ .trigger.data.artist_name }",
               "song_title": "${ .trigger.data.song_title }"
             }
