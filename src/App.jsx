@@ -40,6 +40,7 @@ const AdminSuggestions = lazy(() => import('@/pages/admin/AdminSuggestions'));
 const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
 const Cuenta = lazy(() => import('@/pages/Cuenta'));
 const Donar = lazy(() => import('@/pages/Donar'));
+const Baja = lazy(() => import('@/pages/Baja'));
 const ThankYou = lazy(() => import('@/pages/ThankYou'));
 const Promociona = lazy(() => import('@/pages/Promociona'));
 const Legal = lazy(() => import('@/pages/Legal'));
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
         {/* Los términos se pueden leer antes de registrarse y se puede donar sin cuenta. */}
         <Route path="/terminos" element={<Legal />} />
         <Route path="/donar" element={<Donar />} />
+        <Route path="/baja" element={<Baja />} />
 
         {/* Solo la radio (inicio) es libre: todo lo demás exige iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
