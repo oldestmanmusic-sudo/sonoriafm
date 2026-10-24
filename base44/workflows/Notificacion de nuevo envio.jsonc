@@ -26,12 +26,10 @@
       },
       {
         "avisa_email": {
-          "call": "send_email",
+          "call": "invoke_backend_function",
           "with": {
-            "template_name": "NotificacionEnvio",
-            "to": "oldestmanmusic@gmail.com",
-            "description": "Avisa al administrador de un nuevo env\u00edo, con los datos de la canci\u00f3n y el consejo de IA",
-            "variables": {
+            "function_name": "notifyNewSubmission",
+            "args": {
               "artist_name": "${ .trigger.data.artist_name }",
               "song_title": "${ .trigger.data.song_title }",
               "genre": "${ .trigger.data.genre }",
