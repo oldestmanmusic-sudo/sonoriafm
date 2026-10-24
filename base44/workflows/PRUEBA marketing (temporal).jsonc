@@ -1,0 +1,53 @@
+{
+  "name": "PRUEBA marketing (temporal)",
+  "description": "Importa contactos y env\u00eda una muestra a Oldestman; se archiva despu\u00e9s",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 0 1 1 *",
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "do": [
+      {
+        "importa": {
+          "call": "invoke_backend_function",
+          "then": "muestra",
+          "with": {
+            "args": {},
+            "function_name": "importMarketingContacts"
+          }
+        }
+      },
+      {
+        "muestra": {
+          "call": "invoke_backend_function",
+          "then": "end",
+          "with": {
+            "args": {
+              "test_to": "Oldestmanmusic@gmail.com"
+            },
+            "function_name": "sendMarketingBatch"
+          }
+        }
+      }
+    ],
+    "document": {
+      "dsl": "1.0.0",
+      "name": "prueba_marketing",
+      "namespace": "base44",
+      "version": "1.0"
+    }
+  }
+}
