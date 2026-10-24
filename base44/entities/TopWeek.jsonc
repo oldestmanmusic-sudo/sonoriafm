@@ -1,0 +1,61 @@
+{
+  "name": "TopWeek",
+  "type": "object",
+  "properties": {
+    "week_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Domingo (hora de Madrid) en que se cerr\u00f3 el TOP."
+    },
+    "position": {
+      "type": "number",
+      "description": "Puesto del TOP: 1, 2 o 3. En un empate, todas las canciones empatadas comparten el mismo puesto."
+    },
+    "song_title": {
+      "type": "string"
+    },
+    "artist": {
+      "type": "string"
+    },
+    "likes": {
+      "type": "number",
+      "description": "Me gusta de la semana al cerrar el TOP."
+    },
+    "tie": {
+      "type": "boolean",
+      "default": false,
+      "description": "Verdadero si el puesto se comparte con otras canciones."
+    },
+    "track_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "week_date",
+    "position",
+    "song_title",
+    "artist"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
