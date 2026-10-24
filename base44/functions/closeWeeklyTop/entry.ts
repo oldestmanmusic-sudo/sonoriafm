@@ -15,7 +15,7 @@ function madridDate(d = new Date()) {
   }).format(d);
 }
 
-// Cierre semanal: 1) guarda el TOP 3 (con empates), 2) pone los "me gusta" a cero.
+// Cierre semanal (domingo a lunes, 00:00 Madrid): 1) guarda el TOP 3 (con empates), 2) pone los "me gusta" a cero.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -24,7 +24,11 @@ export default async function(req) {
     if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     const db = base44.asServiceRole.entities;
-    const weekDate = madridDate();
+    // Se ejecuta el lunes a las 00:00 (Madrid): la semana que se cierra es la que termina el domingo anterior.
+    const today = madridDate();
+    const prev = new Date(`${today}T12:00:00Z`);
+    prev.setUTCDate(prev.getUTCDate() - 1);
+    const weekDate = prev.toISOString().slice(0, 10);
 
     // Idempotencia: si ya se cerró esta fecha no se repite (evita reiniciar dos veces).
     const done = toList(await db.TopWeek.filter({ week_date: weekDate }, { limit: 1 }));
