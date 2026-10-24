@@ -73,8 +73,9 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
-        {/* Los términos se pueden leer antes de registrarse. */}
+        {/* Los términos se pueden leer antes de registrarse y se puede donar sin cuenta. */}
         <Route path="/terminos" element={<Legal />} />
+        <Route path="/donar" element={<Donar />} />
 
         {/* Solo la radio (inicio) es libre: todo lo demás exige iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
@@ -89,7 +90,6 @@ const AuthenticatedApp = () => {
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/sugerencias" element={<Sugerencias />} />
-          <Route path="/donar" element={<Donar />} />
           <Route path="/promociona-tu-musica" element={<Promociona />} />
           <Route path="/cuenta" element={<Cuenta />} />
         </Route>
