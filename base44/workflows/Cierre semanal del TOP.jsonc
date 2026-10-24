@@ -30,7 +30,7 @@
       "trigger_type": "scheduled",
       "events": [],
       "schedule_mode": "recurring",
-      "cron_expression": "0 0 * * 0",
+      "cron_expression": "0 0 * * 1",
       "one_time_date": null,
       "timezone": "Europe/Madrid",
       "interval_value": null,
@@ -41,5 +41,5 @@
       "ends_after_count": null
     }
   },
-  "description": "Cada domingo a las 00:00 (hora de Madrid) guarda el TOP 3 con fecha en \"Semanas en el TOP\" y reinicia los me gusta"
+  "description": "Cada noche de domingo a lunes (lunes 00:00, hora de Madrid) guarda el TOP 3 con fecha en \"Semanas en el TOP\" y reinicia los me gusta"
 }
