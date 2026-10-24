@@ -50,6 +50,36 @@ function extractBuyerEmail(order: any): string | null {
   );
 }
 
+const escHtml = (s: unknown) =>
+  String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[c]);
+const b64 = (s: string) => {
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (const x of bytes) bin += String.fromCharCode(x);
+  return btoa(bin);
+};
+// Envío por Gmail (la integración Core.SendEmail de la plataforma falla con error 5xx).
+async function sendGmail(svc: any, { to, subject, html }: { to: string; subject: string; html: string }) {
+  const { accessToken } = await svc.connectors.getConnection("gmail");
+  const body = b64(html).replace(/(.{76})/g, "$1\r\n");
+  const mime = [
+    `To: ${to}`,
+    `Subject: =?UTF-8?B?${b64(subject)}?=`,
+    "MIME-Version: 1.0",
+    "Content-Type: text/html; charset=UTF-8",
+    "Content-Transfer-Encoding: base64",
+    "",
+    body,
+  ].join("\r\n");
+  const raw = b64(mime).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const r = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ raw }),
+  });
+  if (!r.ok) throw new Error(`Gmail ${r.status}: ${(await r.text()).slice(0, 300)}`);
+}
+
 Deno.serve(async (req: Request) => {
   try {
     if (req.method !== "POST") {
@@ -173,25 +203,27 @@ async function handleOrderApproved(db: any, eventData: any): Promise<Response> {
   if (["destacado_semana", "resena_entrevista", "rotacion_mensual"].includes(purchase.productId)) {
     try {
       if (purchase.buyerEmail) {
-        await db.integrations.Core.SendEmail({
+        await sendGmail(db, {
           to: purchase.buyerEmail,
-          template_name: "ConfirmacionPromocion",
-          variables: {
-            artist_name: purchase.artistName || "artista",
-            song_title: purchase.songTitle || "tu canción",
-            service_name: purchase.productName || "tu servicio",
-          },
+          subject: "¡Pago recibido! Tu promoción en SONORIA FM",
+          html:
+            `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#14141f;line-height:1.6">` +
+            `<h2 style="color:#8b33ff">¡Ya está en marcha, ${escHtml(purchase.artistName || "artista")}!</h2>` +
+            `<p>Hemos recibido tu pago por <strong>${escHtml(purchase.productName || "tu servicio")}</strong> para <strong>${escHtml(purchase.songTitle || "tu canción")}</strong>. ¡Bienvenido a la familia de artistas que apuestan por SONORIA FM!</p>` +
+            `<p>En breve te escribimos para concretar los detalles. Si tienes cualquier duda, responde a este email.</p>` +
+            `<p>Un abrazo,<br><strong>Víctor, SONORIA FM</strong></p></div>`,
         });
       }
-      await db.integrations.Core.SendEmail({
+      await sendGmail(db, {
         to: "Oldestmanmusic@gmail.com",
-        template_name: "AvisoPromocion",
-        variables: {
-          service_name: purchase.productName || "servicio",
-          artist_name: purchase.artistName || "artista",
-          song_title: purchase.songTitle || "canción",
-          artist_email: purchase.buyerEmail || "sin email",
-        },
+        subject: `Nuevo servicio contratado: ${purchase.productName || "servicio"}`,
+        html:
+          `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#14141f;line-height:1.6">` +
+          `<h2 style="color:#8b33ff">Nueva contratación de promoción</h2>` +
+          `<p><strong>Servicio:</strong> ${escHtml(purchase.productName || "servicio")}<br>` +
+          `<strong>Artista:</strong> ${escHtml(purchase.artistName || "artista")}<br>` +
+          `<strong>Canción:</strong> ${escHtml(purchase.songTitle || "canción")}<br>` +
+          `<strong>Email del artista:</strong> ${escHtml(purchase.buyerEmail || "sin email")}</p></div>`,
       });
     } catch (e) {
       // Los emails no deben bloquear la entrega del pago ya cobrado; se registra y sigue.
