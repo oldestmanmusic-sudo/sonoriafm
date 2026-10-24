@@ -1,0 +1,47 @@
+{
+  "name": "Envio marketing",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "envio_marketing",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "envia_lote": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendMarketingBatch",
+            "args": {
+              "limit": 10
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Enviar lote de correos",
+            "description": "Env\u00eda hasta 10 correos de colaboraci\u00f3n a contactos pendientes, respetando el tope diario"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 9-19 * * 1-6",
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "De lunes a s\u00e1bado, cada hora de 9 a 19 (Madrid), env\u00eda un lote de correos de colaboraci\u00f3n (m\u00e1x. 120 al d\u00eda)"
+}
