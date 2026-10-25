@@ -1,0 +1,21 @@
+{
+  "name": "PRUEBA correo artistas (temporal)",
+  "definition": {
+    "document": { "dsl": "1.0.0", "name": "prueba_correo_artistas", "version": "1.0", "namespace": "base44" },
+    "do": [
+      {
+        "envia": {
+          "call": "invoke_backend_function",
+          "with": { "function_name": "sendArtistsAppeal", "args": { "test_to": "Oldestmanmusic@gmail.com" } },
+          "then": "end",
+          "x-base44": { "title": "Muestra a Oldestman", "description": "Envía una muestra del correo a Oldestman" }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": { "trigger_type": "scheduled", "events": [], "schedule_mode": "recurring", "cron_expression": "0 0 1 1 *", "one_time_date": null, "timezone": "Europe/Madrid", "interval_value": null, "interval_unit": null, "interval_anchor": null, "ends_type": "never", "ends_on_date": null, "ends_after_count": null }
+  },
+  "description": "Temporal: muestra del correo a artistas; se archiva después"
+}
