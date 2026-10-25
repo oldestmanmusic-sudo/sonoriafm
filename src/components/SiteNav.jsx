@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Radio, Menu, Upload, LogIn } from 'lucide-react';
+import { Radio, Menu, Upload, LogIn, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-const links = [
-  { to: '/', label: 'Radio en Vivo' },
+// Menú agrupado: 4 secciones principales + "Más" para el resto, así cabe bien en pantallas pequeñas.
+const mainLinks = [
+  { to: '/', label: 'Radio' },
   { to: '/artistas', label: 'Artistas' },
   { to: '/programacion', label: 'Programación' },
   { to: '/noticias', label: 'Noticias' },
+];
+const moreLinks = [
   { to: '/sobre-nosotros', label: 'Sobre Nosotros' },
   { to: '/contacto', label: 'Contacto' },
   { to: '/sugerencias', label: 'Sugerencias' },
@@ -53,11 +57,28 @@ export default function SiteNav() {
 
         {/* Desktop */}
         <div className="hidden lg:flex items-center gap-1">
-          {links.map((l) => (
+          {mainLinks.map((l) => (
             <Link key={l.to} to={l.to} className={linkClass(l.to)}>
               {l.label}
             </Link>
           ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={cn(linkClass('/__more'), 'inline-flex items-center gap-1 outline-none', moreLinks.some((l) => isActive(l.to)) && 'bg-primary/15 text-primary')}
+            >
+              Más
+              <ChevronDown className="h-3.5 w-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-48">
+              {moreLinks.map((l) => (
+                <DropdownMenuItem key={l.to} asChild>
+                  <Link to={l.to} className={cn('cursor-pointer', isActive(l.to) && 'text-primary')}>
+                    {l.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link
             to={UPLOAD_LINK.to}
             className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-sm font-medium whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary/90"
@@ -97,7 +118,7 @@ export default function SiteNav() {
                 <Menu className="h-5 w-5" />
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
+            <SheetContent side="right" className="w-72 overflow-y-auto">
               <SheetTitle className="font-heading text-lg font-extrabold tracking-tight">
                 SONOR<span className="text-primary">IA</span> FM
               </SheetTitle>
@@ -122,7 +143,23 @@ export default function SiteNav() {
                 )}
               </div>
               <div className="mt-4 flex flex-col gap-1">
-                {links.map((l) => (
+                {mainLinks.map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      'rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+                      isActive(l.to) ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    )}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+              <p className="mt-5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Más</p>
+              <div className="mt-1 flex flex-col gap-1">
+                {moreLinks.map((l) => (
                   <Link
                     key={l.to}
                     to={l.to}
