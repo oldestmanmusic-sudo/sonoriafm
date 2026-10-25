@@ -6,7 +6,7 @@
       {
         "envia": {
           "call": "invoke_backend_function",
-          "with": { "function_name": "sendArtistsAppeal", "args": { "test_to": "Oldestmanmusic@gmail.com" } },
+          "with": { "function_name": "sendArtistsAppeal", "args": { "send": true } },
           "then": "end",
           "x-base44": { "title": "Muestra a Oldestman", "description": "Envía una muestra del correo a Oldestman" }
         }

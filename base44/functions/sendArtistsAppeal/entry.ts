@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
-const EXCLUDE = new Set(['victormovil77@gmail.com']); // segunda cuenta del propietario
+const EXCLUDE = new Set(['victormovil77@gmail.com', 'oldestmanmusic@gmail.com']); // segunda cuenta del propietario
 const toList = (r) => (Array.isArray(r) ? r : (r?.items ?? []));
 const esc = (s) =>
   String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
