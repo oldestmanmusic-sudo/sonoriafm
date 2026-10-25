@@ -5,6 +5,8 @@ import { normalizeTrackTitle } from '@/lib/trackUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LANGUAGES } from '@/lib/brand';
 import { Loader2, Send, CheckCircle2, LogIn, UserRound, Upload } from 'lucide-react';
 
 const MAX_AUDIO_MB = 25;
@@ -21,6 +23,7 @@ export default function SubirCancion() {
   const [profile, setProfile] = useState(null);
 
   const [title, setTitle] = useState('');
+  const [language, setLanguage] = useState('');
   const [coverFile, setCoverFile] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
   const [accepted, setAccepted] = useState(false);
@@ -57,6 +60,7 @@ export default function SubirCancion() {
 
   const reset = () => {
     setTitle('');
+    setLanguage('');
     setCoverFile(null);
     setAudioFile(null);
     setAccepted(false);
@@ -69,6 +73,7 @@ export default function SubirCancion() {
     e.preventDefault();
     const missing = [];
     if (!title.trim()) missing.push('título');
+    if (!language) missing.push('idioma');
     if (!coverFile) missing.push('imagen de portada');
     if (!audioFile) missing.push('canción');
     if (missing.length) {
@@ -129,6 +134,7 @@ export default function SubirCancion() {
         email: user.email,
         song_title: title.trim(),
         genre: profile.genre || 'Otros',
+        language,
         audio_link: audioRes.file_url,
         cover_url: coverRes.file_url,
         artist_image_url: profile.artist_image_url || '',
@@ -231,6 +237,16 @@ export default function SubirCancion() {
         <div className="space-y-2">
           <Label htmlFor="title">Título de la canción <Req /></Label>
           <Input id="title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título" />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Idioma de la canción <Req /></Label>
+          <Select value={language} onValueChange={setLanguage}>
+            <SelectTrigger><SelectValue placeholder="Elige el idioma" /></SelectTrigger>
+            <SelectContent>
+              {LANGUAGES.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">

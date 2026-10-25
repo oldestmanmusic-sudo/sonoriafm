@@ -3,7 +3,7 @@ import { createContext, useContext, useRef, useState, useCallback, useEffect } f
 // PARRILLA SONORIA FM (hora de Madrid, igual para todos los oyentes):
 //   00:00-08:00  Club Electrónico  -> música electrónica
 //   08:00-10:00  Top Sonoria        -> variada; el Top 10 (más likes) suena el doble
-//   10:00-12:00  Música en otros idiomas -> canciones con género "Otros idiomas"
+//   10:00-12:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
 //   12:00-16:00  Top Sonoria        -> igual que la franja de las 08:00
 //   16:00-24:00  Latino Total       -> pop y rock latino
 // Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
@@ -112,7 +112,6 @@ const SLOTS = [
   { id: 4, start: 12 * 3600, kind: 'top' },       // Top Sonoria 12-16
   { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-24
 ];
-const IDIOMAS_GENRES = new Set(['otros idiomas']);
 const ELECTRONIC_GENRES = new Set(['electrónica']);
 const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'pop rock']);
 const TOP_SIZE = 10;
@@ -148,7 +147,7 @@ function slotLists(list) {
   if (memo) return memo;
   const electronic = list.filter((t) => ELECTRONIC_GENRES.has(normGenre(t.genre)));
   const latino = list.filter((t) => LATINO_GENRES.has(normGenre(t.genre)));
-  const idiomas = list.filter((t) => IDIOMAS_GENRES.has(normGenre(t.genre)));
+  const idiomas = list.filter((t) => normGenre(t.language) === 'otros idiomas');
   const byLikes = [...list].sort(
     (a, b) => (b.likes || 0) - (a.likes || 0) || String(a.id).localeCompare(String(b.id))
   );

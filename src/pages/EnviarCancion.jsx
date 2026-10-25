@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { GENRES, SUBMISSION_TOOLS } from '@/lib/brand';
+import { GENRES, LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,6 +31,7 @@ export default function EnviarCancion() {
     email: '',
     song_title: '',
     genre: '',
+    language: '',
     artist_bio: '',
     description: '',
     tool: '',
@@ -61,6 +62,7 @@ export default function EnviarCancion() {
     if (!form.artist_bio.trim()) missing.push('descripción del artista');
     if (!form.song_title.trim()) missing.push('título de la canción');
     if (!form.genre) missing.push('género');
+    if (!form.language) missing.push('idioma');
     if (!file) missing.push('archivo de audio');
     if (!coverFile) missing.push('carátula de la canción');
     if (!form.tool) missing.push('herramienta usada');
@@ -122,6 +124,7 @@ export default function EnviarCancion() {
         email: form.email.trim(),
         song_title: form.song_title.trim(),
         genre: form.genre,
+        language: form.language,
         audio_link: audioRes.file_url,
         cover_url: coverRes.file_url,
         artist_image_url: imageRes.file_url,
@@ -234,6 +237,16 @@ export default function EnviarCancion() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Idioma de la canción <Req /></Label>
+          <Select value={form.language} onValueChange={(v) => set('language', v)}>
+            <SelectTrigger><SelectValue placeholder="Elige el idioma" /></SelectTrigger>
+            <SelectContent>
+              {LANGUAGES.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">

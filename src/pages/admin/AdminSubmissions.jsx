@@ -103,6 +103,7 @@ export default function AdminSubmissions() {
           artist: item.artist_name,
           artist_id: artistId,
           genre: item.genre || 'Otros',
+          language: item.language || 'Español',
           cover_url: item.cover_url || '',
           description: item.description || '',
           audio_url: safeAudio,
@@ -180,7 +181,7 @@ export default function AdminSubmissions() {
                       {s.artist_name} · {s.email}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {[s.genre, s.tool && `Herramienta: ${s.tool}`].filter(Boolean).join(' · ')}
+                      {[s.genre, s.language && `Idioma: ${s.language}`, s.tool && `Herramienta: ${s.tool}`].filter(Boolean).join(' · ')}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">

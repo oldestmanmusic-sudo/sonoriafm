@@ -28,7 +28,6 @@
         "Urbano/Reguetón",
         "Baladas",
         "Electrónica",
-        "Otros idiomas",
         "Otros"
       ],
       "default": "Otros"
@@ -48,6 +47,15 @@
     "likes": {
       "type": "number",
       "default": 0
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "Español",
+        "Otros idiomas"
+      ],
+      "default": "Español",
+      "description": "Idioma de la canción"
     }
   },
   "required": [

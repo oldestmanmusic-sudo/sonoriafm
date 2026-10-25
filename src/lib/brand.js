@@ -6,8 +6,10 @@ export const GENRES = [
   'Urbano/Reguetón',
   'Baladas',
   'Electrónica',
-  'Otros idiomas',
   'Otros',
 ];
+
+// Idioma de la canción: decide si suena en la franja "Música en otros idiomas" (10-12 h).
+export const LANGUAGES = ['Español', 'Otros idiomas'];
 
 export const SUBMISSION_TOOLS = ['Suno', 'Udio', 'Otra'];

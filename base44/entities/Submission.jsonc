@@ -18,7 +18,6 @@
         "Urbano/Reguetón",
         "Baladas",
         "Electrónica",
-        "Otros idiomas",
         "Otros"
       ],
       "default": "Otros"
@@ -81,6 +80,15 @@
     },
     "ai_opinion": {
       "type": "string"
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "Español",
+        "Otros idiomas"
+      ],
+      "default": "Español",
+      "description": "Idioma de la canción"
     }
   },
   "required": [
