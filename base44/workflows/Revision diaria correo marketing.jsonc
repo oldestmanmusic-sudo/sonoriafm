@@ -1,0 +1,47 @@
+{
+  "name": "Revision diaria correo marketing",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "revision_diaria_correo_marketing",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "revisa_correo": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "reviewMarketingInbox",
+            "args": {
+              "days": 3
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Revisar correo y marcar contactos",
+            "description": "Detecta rebotes, no interesados y respuestas, y los marca en la base de datos y en el listado de Drive"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "30 8 * * *",
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Cada d\u00eda a las 8:30 (Madrid) revisa el correo, marca los contactos con rebote, no interesados o que han respondido, y actualiza el listado de Drive"
+}
