@@ -15,9 +15,10 @@
       "type": "string",
       "enum": [
         "Pop latino",
-        "Urbano/Reguet\u00f3n",
+        "Urbano/Reguetón",
         "Baladas",
-        "Electr\u00f3nica",
+        "Electrónica",
+        "Otros idiomas",
         "Otros"
       ],
       "default": "Otros"
@@ -59,7 +60,7 @@
     "terms_accepted": {
       "type": "boolean",
       "default": false,
-      "description": "El remitente acept\u00f3 los T\u00e9rminos y Condiciones (cesi\u00f3n de derechos, renuncia de reclamaciones y tratamiento de datos)."
+      "description": "El remitente aceptó los Términos y Condiciones (cesión de derechos, renuncia de reclamaciones y tratamiento de datos)."
     },
     "terms_accepted_at": {
       "type": "string",

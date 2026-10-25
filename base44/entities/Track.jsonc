@@ -25,9 +25,10 @@
       "type": "string",
       "enum": [
         "Pop latino",
-        "Urbano/Reguet\u00f3n",
+        "Urbano/Reguetón",
         "Baladas",
-        "Electr\u00f3nica",
+        "Electrónica",
+        "Otros idiomas",
         "Otros"
       ],
       "default": "Otros"

@@ -2,7 +2,9 @@ import { createContext, useContext, useRef, useState, useCallback, useEffect } f
 
 // PARRILLA SONORIA FM (hora de Madrid, igual para todos los oyentes):
 //   00:00-08:00  Club Electrónico  -> música electrónica
-//   08:00-16:00  Top Sonoria        -> variada; el Top 10 (más likes) suena el doble
+//   08:00-10:00  Top Sonoria        -> variada; el Top 10 (más likes) suena el doble
+//   10:00-12:00  Música en otros idiomas -> canciones con género "Otros idiomas"
+//   12:00-16:00  Top Sonoria        -> igual que la franja de las 08:00
 //   16:00-24:00  Latino Total       -> pop y rock latino
 // Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
 // Dentro de cada franja, la rotación funciona como se explica a continuación.
@@ -102,7 +104,15 @@ const MAX_CYCLES_PER_DAY = 500;
 
 // --- Parrilla por franjas ------------------------------------------------
 const PARRILLA_TZ = 'Europe/Madrid';
-const SLOT_SECONDS = 8 * 3600; // 3 franjas de 8 h: 0 Club Electrónico, 1 Top Sonoria, 2 Latino Total
+// Franjas del día (el id solo sirve de semilla del barajado; no cambiarlo).
+const SLOTS = [
+  { id: 0, start: 0, kind: 'electronic' },        // Club Electrónico 00-08
+  { id: 1, start: 8 * 3600, kind: 'top' },        // Top Sonoria 08-10
+  { id: 3, start: 10 * 3600, kind: 'idiomas' },   // Música en otros idiomas 10-12
+  { id: 4, start: 12 * 3600, kind: 'top' },       // Top Sonoria 12-16
+  { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-24
+];
+const IDIOMAS_GENRES = new Set(['otros idiomas']);
 const ELECTRONIC_GENRES = new Set(['electrónica']);
 const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'pop rock']);
 const TOP_SIZE = 10;
@@ -138,6 +148,7 @@ function slotLists(list) {
   if (memo) return memo;
   const electronic = list.filter((t) => ELECTRONIC_GENRES.has(normGenre(t.genre)));
   const latino = list.filter((t) => LATINO_GENRES.has(normGenre(t.genre)));
+  const idiomas = list.filter((t) => IDIOMAS_GENRES.has(normGenre(t.genre)));
   const byLikes = [...list].sort(
     (a, b) => (b.likes || 0) - (a.likes || 0) || String(a.id).localeCompare(String(b.id))
   );
@@ -147,6 +158,7 @@ function slotLists(list) {
   memo = {
     electronic: electronic.length ? electronic : list,
     latino: latino.length ? latino : list,
+    idiomas, // si no hay canciones en otros idiomas, la franja sigue como Top Sonoria
     top,
     rest,
   };
@@ -157,19 +169,20 @@ function slotLists(list) {
 // Lista que se baraja en la vuelta k de una franja. Top Sonoria alterna:
 // Top 10, resto del catálogo (variedad), Top 10... así los 10 éxitos suenan el doble.
 function cycleList(lists, slot, k) {
-  if (slot === 0) return lists.electronic;
-  if (slot === 2) return lists.latino;
+  if (slot.kind === 'electronic') return lists.electronic;
+  if (slot.kind === 'latino') return lists.latino;
+  if (slot.kind === 'idiomas' && lists.idiomas.length) return lists.idiomas;
   if (!lists.rest.length) return lists.top;
   return k % 3 === 1 ? lists.rest : lists.top;
 }
 function findPosition(list, nowMs) {
   const { dayIndex, secondsOfDay } = madridClock(nowMs);
-  const slot = Math.min(2, Math.floor(secondsOfDay / SLOT_SECONDS));
-  const secondsInSlot = secondsOfDay - slot * SLOT_SECONDS;
+  const slot = [...SLOTS].reverse().find((sl) => secondsOfDay >= sl.start) || SLOTS[0];
+  const secondsInSlot = secondsOfDay - slot.start;
   const lists = slotLists(list);
   const listFor = (k) => cycleList(lists, slot, k);
   const cycleAt = (k) =>
-    buildCycle(listFor(k), dayIndex * 100000 + slot * 1000 + k, k > 0 ? listFor(k - 1) : null);
+    buildCycle(listFor(k), dayIndex * 100000 + slot.id * 1000 + k, k > 0 ? listFor(k - 1) : null);
   let acc = 0;
   for (let k = 0; k < MAX_CYCLES_PER_DAY; k++) {
     const schedule = cycleAt(k);

@@ -6,6 +6,7 @@ export const GENRES = [
   'Urbano/Reguetón',
   'Baladas',
   'Electrónica',
+  'Otros idiomas',
   'Otros',
 ];
 
