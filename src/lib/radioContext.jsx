@@ -3,7 +3,8 @@ import { createContext, useContext, useRef, useState, useCallback, useEffect } f
 // PARRILLA SONORIA FM (hora de Madrid, igual para todos los oyentes):
 //   00:00-08:00  Club Electrónico  -> música electrónica
 //   08:00-10:00  Pop Rock           -> pop y rock (mejor hora de audiencia de la mañana)
-//   10:00-12:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
+//   10:00-11:00  Baladas            -> género Baladas
+//   11:00-12:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
 //   12:00-16:00  Top Sonoria        -> igual que la franja de las 08:00
 //   16:00-24:00  Latino Total       -> pop y rock latino
 // Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
@@ -108,12 +109,14 @@ const PARRILLA_TZ = 'Europe/Madrid';
 const SLOTS = [
   { id: 0, start: 0, kind: 'electronic' },        // Club Electrónico 00-08
   { id: 1, start: 8 * 3600, kind: 'poprock' },    // Pop Rock 08-10
-  { id: 3, start: 10 * 3600, kind: 'idiomas' },   // Música en otros idiomas 10-12
+  { id: 5, start: 10 * 3600, kind: 'baladas' },   // Baladas 10-11
+  { id: 3, start: 11 * 3600, kind: 'idiomas' },   // Música en otros idiomas 11-12
   { id: 4, start: 12 * 3600, kind: 'top' },       // Top Sonoria 12-16
   { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-24
 ];
 const ELECTRONIC_GENRES = new Set(['electrónica']);
 const LATINO_GENRES = new Set(['pop latino', 'pop rock latino']);
+const BALADAS_GENRES = new Set(['baladas']);
 const POPROCK_GENRES = new Set(['pop rock', 'pop rock latino']);
 const TOP_SIZE = 10;
 
@@ -149,6 +152,7 @@ function slotLists(list) {
   const electronic = list.filter((t) => ELECTRONIC_GENRES.has(normGenre(t.genre)));
   const latino = list.filter((t) => LATINO_GENRES.has(normGenre(t.genre)));
   const poprock = list.filter((t) => POPROCK_GENRES.has(normGenre(t.genre)));
+  const baladas = list.filter((t) => BALADAS_GENRES.has(normGenre(t.genre)));
   const idiomas = list.filter((t) => normGenre(t.language) === 'otros idiomas');
   const byLikes = [...list].sort(
     (a, b) => (b.likes || 0) - (a.likes || 0) || String(a.id).localeCompare(String(b.id))
@@ -160,6 +164,7 @@ function slotLists(list) {
     electronic: electronic.length ? electronic : list,
     latino: latino.length ? latino : list,
     poprock, // si no hay pop rock, la franja sigue como Top Sonoria
+    baladas, // si no hay baladas, la franja sigue como Top Sonoria
     idiomas, // si no hay canciones en otros idiomas, la franja sigue como Top Sonoria
     top,
     rest,
@@ -174,6 +179,7 @@ function cycleList(lists, slot, k) {
   if (slot.kind === 'electronic') return lists.electronic;
   if (slot.kind === 'latino') return lists.latino;
   if (slot.kind === 'poprock' && lists.poprock.length) return lists.poprock;
+  if (slot.kind === 'baladas' && lists.baladas.length) return lists.baladas;
   if (slot.kind === 'idiomas' && lists.idiomas.length) return lists.idiomas;
   if (!lists.rest.length) return lists.top;
   return k % 3 === 1 ? lists.rest : lists.top;
