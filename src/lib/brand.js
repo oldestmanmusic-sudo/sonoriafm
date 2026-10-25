@@ -6,6 +6,7 @@ export const GENRES = [
   'Urbano/Reguetón',
   'Baladas',
   'Electrónica',
+  'Pop Rock',
   'Otros',
 ];
 
@@ -13,8 +14,7 @@ export const GENRES = [
 // (GENRES, más corta, son los canales de la portada.)
 export const FORM_GENRES = [
   'Pop latino',
-  'Pop',
-  'Rock',
+  'Pop Rock',
   'Urbano/Reguetón',
   'Baladas',
   'Electrónica',

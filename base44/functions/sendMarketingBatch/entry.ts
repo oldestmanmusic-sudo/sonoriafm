@@ -49,7 +49,7 @@ function buildEmail(contact) {
     `<h2 style="color:#8b33ff;margin-bottom:4px">Colaboremos con SONORIA FM</h2>` +
     `<p>${greeting}</p>` +
     `<p>Soy Víctor Amorós, de <a href="${SITE}" style="color:#8b33ff">SONORIA FM</a>, una radio online independiente que emite las 24 horas con música hecha con IA y artistas de todo el mundo. ` +
-    `Nuestra programación tiene tres franjas (Club Electrónico, Top Sonoria y Latino Total) y buscamos negocios y marcas que quieran sumarse al proyecto. Estas son las formas de colaborar:</p>` +
+    `Nuestra programación tiene varias franjas (Club Electrónico, Pop Rock, Música en otros idiomas, Top Sonoria y Latino Total) y buscamos negocios y marcas que quieran sumarse al proyecto. Estas son las formas de colaborar:</p>` +
     `<ul style="padding-left:20px">` +
     li('Cuñas publicitarias:', 'mensajes de su marca dentro de la emisión, en la franja que mejor encaje con su público.') +
     li('Patrocinio de franjas o programas:', 'su nombre asociado a Club Electrónico, Top Sonoria o Latino Total.') +
