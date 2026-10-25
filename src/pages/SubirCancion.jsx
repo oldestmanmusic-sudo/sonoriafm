@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LANGUAGES } from '@/lib/brand';
+import { FORM_GENRES, LANGUAGES } from '@/lib/brand';
 import { Loader2, Send, CheckCircle2, LogIn, UserRound, Upload } from 'lucide-react';
 
 const MAX_AUDIO_MB = 25;
 const Req = () => <span className="text-primary">*</span>;
 
 // Subida rápida para artistas ya registrados: título, portada y canción.
-// El resto de datos (nombre artístico, género, foto, biografía) se reutilizan
+// El resto de datos (nombre artístico, foto, biografía) se reutilizan
 // del primer envío del artista. La canción entra como "pendiente" y solo suena
 // en la radio cuando el equipo la aprueba (en ese momento se crea la pista).
 export default function SubirCancion() {
@@ -23,6 +23,7 @@ export default function SubirCancion() {
   const [profile, setProfile] = useState(null);
 
   const [title, setTitle] = useState('');
+  const [genre, setGenre] = useState('');
   const [language, setLanguage] = useState('');
   const [coverFile, setCoverFile] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
@@ -60,6 +61,7 @@ export default function SubirCancion() {
 
   const reset = () => {
     setTitle('');
+    setGenre('');
     setLanguage('');
     setCoverFile(null);
     setAudioFile(null);
@@ -73,6 +75,7 @@ export default function SubirCancion() {
     e.preventDefault();
     const missing = [];
     if (!title.trim()) missing.push('título');
+    if (!genre) missing.push('tipo de música');
     if (!language) missing.push('idioma');
     if (!coverFile) missing.push('imagen de portada');
     if (!audioFile) missing.push('canción');
@@ -133,7 +136,7 @@ export default function SubirCancion() {
         artist_name: profile.artist_name,
         email: user.email,
         song_title: title.trim(),
-        genre: profile.genre || 'Otros',
+        genre,
         language,
         audio_link: audioRes.file_url,
         cover_url: coverRes.file_url,
@@ -237,6 +240,16 @@ export default function SubirCancion() {
         <div className="space-y-2">
           <Label htmlFor="title">Título de la canción <Req /></Label>
           <Input id="title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título" />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Tipo de música <Req /></Label>
+          <Select value={genre} onValueChange={setGenre}>
+            <SelectTrigger><SelectValue placeholder="Elige el tipo de música" /></SelectTrigger>
+            <SelectContent>
+              {FORM_GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">

@@ -25,6 +25,8 @@
       "type": "string",
       "enum": [
         "Pop latino",
+        "Pop",
+        "Rock",
         "Urbano/Reguetón",
         "Baladas",
         "Electrónica",

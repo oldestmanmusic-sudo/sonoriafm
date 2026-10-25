@@ -9,6 +9,18 @@ export const GENRES = [
   'Otros',
 ];
 
+// Tipos de música que se pueden elegir al subir o enviar una canción.
+// (GENRES, más corta, son los canales de la portada.)
+export const FORM_GENRES = [
+  'Pop latino',
+  'Pop',
+  'Rock',
+  'Urbano/Reguetón',
+  'Baladas',
+  'Electrónica',
+  'Otros',
+];
+
 // Idioma de la canción: decide si suena en la franja "Música en otros idiomas" (10-12 h).
 export const LANGUAGES = ['Español', 'Otros idiomas'];
 

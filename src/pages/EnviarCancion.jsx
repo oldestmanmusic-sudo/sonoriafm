@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { GENRES, LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
+import { FORM_GENRES, LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -229,11 +229,11 @@ export default function EnviarCancion() {
             <Input id="song_title" required value={form.song_title} onChange={(e) => set('song_title', e.target.value)} placeholder="Título" />
           </div>
           <div className="space-y-2">
-            <Label>Género <Req /></Label>
+            <Label>Tipo de música <Req /></Label>
             <Select value={form.genre} onValueChange={(v) => set('genre', v)}>
-              <SelectTrigger><SelectValue placeholder="Elige un género" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Elige el tipo de música" /></SelectTrigger>
               <SelectContent>
-                {GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                {FORM_GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

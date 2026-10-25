@@ -1,5 +1,5 @@
 import EntityManager from '@/components/admin/EntityManager';
-import { GENRES } from '@/lib/brand';
+import { FORM_GENRES as GENRES } from '@/lib/brand';
 
 const FIELDS = [
   { name: 'title', label: 'Tema', type: 'text', required: true, fullWidth: true },
