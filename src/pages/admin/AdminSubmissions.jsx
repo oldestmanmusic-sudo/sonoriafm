@@ -98,7 +98,26 @@ export default function AdminSubmissions() {
           if (item.artist_image_url && !existing[0].image_url) patch.image_url = item.artist_image_url;
           if (Object.keys(patch).length) await base44.entities.Artist.update(artistId, patch);
         }
+        // Duración real del audio: la radio programa la emisión con ella, y sin
+        // duración supone 4:00 y las canciones se cortan o se solapan.
+        const duration = await new Promise((resolve) => {
+          try {
+            const probe = new Audio();
+            probe.preload = 'metadata';
+            const done = (v) => { clearTimeout(timer); probe.src = ''; resolve(v); };
+            const timer = setTimeout(() => done(''), 15000);
+            probe.onloadedmetadata = () => {
+              const s = Math.ceil(probe.duration || 0);
+              done(Number.isFinite(s) && s > 0 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : '');
+            };
+            probe.onerror = () => done('');
+            probe.src = safeAudio;
+          } catch {
+            resolve('');
+          }
+        });
         await base44.entities.Track.create({
+          duration: duration || undefined,
           title: item.song_title,
           artist: item.artist_name,
           artist_id: artistId,
