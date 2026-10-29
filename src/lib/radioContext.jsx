@@ -531,13 +531,28 @@ export function RadioProvider({ children, playlist = [] }) {
       if (!audio || audio.paused || !currentRef.current) return;
       if (onDemandRef.current) return;
       if (!playlistRef.current.length) return;
-      const { schedule, index, offset } = findPosition(playlistRef.current, Date.now());
+      const now = Date.now();
+      const { schedule, index, offset } = findPosition(playlistRef.current, now);
       const item = schedule[index];
-      if (item.track.id !== currentRef.current.id) {
+      const curId = currentRef.current.id;
+      // Cada canción dura en el reloj unos decimales más de lo que suena de verdad
+      // (la duración se guarda redondeada hacia arriba), así que el oyente va
+      // siempre unos segundos por delante del reloj. Antes, en cuanto el reloj
+      // seguía en la canción anterior, se le devolvía al final de esa canción
+      // (se enganchaban el final de una y el principio de la siguiente). Ahora
+      // se busca si lo que suena corresponde a la emisión con un desfase
+      // razonable (hasta 90 s por delante o 45 s por detrás) y solo se corta
+      // si de verdad está descolgado.
+      const cur = audio.currentTime;
+      for (let dt = -45; dt <= 90; dt += 3) {
+        const p = findPosition(playlistRef.current, now + dt * 1000);
+        if (p.schedule[p.index].track.id === curId && Math.abs(p.offset - cur) <= 4) return;
+      }
+      if (item.track.id !== curId) {
         enter(schedule, index, offset);
         return;
       }
-      if (Math.abs(audio.currentTime - offset) > 20) {
+      if (Math.abs(cur - offset) > 45) {
         try { audio.currentTime = offset; } catch { /* aún sin metadatos */ }
       }
     }, 20000);
