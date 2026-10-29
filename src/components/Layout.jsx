@@ -25,17 +25,24 @@ export default function Layout() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const load = async () => {
       try {
         // El reproductor emite TODO el catálogo de la web (barajado aleatorio,
         // sin repetir artista), no solo las últimas canciones.
         const { items } = await base44.entities.Track.filter({}, { sort: '-played_at', limit: 500 });
-        if (active) setPlaylist(items);
+        if (!active) return;
+        // Solo se sustituye la lista si cambió el catálogo (canciones, género, idioma,
+        // duración, audio o votos): así no se recalcula la emisión sin necesidad.
+        const sig = (l) => l.map((t) => `${t.id}|${t.genre}|${t.language}|${t.duration}|${t.audio_url}|${t.likes || 0}`).sort().join('~');
+        setPlaylist((prev) => (prev.length && sig(prev) === sig(items) ? prev : items));
       } catch {
 
         /* ignore */}
-    })();
-    return () => {active = false;};
+    };
+    load();
+    // Las canciones nuevas y los votos se recogen solos cada 5 minutos.
+    const timer = setInterval(load, 5 * 60 * 1000);
+    return () => {active = false; clearInterval(timer);};
   }, []);
 
   return (
