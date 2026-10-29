@@ -233,6 +233,9 @@ export function RadioProvider({ children, playlist = [] }) {
   const channelRef = useRef(null);
   const tabIdRef = useRef(Math.random().toString(36).slice(2));
   const lastStartRef = useRef(0);
+  // Precarga de la siguiente canción: al terminar una, la siguiente ya está en caché
+  // y entra sin el hueco de silencio de la descarga.
+  const prefetchRef = useRef(null);
 
   const announcePlay = useCallback(() => {
     lastStartRef.current = Date.now();
@@ -297,6 +300,18 @@ export function RadioProvider({ children, playlist = [] }) {
         announcePlay();
         setIsLoading(false);
         inFlightRef.current = false;
+        try {
+          const nx = schedule[(index + step + 1) % schedule.length];
+          const nxUrl = nx && nx.track && nx.track.audio_url;
+          if (prefetchRef.current) { prefetchRef.current.src = ''; prefetchRef.current = null; }
+          // Los WAV pesan decenas de MB: no se precargan.
+          if (nxUrl && !/\.wav(\?|$)/i.test(nxUrl) && nx.track.id !== item.track.id) {
+            const pf = new Audio();
+            pf.preload = 'auto';
+            pf.src = nxUrl;
+            prefetchRef.current = pf;
+          }
+        } catch { /* la precarga es opcional */ }
         return;
       } catch (e) {
         // El navegador pide interacción previa (autoplay bloqueado): ni error ni salto.
