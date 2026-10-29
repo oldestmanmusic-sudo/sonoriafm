@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Radio, Menu, Upload, LogIn, ChevronDown } from 'lucide-react';
+import { Radio, Menu, Upload, LogIn, LogOut, UserRound, Repeat, ChevronDown } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 // Menú agrupado: 4 secciones principales + "Más" para el resto, así cabe bien en pantallas pequeñas.
 const mainLinks = [
@@ -21,11 +22,16 @@ const moreLinks = [
 ];
 
 const UPLOAD_LINK = { to: '/subir-cancion', label: 'Subir canción' };
-const AUTH_LABEL = 'Inicio de sesión / Registro';
+const AUTH_LABEL = 'Conéctate';
+
+// Cierra la sesión y vuelve a la radio, o abre directamente el acceso para entrar con otra cuenta.
+const signOut = () => base44.auth.logout('/');
+const switchAccount = () => base44.auth.logout('/login');
 
 export default function SiteNav() {
   const { pathname, search } = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const displayName = user?.full_name || user?.email || 'Mi cuenta';
   const [open, setOpen] = useState(false);
 
   const isActive = (to) => (to === '/' ? pathname === '/' : pathname.startsWith(to));
@@ -95,6 +101,31 @@ export default function SiteNav() {
               {AUTH_LABEL}
             </Link>
           )}
+          {isAuthenticated && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex max-w-44 items-center gap-1.5 rounded-full border border-primary/50 px-3 py-2 text-sm font-medium text-foreground outline-none transition-colors hover:bg-primary/10">
+                <UserRound className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <span className="truncate">{displayName}</span>
+                <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <p className="truncate text-sm font-semibold">{user?.full_name || 'Conectado'}</p>
+                  {user?.email && <p className="truncate text-xs text-muted-foreground">{user.email}</p>}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/cuenta" className="cursor-pointer"><UserRound className="mr-2 h-4 w-4" />Mi cuenta</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={switchAccount} className="cursor-pointer">
+                  <Repeat className="mr-2 h-4 w-4" />Cambiar de cuenta
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={signOut} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />Cerrar sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {/* Móvil / tablet */}
@@ -105,7 +136,7 @@ export default function SiteNav() {
               className="inline-flex h-10 items-center gap-1.5 rounded-full border border-primary/50 px-3 text-sm font-medium text-foreground hover:bg-primary/10"
             >
               <LogIn className="h-4 w-4 text-primary" />
-              Entrar
+              Conéctate
             </Link>
           )}
           <Sheet open={open} onOpenChange={setOpen}>
@@ -140,6 +171,23 @@ export default function SiteNav() {
                     <LogIn className="h-4 w-4 text-primary" />
                     {AUTH_LABEL}
                   </Link>
+                )}
+                {isAuthenticated && (
+                  <div className="rounded-xl border border-border p-3">
+                    <p className="truncate text-sm font-semibold">{user?.full_name || 'Conectado'}</p>
+                    {user?.email && <p className="truncate text-xs text-muted-foreground">{user.email}</p>}
+                    <div className="mt-3 flex flex-col gap-1">
+                      <Link to="/cuenta" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-secondary">
+                        <UserRound className="h-4 w-4 text-primary" /> Mi cuenta
+                      </Link>
+                      <button type="button" onClick={switchAccount} className="flex items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-secondary">
+                        <Repeat className="h-4 w-4 text-primary" /> Cambiar de cuenta
+                      </button>
+                      <button type="button" onClick={signOut} className="flex items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-secondary">
+                        <LogOut className="h-4 w-4 text-primary" /> Cerrar sesión
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="mt-4 flex flex-col gap-1">
