@@ -22,7 +22,7 @@
     },
     "token": {
       "type": "string",
-      "description": "Token único para el enlace de baja."
+      "description": "Token \u00fanico para el enlace de baja."
     },
     "status": {
       "type": "string",
@@ -33,7 +33,8 @@
         "failed",
         "bounced",
         "not_interested",
-        "replied"
+        "replied",
+        "duplicate"
       ],
       "default": "pending"
     },
@@ -46,7 +47,7 @@
     },
     "note": {
       "type": "string",
-      "description": "Detalle de la revisión del correo (rebote, respuesta...)."
+      "description": "Detalle de la revisi\u00f3n del correo (rebote, respuesta...)."
     },
     "reviewed_at": {
       "type": "string",
