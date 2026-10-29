@@ -141,6 +141,14 @@ function madridClock(nowMs) {
   return { dayIndex, secondsOfDay };
 }
 
+// Momento (ms) en que se añadió una canción al catálogo (la fecha viene en UTC sin zona).
+const createdMs = (t) => {
+  const s = String((t && t.created_date) || '');
+  if (!s) return 0;
+  const ms = Date.parse(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : `${s}Z`);
+  return Number.isFinite(ms) ? ms : 0;
+};
+
 const normGenre = (g) => (g || '').toString().trim().toLowerCase();
 
 // Listas de canciones de cada franja (memoizadas por catálogo). Si una franja
@@ -189,12 +197,23 @@ function findPosition(list, nowMs) {
   const slot = [...SLOTS].reverse().find((sl) => secondsOfDay >= sl.start) || SLOTS[0];
   const secondsInSlot = secondsOfDay - slot.start;
   const lists = slotLists(list);
-  const listFor = (k) => cycleList(lists, slot, k);
-  const cycleAt = (k) =>
-    buildCycle(listFor(k), dayIndex * 100000 + slot.id * 1000 + k, k > 0 ? listFor(k - 1) : null);
+  // Las canciones nuevas entran en la emisión al EMPEZAR la siguiente vuelta: cada vuelta
+  // solo incluye las canciones que ya existían cuando empezó. Así, aprobar una canción
+  // no recoloca la emisión que ya está sonando ni corta a nadie a mitad de tema.
+  const slotStartMs = nowMs - secondsOfDay * 1000 + slot.start * 1000;
+  const cycleFor = (k, acc, prevList) => {
+    const raw = cycleList(lists, slot, k);
+    const startMs = slotStartMs + acc * 1000;
+    let cl = raw.filter((t) => createdMs(t) <= startMs);
+    if (!cl.length) cl = raw;
+    return { cl, schedule: buildCycle(cl, dayIndex * 100000 + slot.id * 1000 + k, prevList) };
+  };
   let acc = 0;
+  let prevList = null;
   for (let k = 0; k < MAX_CYCLES_PER_DAY; k++) {
-    const schedule = cycleAt(k);
+    const built = cycleFor(k, acc, prevList);
+    const schedule = built.schedule;
+    prevList = built.cl;
     const len = schedule.reduce((sum, item) => sum + item.dur, 0) || FALLBACK_DURATION;
     if (secondsInSlot < acc + len) {
       let t = secondsInSlot - acc;
@@ -206,7 +225,7 @@ function findPosition(list, nowMs) {
     }
     acc += len;
   }
-  return { schedule: cycleAt(0), index: 0, offset: 0 };
+  return { schedule: cycleFor(0, 0, null).schedule, index: 0, offset: 0 };
 }
 
 export function RadioProvider({ children, playlist = [] }) {
