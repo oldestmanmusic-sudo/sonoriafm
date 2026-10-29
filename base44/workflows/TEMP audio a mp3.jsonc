@@ -1,0 +1,49 @@
+{
+  "name": "TEMP audio a mp3",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "temp_audio_mp3",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sube_audio": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "replaceTrackAudio",
+            "args": {
+              "track_id": "6addbecdb9b94bf32337f77f",
+              "url": "https://preview-sandbox--6ace0c27732bbb0f4d7504e1.base44.app/tmp-gently.mp3",
+              "file_name": "Gently.mp3"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Subir MP3",
+            "description": "Temporal"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Temporal: sustituye el WAV de Gently por MP3; se archiva despu\u00e9s",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 0 1 1 *",
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}
