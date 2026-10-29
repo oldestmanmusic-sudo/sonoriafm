@@ -13,6 +13,16 @@ const b64 = (s) => {
   for (const x of bytes) bin += String.fromCharCode(x);
   return btoa(bin);
 };
+// Claves para no escribir dos veces al mismo cliente: correo normalizado y nombre de empresa normalizado.
+const emailKey = (e) => String(e ?? '').trim().toLowerCase();
+const companyKey = (c) =>
+  String(c ?? '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\b(sl|slu|slp|sa|sll|cb|coop|coopv|oe|scp)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 const madridDay = (d = new Date()) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(d);
 
@@ -93,12 +103,39 @@ export default async function(req) {
     const take = Math.min(limit, room);
     if (take === 0) return Response.json({ sent: 0, reason: 'Límite diario alcanzado', sent_today: sentToday });
 
-    const pending = toList(await db.MarketingContact.filter({ status: 'pending' }, { limit: take }));
+    // Anti-repetidos: cualquier contacto ya tratado (enviado, rebotado, baja, respuesta...) bloquea
+    // otro envío al mismo correo o a la misma empresa.
+    const all = toList(await db.MarketingContact.list('-created_date', 5000));
+    const seenEmails = new Set();
+    const seenCompanies = new Set();
+    for (const x of all) {
+      if (x.status === 'pending' || x.status === 'duplicate') continue;
+      seenEmails.add(emailKey(x.email));
+      const ck = companyKey(x.company);
+      if (ck) seenCompanies.add(ck);
+    }
+
+    const pending = all.filter((x) => x.status === 'pending');
     const started = Date.now();
     let ok = 0;
     let failed = 0;
+    let skipped = 0;
     for (const c of pending) {
+      if (ok + failed >= take) break;
       if (Date.now() - started > TIME_BUDGET_MS) break;
+      const ek = emailKey(c.email);
+      const ck = companyKey(c.company);
+      if (seenEmails.has(ek) || (ck && seenCompanies.has(ck))) {
+        await db.MarketingContact.update(c.id, {
+          status: 'duplicate',
+          note: 'Repetido: ya se contactó a este correo o a esta empresa. No se envía.',
+          reviewed_at: new Date().toISOString(),
+        });
+        skipped += 1;
+        continue;
+      }
+      seenEmails.add(ek);
+      if (ck) seenCompanies.add(ck);
       try {
         await sendGmail(svc, { to: c.email, ...buildEmail(c) });
         await db.MarketingContact.update(c.id, { status: 'sent', sent_at: new Date().toISOString() });
@@ -110,7 +147,7 @@ export default async function(req) {
       await new Promise((r) => setTimeout(r, 1500));
     }
     const left = toList(await db.MarketingContact.filter({ status: 'pending' }, { limit: 2000 })).length;
-    return Response.json({ sent: ok, failed, pending_left: left, sent_today: sentToday + ok });
+    return Response.json({ sent: ok, failed, duplicates_skipped: skipped, pending_left: left, sent_today: sentToday + ok });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
