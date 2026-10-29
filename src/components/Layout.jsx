@@ -32,8 +32,9 @@ export default function Layout() {
         const { items } = await base44.entities.Track.filter({}, { sort: '-played_at', limit: 500 });
         if (!active) return;
         // Solo se sustituye la lista si cambió el catálogo (canciones, género, idioma,
-        // duración, audio o votos): así no se recalcula la emisión sin necesidad.
-        const sig = (l) => l.map((t) => `${t.id}|${t.genre}|${t.language}|${t.duration}|${t.audio_url}|${t.likes || 0}`).sort().join('~');
+        // duración o audio). Los votos no cuentan: si cambiaran el Top en mitad de una
+        // franja, la emisión se recalcularía y cortaría la canción que está sonando.
+        const sig = (l) => l.map((t) => `${t.id}|${t.genre}|${t.language}|${t.duration}|${t.audio_url}`).sort().join('~');
         setPlaylist((prev) => (prev.length && sig(prev) === sig(items) ? prev : items));
       } catch {
 
