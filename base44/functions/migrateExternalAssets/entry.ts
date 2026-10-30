@@ -60,6 +60,7 @@ export default async function(req) {
           uploads++;
         } catch (e) {
           failures.push(`${j.entity} ${j.id} ${j.field}: ${e.message}`);
+          console.log('FALLO ' + j.url + ' -> ' + e.message);
           continue;
         }
       }
@@ -68,6 +69,7 @@ export default async function(req) {
     }
 
     const remaining = jobs.length - updated;
+    console.log('RESULT ' + JSON.stringify({ uploads, updated, remaining, failures }));
     return Response.json({ ok: true, uploads, updated, remaining, failures });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
