@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { inCooldown, looksLikeBot, markSent } from '@/lib/antiSpam';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,8 @@ const EMPTY = { name: '', email: '', subject: '', message: '' };
 
 export default function ContactForm() {
   const [form, setForm] = useState(EMPTY);
+  const [trap, setTrap] = useState('');
+  const startedAt = useRef(Date.now());
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
@@ -23,14 +26,25 @@ export default function ContactForm() {
       setError('Completa tu nombre, tu correo y tu mensaje.');
       return;
     }
+    if (looksLikeBot({ honeypot: trap, startedAt: startedAt.current })) {
+      // Se finge éxito para no dar pistas a los bots.
+      setForm(EMPTY);
+      setSent(true);
+      return;
+    }
+    if (inCooldown('sonoria_last_contact')) {
+      setError('Acabas de enviar un mensaje. Espera un minuto antes de enviar otro.');
+      return;
+    }
     setSending(true);
     try {
       await base44.entities.ContactMessage.create({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        subject: form.subject.trim(),
-        message: form.message.trim(),
+        name: form.name.trim().slice(0, 200),
+        email: form.email.trim().slice(0, 200),
+        subject: form.subject.trim().slice(0, 200),
+        message: form.message.trim().slice(0, 3000),
       });
+      markSent('sonoria_last_contact');
       setForm(EMPTY);
       setSent(true);
     } catch {
@@ -57,6 +71,16 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-4">
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        value={trap}
+        onChange={(e) => setTrap(e.target.value)}
+        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">Nombre</Label>
