@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { inCooldown, looksLikeBot, markSent } from '@/lib/antiSpam';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +21,8 @@ export default function Sugerencias() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const [trap, setTrap] = useState('');
+  const startedAt = useRef(Date.now());
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,13 +30,22 @@ export default function Sugerencias() {
       setError('Cuéntanos qué quieres sugerir o arreglar.');
       return;
     }
+    if (looksLikeBot({ honeypot: trap, startedAt: startedAt.current })) {
+      setSent(true);
+      return;
+    }
+    if (inCooldown('sonoria_last_suggestion')) {
+      setError('Acabas de enviar una sugerencia. Espera un minuto antes de enviar otra.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
       await base44.entities.Suggestion.create({
         category,
-        message: message.trim(),
+        message: message.trim().slice(0, 2000),
       });
+      markSent('sonoria_last_suggestion');
       setSent(true);
     } catch {
       setError('No se pudo enviar la sugerencia. Inténtalo de nuevo.');
@@ -65,6 +77,16 @@ export default function Sugerencias() {
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5 rounded-3xl border border-border bg-card p-6 sm:p-8">
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          value={trap}
+          onChange={(e) => setTrap(e.target.value)}
+          className="absolute left-[-9999px] h-0 w-0 opacity-0"
+        />
         <div className="space-y-2">
           <Label>Tipo</Label>
           <Select value={category} onValueChange={setCategory}>
@@ -80,6 +102,7 @@ export default function Sugerencias() {
           <Textarea
             id="message"
             rows={5}
+            maxLength={2000}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Describe la mejora o el fallo: dónde pasa, qué esperabas, qué pasó…"
