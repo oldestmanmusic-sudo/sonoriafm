@@ -1,0 +1,15 @@
+{
+  "name": "SONORIA FM",
+  "short_name": "SONORIA FM",
+  "description": "La radio online de la música creada con IA. 24 horas, TOP 10 votado por los oyentes.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#8b33ff",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
