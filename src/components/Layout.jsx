@@ -9,11 +9,36 @@ import BottomTabs from '@/components/BottomTabs';
 import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';
 
+// Título de la pestaña según la página (mejora la pestaña del navegador y las búsquedas).
+const PAGE_TITLES = [
+  ['/artistas', 'Artistas'],
+  ['/cancion', 'Canción'],
+  ['/programacion', 'Programación'],
+  ['/noticias', 'Noticias'],
+  ['/sobre-nosotros', 'Sobre nosotros'],
+  ['/contacto', 'Contacto'],
+  ['/sugerencias', 'Sugerencias'],
+  ['/promociona-tu-musica', 'Promociona tu música'],
+  ['/subir-cancion', 'Subir canción'],
+  ['/envia-tu-cancion', 'Envía tu canción'],
+  ['/donar', 'Donar'],
+  ['/terminos', 'Términos para artistas'],
+  ['/cuenta', 'Mi cuenta'],
+  ['/login', 'Conéctate'],
+  ['/register', 'Crear cuenta'],
+];
+const SITE_TITLE = 'SONORIA FM';
+
 export default function Layout() {
   const [playlist, setPlaylist] = useState([]);
   const nowPlaying = playlist[0] || null;
   const location = useLocation();
   const navType = useNavigationType();
+
+  useEffect(() => {
+    const hit = PAGE_TITLES.find(([p]) => location.pathname.startsWith(p));
+    document.title = hit ? `${hit[1]} · ${SITE_TITLE}` : `${SITE_TITLE} · Radio online de música creada con IA`;
+  }, [location.pathname]);
 
   // Transición de pantalla: empuje desde la derecha, regreso desde la izquierda.
   const pageVariants =
