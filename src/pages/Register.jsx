@@ -10,6 +10,7 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
+import { authError } from "@/lib/authErrors";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ export default function Register() {
     e.preventDefault();
     setError("");
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Las contraseñas no coinciden.");
       return;
     }
     setLoading(true);
@@ -32,7 +33,7 @@ export default function Register() {
       await base44.auth.register({ email, password });
       setShowOtp(true);
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(authError(err, "No se pudo crear la cuenta. Inténtalo de nuevo."));
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,7 @@ export default function Register() {
       }
       window.location.href = safeReturnTo();
     } catch (err) {
-      setError(err.message || "Invalid verification code");
+      setError(authError(err, "El código no es válido o ha caducado."));
     } finally {
       setLoading(false);
     }
@@ -59,11 +60,11 @@ export default function Register() {
     try {
       await base44.auth.resendOtp(email);
       toast({
-        title: "Code sent",
-        description: "Check your email for the new code.",
+        title: "Código enviado",
+        description: "Revisa tu correo: te hemos enviado un código nuevo.",
       });
     } catch (err) {
-      setError(err.message || "Failed to resend code");
+      setError(authError(err, "No se pudo reenviar el código."));
     }
   };
 
@@ -75,8 +76,8 @@ export default function Register() {
     return (
       <AuthLayout
         icon={Mail}
-        title="Verify your email"
-        subtitle={`We sent a code to ${email}`}
+        title="Verifica tu correo"
+        subtitle={`Te hemos enviado un código a ${email}`}
       >
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -109,16 +110,16 @@ export default function Register() {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Verifying...
+              Verificando...
             </>
           ) : (
-            "Verify"
+            "Verificar"
           )}
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-4">
-          Didn't receive the code?{" "}
+          ¿No te ha llegado el código?{" "}
           <button onClick={handleResend} className="text-primary font-medium hover:underline">
-            Resend
+            Reenviar
           </button>
         </p>
       </AuthLayout>
@@ -128,16 +129,16 @@ export default function Register() {
   return (
     <AuthLayout
       icon={UserPlus}
-      title="Create your account"
-      subtitle="Sign up to get started"
+      title="Crea tu cuenta"
+      subtitle="Regístrate gratis para votar y enviar tu música"
       footer={
         <>
-          Already have an account?{" "}
+          ¿Ya tienes cuenta?{" "}
           <Link
             to={"/login" + (safeReturnTo() !== "/" ? "?returnTo=" + encodeURIComponent(safeReturnTo()) : "")}
             className="text-primary font-medium hover:underline"
           >
-            Log in
+            Entrar
           </Link>
         </>
       }
@@ -148,7 +149,7 @@ export default function Register() {
         onClick={handleGoogle}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
+        Continuar con Google
       </Button>
 
       <div className="relative mb-6">
@@ -156,7 +157,7 @@ export default function Register() {
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
+          <span className="bg-card px-3 text-muted-foreground">o</span>
         </div>
       </div>
 
@@ -168,7 +169,7 @@ export default function Register() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Correo electrónico</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input
@@ -176,7 +177,7 @@ export default function Register() {
               type="email"
               autoComplete="email"
               autoFocus
-              placeholder="you@example.com"
+              placeholder="tucorreo@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10 h-12"
@@ -185,7 +186,7 @@ export default function Register() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Contraseña</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input
@@ -201,7 +202,7 @@ export default function Register() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm Password</Label>
+          <Label htmlFor="confirm">Repite la contraseña</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input
@@ -226,10 +227,10 @@ export default function Register() {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating account...
+              Creando cuenta...
             </>
           ) : (
-            "Create account"
+            "Crear cuenta"
           )}
         </Button>
       </form>
