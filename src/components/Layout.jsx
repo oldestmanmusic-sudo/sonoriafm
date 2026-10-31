@@ -6,6 +6,7 @@ import SiteNav from '@/components/SiteNav';
 import SocialLinks from '@/components/SocialLinks';
 import RadioPlayer from '@/components/RadioPlayer';
 import BottomTabs from '@/components/BottomTabs';
+import CookieNotice from '@/components/CookieNotice';
 import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';
 
@@ -23,6 +24,8 @@ const PAGE_TITLES = [
   ['/envia-tu-cancion', 'Envía tu canción'],
   ['/donar', 'Donar'],
   ['/terminos', 'Términos para artistas'],
+  ['/privacidad', 'Política de privacidad'],
+  ['/cookies', 'Política de cookies'],
   ['/cuenta', 'Mi cuenta'],
   ['/login', 'Conéctate'],
   ['/register', 'Crear cuenta'],
@@ -75,6 +78,7 @@ export default function Layout() {
     <RadioProvider playlist={playlist}>
       <div className="min-h-screen flex flex-col">
         <SiteNav />
+        <CookieNotice />
         <main className="flex-1">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -116,6 +120,8 @@ export default function Layout() {
                 <li><Link to="/contacto" className="hover:text-foreground">Contacto</Link></li>
                 <li><Link to="/donar" className="hover:text-foreground">Donar</Link></li>
                 <li><Link to="/terminos" className="hover:text-foreground">Términos para Artistas</Link></li>
+                <li><Link to="/privacidad" className="hover:text-foreground">Política de Privacidad</Link></li>
+                <li><Link to="/cookies" className="hover:text-foreground">Política de Cookies</Link></li>
               </ul>
             </div>
             <div>
