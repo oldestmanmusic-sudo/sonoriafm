@@ -44,6 +44,8 @@ const Baja = lazy(() => import('@/pages/Baja'));
 const ThankYou = lazy(() => import('@/pages/ThankYou'));
 const Promociona = lazy(() => import('@/pages/Promociona'));
 const Legal = lazy(() => import('@/pages/Legal'));
+const Privacidad = lazy(() => import('@/pages/Privacidad'));
+const Cookies = lazy(() => import('@/pages/Cookies'));
 
 
 const AuthenticatedApp = () => {
@@ -76,6 +78,8 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Home />} />
         {/* Los términos se pueden leer antes de registrarse y se puede donar sin cuenta. */}
         <Route path="/terminos" element={<Legal />} />
+        <Route path="/privacidad" element={<Privacidad />} />
+        <Route path="/cookies" element={<Cookies />} />
         <Route path="/donar" element={<Donar />} />
         <Route path="/baja" element={<Baja />} />
 
