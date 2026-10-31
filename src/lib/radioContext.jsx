@@ -270,12 +270,15 @@ export function RadioProvider({ children, playlist = [] }) {
       const audio = audioRef.current;
       if (!audio) { resolve(); return; }
       let settled = false;
+      // Si mientras carga se elige otra canción (a la carta) o se cambia de modo,
+      // este arranque ya no es válido: no debe tocar la posición del audio nuevo.
+      const ep = epochRef.current;
       const settle = (applyOffset) => {
         if (settled) return;
         settled = true;
         clearTimeout(timer);
         audio.removeEventListener('loadedmetadata', onMeta);
-        if (applyOffset) {
+        if (applyOffset && epochRef.current === ep) {
           try {
             const max = audio.duration && audio.duration > 0 ? audio.duration - 1 : offset;
             audio.currentTime = Math.max(0, Math.min(offset, max));
@@ -312,8 +315,12 @@ export function RadioProvider({ children, playlist = [] }) {
       if (epochRef.current !== myEpoch) { inFlightRef.current = false; return; }
       const item = schedule[(index + step) % schedule.length];
       await startAt(item.track, step === 0 ? offset : 0);
+      // Otra reproducción (canción a la carta, volver a la radio) tomó el audio
+      // mientras cargaba esta: se abandona sin tocar nada para no pisarla.
+      if (epochRef.current !== myEpoch) { inFlightRef.current = false; return; }
       try {
         await audio.play();
+        if (epochRef.current !== myEpoch) { inFlightRef.current = false; return; }
         currentRef.current = item.track;
         setCurrentTrack(item.track);
         announcePlay();
@@ -416,9 +423,19 @@ export function RadioProvider({ children, playlist = [] }) {
     // de la canción: así no salta al centro de otro tema.
     let start = index;
     let startOffset = offset;
-    if (schedule[start] && schedule[start].track.id === currentRef.current?.id) {
+    const curId = currentRef.current?.id;
+    if (schedule[start] && schedule[start].track.id === curId) {
       start = (start + 1) % schedule.length;
       startOffset = 0;
+    } else if (curId && offset > 0 && offset <= 20) {
+      // La canción terminó de forma natural y el reloj ya entró unos segundos en la
+      // siguiente (la carga de cada tema retrasa al oyente). Si esa siguiente es la
+      // que viene justo después de la que sonaba, se empieza desde el principio:
+      // así no se come la intro. El control de sincronía de 20 s tolera este desfase.
+      const before = findPosition(playlistRef.current, Date.now() - (offset + 0.5) * 1000);
+      if (before.schedule[before.index] && before.schedule[before.index].track.id === curId) {
+        startOffset = 0;
+      }
     }
     enter(schedule, start, startOffset);
   }, [enter]);
