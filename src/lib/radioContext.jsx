@@ -6,7 +6,7 @@ import { createContext, useContext, useRef, useState, useCallback, useEffect } f
 //   10:00-11:00  Baladas            -> género Baladas
 //   11:00-12:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
 //   12:00-16:00  Top Sonoria        -> igual que la franja de las 08:00
-//   16:00-24:00  Latino Total       -> pop y rock latino
+//   16:00-24:00  Latino Total       -> pop, rock y urbano/reguetón latino
 // Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
 // Dentro de cada franja, la rotación funciona como se explica a continuación.
 //
@@ -115,7 +115,7 @@ const SLOTS = [
   { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-24
 ];
 const ELECTRONIC_GENRES = new Set(['electrónica']);
-const LATINO_GENRES = new Set(['pop latino', 'pop rock latino']);
+const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetón']);
 const BALADAS_GENRES = new Set(['baladas']);
 const POPROCK_GENRES = new Set(['pop rock', 'pop rock latino']);
 const TOP_SIZE = 10;
