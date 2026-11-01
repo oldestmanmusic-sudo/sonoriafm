@@ -1,0 +1,45 @@
+{
+  "name": "Mantener parrilla",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "mantener_parrilla",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "rellena_cola": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "radioQueue",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Rellenar la cola de emisi\u00f3n",
+            "description": "Mantiene unas 2 horas de canciones por delante, cada una empezando justo cuando acaba la anterior"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/15 * * * *",
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Cada 15 minutos rellena la cola de emisi\u00f3n de la radio (sin cortes ni solapes entre canciones ni entre franjas)"
+}
