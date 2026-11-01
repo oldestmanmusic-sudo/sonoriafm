@@ -187,7 +187,7 @@ function nextSlotStart(secondsOfDay) {
 }
 
 // Calcula la pista actual y las siguientes (count en total) a partir de nowMs.
-export function buildUpcoming(list, nowMs, count) {
+function buildUpcoming(list, nowMs, count) {
   const lists = slotLists(list);
   const out = [];
   let t = nowMs;
