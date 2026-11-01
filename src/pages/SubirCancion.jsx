@@ -5,8 +5,9 @@ import { normalizeTrackTitle } from '@/lib/trackUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FORM_GENRES, LANGUAGES } from '@/lib/brand';
+import { FORM_GENRES, LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
 import { Loader2, Send, CheckCircle2, LogIn, UserRound, Upload } from 'lucide-react';
 
 const MAX_AUDIO_MB = 25;
@@ -25,6 +26,8 @@ export default function SubirCancion() {
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('');
   const [language, setLanguage] = useState('');
+  const [tool, setTool] = useState('');
+  const [lyrics, setLyrics] = useState('');
   const [coverFile, setCoverFile] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
   const [accepted, setAccepted] = useState(false);
@@ -63,6 +66,8 @@ export default function SubirCancion() {
     setTitle('');
     setGenre('');
     setLanguage('');
+    setTool('');
+    setLyrics('');
     setCoverFile(null);
     setAudioFile(null);
     setAccepted(false);
@@ -77,6 +82,8 @@ export default function SubirCancion() {
     if (!title.trim()) missing.push('título');
     if (!genre) missing.push('tipo de música');
     if (!language) missing.push('idioma');
+    if (!tool) missing.push('herramienta de IA usada');
+    if (!lyrics.trim()) missing.push('letra');
     if (!coverFile) missing.push('imagen de portada');
     if (!audioFile) missing.push('canción');
     if (missing.length) {
@@ -142,9 +149,9 @@ export default function SubirCancion() {
         cover_url: coverRes.file_url,
         artist_image_url: profile.artist_image_url || '',
         artist_bio: profile.artist_bio || '',
-        tool: profile.tool || '',
+        tool,
         description: '',
-        lyrics: '',
+        lyrics: lyrics.trim(),
         confirmed: true,
         terms_accepted: true,
         terms_accepted_at: new Date().toISOString(),
@@ -260,6 +267,21 @@ export default function SubirCancion() {
               {LANGUAGES.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Herramienta de IA usada <Req /></Label>
+          <Select value={tool} onValueChange={setTool}>
+            <SelectTrigger><SelectValue placeholder="Elige la herramienta" /></SelectTrigger>
+            <SelectContent>
+              {SUBMISSION_TOOLS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="lyrics">Letra <Req /></Label>
+          <Textarea id="lyrics" rows={4} required value={lyrics} onChange={(e) => setLyrics(e.target.value)} placeholder="Letra de la canción…" />
         </div>
 
         <div className="space-y-2">
