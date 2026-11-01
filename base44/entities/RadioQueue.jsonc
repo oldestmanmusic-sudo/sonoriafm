@@ -1,0 +1,92 @@
+{
+  "name": "RadioQueue",
+  "type": "object",
+  "properties": {
+    "seq": {
+      "type": "number",
+      "description": "N\u00famero de orden en la emisi\u00f3n (siempre creciente)."
+    },
+    "kind": {
+      "type": "string",
+      "description": "Tipo de elemento: song (canci\u00f3n). Reservado para cu\u00f1a y locutor."
+    },
+    "track_id": {
+      "type": "string",
+      "description": "Id de la canci\u00f3n."
+    },
+    "title": {
+      "type": "string"
+    },
+    "artist": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "audio_url": {
+      "type": "string"
+    },
+    "cover_url": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "string",
+      "description": "Duraci\u00f3n declarada de la canci\u00f3n (m:ss)."
+    },
+    "starts_at": {
+      "type": "number",
+      "description": "Instante (ms desde 1970) en que empieza a sonar."
+    },
+    "ends_at": {
+      "type": "number",
+      "description": "Instante (ms) en que termina; la siguiente empieza justo aqu\u00ed."
+    },
+    "slot_key": {
+      "type": "number",
+      "description": "Franja a la que pertenece (d\u00eda*100000 + id de franja*1000)."
+    },
+    "k": {
+      "type": "number",
+      "description": "N\u00famero de vuelta dentro de la franja."
+    },
+    "pos": {
+      "type": "number",
+      "description": "Posici\u00f3n dentro de la vuelta."
+    },
+    "order": {
+      "type": "string",
+      "description": "Ids de la vuelta completa separados por coma (para continuarla)."
+    }
+  },
+  "required": [
+    "seq",
+    "track_id",
+    "starts_at",
+    "ends_at"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
