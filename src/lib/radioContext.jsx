@@ -1,4 +1,5 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 
 // PARRILLA SONORIA FM (hora de Madrid, igual para todos los oyentes):
 //   00:00-08:00  Club Electrónico  -> música electrónica
@@ -192,7 +193,7 @@ function cycleList(lists, slot, k) {
   if (!lists.rest.length) return lists.top;
   return k % 3 === 1 ? lists.rest : lists.top;
 }
-function findPosition(list, nowMs) {
+function legacyFindPosition(list, nowMs) {
   const { dayIndex, secondsOfDay } = madridClock(nowMs);
   const slot = [...SLOTS].reverse().find((sl) => secondsOfDay >= sl.start) || SLOTS[0];
   const secondsInSlot = secondsOfDay - slot.start;
@@ -226,6 +227,52 @@ function findPosition(list, nowMs) {
     acc += len;
   }
   return { schedule: cycleFor(0, 0, null).schedule, index: 0, offset: 0 };
+}
+
+// --- Cola de emisión del servidor (RadioQueue) ---------------------------
+// El servidor mantiene la lista de canciones con su inicio y fin exactos: cada una empieza
+// cuando acaba la anterior y el cambio de franja ocurre al terminar la canción en curso
+// (nunca se corta ni se solapa nada). Si la cola no está disponible, se usa el cálculo
+// antiguo por reloj.
+const queueState = { entries: [], clockOffset: 0, version: 0, mapped: null, mappedVersion: -1, loadedAt: 0 };
+
+async function loadQueue() {
+  try {
+    const t0 = Date.now();
+    const res = await base44.functions.invoke('radioNow', { count: 40, backMs: 10 * 60 * 1000 });
+    const t1 = Date.now();
+    const data = res && res.data ? res.data : res;
+    const tracks = data && Array.isArray(data.tracks) ? data.tracks : [];
+    if (!tracks.length || !data.serverTime) return false;
+    queueState.clockOffset = data.serverTime - (t0 + t1) / 2;
+    queueState.entries = tracks.filter((e) => e && e.audio_url && e.endsAt > e.startsAt);
+    queueState.version += 1;
+    queueState.loadedAt = Date.now();
+    return queueState.entries.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function findPosition(list, nowMs) {
+  const q = queueState.entries;
+  if (q.length) {
+    const t = nowMs + queueState.clockOffset;
+    let i = q.findIndex((e) => t >= e.startsAt && t < e.endsAt);
+    if (i >= 0) {
+      if (queueState.mappedVersion !== queueState.version || queueState.mappedList !== list) {
+        const byId = new Map((list || []).map((tr) => [String(tr.id), tr]));
+        queueState.mapped = q.map((e) => ({
+          track: byId.get(String(e.id)) || { ...e, id: e.id },
+          dur: (e.endsAt - e.startsAt) / 1000,
+        }));
+        queueState.mappedVersion = queueState.version;
+        queueState.mappedList = list;
+      }
+      return { schedule: queueState.mapped, index: i, offset: (t - q[i].startsAt) / 1000 };
+    }
+  }
+  return legacyFindPosition(list, nowMs);
 }
 
 export function RadioProvider({ children, playlist = [] }) {
@@ -355,15 +402,26 @@ export function RadioProvider({ children, playlist = [] }) {
   }, [startAt, announcePlay]);
 
   // Entra en la emisión exactamente donde toca según la hora (y vuelta actual).
-  const playScheduled = useCallback(() => {
+  const playScheduled = useCallback(async () => {
     if (!playlistRef.current.length) {
       setIsLoading(false);
       setError(true);
       return;
     }
+    // Cola del servidor al día (máx. 4 s de espera; si falla, reloj local).
+    if (Date.now() - queueState.loadedAt > 30000) {
+      await Promise.race([loadQueue(), new Promise((r) => setTimeout(r, 4000))]);
+    }
     const { schedule, index, offset } = findPosition(playlistRef.current, Date.now());
     enter(schedule, index, offset);
   }, [enter]);
+
+  // Refresco de la cola cada minuto (siempre hay ~2 h por delante en el servidor).
+  useEffect(() => {
+    loadQueue();
+    const timer = setInterval(loadQueue, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   // La canción a la carta terminó (o su fuente falló): reconecta con la
   // emisión en vivo exactamente donde esté la rotación en ese momento.
