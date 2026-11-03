@@ -23,14 +23,7 @@
     },
     "genre": {
       "type": "string",
-      "enum": [
-        "Pop latino",
-        "Pop Rock",
-        "Urbano/Reguetón",
-        "Baladas",
-        "Electrónica",
-        "Otros"
-      ],
+      "description": "G\u00e9nero: los de siempre o uno a\u00f1adido por los artistas.",
       "default": "Otros"
     },
     "duration": {
@@ -52,11 +45,11 @@
     "language": {
       "type": "string",
       "enum": [
-        "Español",
+        "Espa\u00f1ol",
         "Otros idiomas"
       ],
-      "default": "Español",
-      "description": "Idioma de la canción"
+      "default": "Espa\u00f1ol",
+      "description": "Idioma de la canci\u00f3n"
     }
   },
   "required": [
