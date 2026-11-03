@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { FORM_GENRES, LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
+import { LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
+import { useGenreOptions, resolveGenre, registerGenre } from '@/lib/useGenres';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
