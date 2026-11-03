@@ -200,7 +200,7 @@ export default function AdminSubmissions() {
                       {s.artist_name} · {s.email}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {[s.genre, s.language && `Idioma: ${s.language}`, s.tool && `Herramienta: ${s.tool}`].filter(Boolean).join(' · ')}
+                      {[s.genre === 'Otros' && s.genre_other ? `Otros: ${s.genre_other}` : s.genre, s.language && `Idioma: ${s.language}`, s.tool && `Herramienta: ${s.tool}`].filter(Boolean).join(' · ')}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
