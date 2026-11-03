@@ -16,12 +16,16 @@
       "enum": [
         "Pop latino",
         "Pop Rock",
-        "Urbano/Reguetón",
+        "Urbano/Reguet\u00f3n",
         "Baladas",
-        "Electrónica",
+        "Electr\u00f3nica",
         "Otros"
       ],
       "default": "Otros"
+    },
+    "genre_other": {
+      "type": "string",
+      "description": "G\u00e9nero escrito por el artista cuando elige Otros."
     },
     "audio_link": {
       "type": "string"
@@ -60,7 +64,7 @@
     "terms_accepted": {
       "type": "boolean",
       "default": false,
-      "description": "El remitente aceptó los Términos y Condiciones (cesión de derechos, renuncia de reclamaciones y tratamiento de datos)."
+      "description": "El remitente acept\u00f3 los T\u00e9rminos y Condiciones (cesi\u00f3n de derechos, renuncia de reclamaciones y tratamiento de datos)."
     },
     "terms_accepted_at": {
       "type": "string",
@@ -85,11 +89,11 @@
     "language": {
       "type": "string",
       "enum": [
-        "Español",
+        "Espa\u00f1ol",
         "Otros idiomas"
       ],
-      "default": "Español",
-      "description": "Idioma de la canción"
+      "default": "Espa\u00f1ol",
+      "description": "Idioma de la canci\u00f3n"
     }
   },
   "required": [
