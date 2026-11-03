@@ -42,7 +42,7 @@ export default function TrackDetail() {
     const url = window.location.href;
     if (navigator.share) {
       try {
-        await navigator.share({ title: `${track.title} — ${track.artist}`, url });
+        await navigator.share({ title: `${track.title} — ${track.artist}`, text: `Escucha "${track.title}" de ${track.artist} en SONORIA FM, la radio de la música hecha con IA`, url });
         return;
       } catch { /* cancelado */ }
     }
@@ -136,6 +136,14 @@ export default function TrackDetail() {
             </Button>
           </div>
         </div>
+      </div>
+
+      <div className="mt-14 rounded-3xl border border-border bg-secondary/40 p-6 text-center">
+        <p className="font-heading text-xl font-bold">¿Haces música con IA?</p>
+        <p className="mt-1 text-sm text-muted-foreground">Envía tu canción gratis y entra en la rotación de SONORIA FM.</p>
+        <Link to="/envia-tu-cancion" className="mt-4 inline-block">
+          <Button className="rounded-full">Envía tu canción</Button>
+        </Link>
       </div>
     </section>
   );
