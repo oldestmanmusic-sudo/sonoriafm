@@ -25,7 +25,7 @@ export default function NowPlaying({ track, sideLeft = null }) {
         <h1 className="mt-6 font-heading text-6xl sm:text-8xl lg:text-7xl xl:text-8xl font-extrabold tracking-tighter text-glow">
           SONOR<span className="text-primary">IA</span> FM
         </h1>
-        <p className="mt-3 text-lg text-muted-foreground">La radio de la música hecha con IA. Música en español, artistas de todo el mundo, las 24 horas.</p>
+        <p className="mt-3 text-lg text-muted-foreground">La radio de la música hecha con IA. Artistas de todo el mundo, las 24 horas.</p>
 
         <div className="mt-10 flex justify-center">
           <Link
