@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
-import { useGenreOptions, resolveGenre, registerGenre } from '@/lib/useGenres';
+import { useGenreOptions, resolveGenre } from '@/lib/useGenres';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -47,7 +47,7 @@ export default function EnviarCancion() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
-  const { options: genreOptions, extra: extraGenres, reload: reloadGenres } = useGenreOptions();
+  const { options: genreOptions } = useGenreOptions();
 
   const set = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
 
@@ -140,8 +140,6 @@ export default function EnviarCancion() {
         terms_accepted: true,
         terms_accepted_at: new Date().toISOString(),
       });
-      const gr = resolveGenre(form.genre, form.genre_other);
-      if (gr.genre_other) { await registerGenre(gr.genre_other, extraGenres); reloadGenres(); }
       setSent(true);
     } catch {
       setError('No se pudo enviar la canción. Inténtalo de nuevo.');

@@ -49,15 +49,18 @@ export function resolveGenre(selected, typedOther) {
   return { genre: clean || 'Otros', genre_other: clean };
 }
 
-// Añade el género nuevo a la lista (si no existe ya) para las próximas subidas.
-export async function registerGenre(name, existing) {
+// Lo llama el administrador al APROBAR una canción: añade su género nuevo a la lista del
+// desplegable (si no existe ya) para las próximas subidas.
+export async function registerGenre(name) {
   const clean = cleanGenre(name);
   if (!clean) return;
   const k = norm(clean);
-  if (FORM_GENRES.some((g) => norm(g) === k) || (existing || []).some((g) => norm(g) === k)) return;
+  if (FORM_GENRES.some((g) => norm(g) === k)) return;
   try {
+    const rows = await base44.entities.GenreOption.list('name', 200);
+    if ((rows || []).some((r) => norm(r.name) === k)) return;
     await base44.entities.GenreOption.create({ name: clean });
   } catch {
-    /* no bloquea el envío */
+    /* no bloquea la aprobación */
   }
 }

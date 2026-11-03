@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { normalizeTrackTitle, safeAudioUrl } from '@/lib/trackUtils';
+import { registerGenre } from '@/lib/useGenres';
 import { Loader2, Inbox, Check, X, ExternalLink, Sparkles } from 'lucide-react';
 
 const TABS = [
@@ -128,6 +129,7 @@ export default function AdminSubmissions() {
           audio_url: safeAudio,
           played_at: new Date().toISOString(),
         });
+        if (item.genre_other) await registerGenre(item.genre_other);
         await base44.entities.Submission.update(item.id, {
           status: 'approved',
           admin_note: notes[item.id] ?? item.admin_note ?? '',
@@ -200,7 +202,7 @@ export default function AdminSubmissions() {
                       {s.artist_name} · {s.email}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {[s.genre === 'Otros' && s.genre_other ? `Otros: ${s.genre_other}` : s.genre, s.language && `Idioma: ${s.language}`, s.tool && `Herramienta: ${s.tool}`].filter(Boolean).join(' · ')}
+                      {[s.genre_other ? `${s.genre} (género nuevo: se añade a la lista al aprobar)` : s.genre, s.language && `Idioma: ${s.language}`, s.tool && `Herramienta: ${s.tool}`].filter(Boolean).join(' · ')}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
