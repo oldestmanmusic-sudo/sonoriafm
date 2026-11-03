@@ -77,10 +77,6 @@ const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetó
 const BALADAS_GENRES = new Set(['baladas']);
 const POPROCK_GENRES = new Set(['pop rock', 'pop rock latino']);
 const TOP_SIZE = 10;
-// Géneros "de siempre": cualquier otro género (añadido por los artistas) suena en la franja 11-12 h.
-const KNOWN_GENRES = new Set([
-  'electrónica', 'pop latino', 'pop rock latino', 'urbano/reguetón', 'baladas', 'pop rock', 'otros', 'cuña', '',
-]);
 const MAX_CYCLES_PER_DAY = 500;
 
 const madridFmt = new Intl.DateTimeFormat('en-GB', {
@@ -117,9 +113,7 @@ function slotLists(list) {
   const latino = list.filter((t) => LATINO_GENRES.has(normGenre(t.genre)));
   const poprock = list.filter((t) => POPROCK_GENRES.has(normGenre(t.genre)));
   const baladas = list.filter((t) => BALADAS_GENRES.has(normGenre(t.genre)));
-  const idiomas = list.filter(
-    (t) => normGenre(t.language) === 'otros idiomas' || !KNOWN_GENRES.has(normGenre(t.genre))
-  );
+  const idiomas = list.filter((t) => normGenre(t.language) === 'otros idiomas');
   const byLikes = [...list].sort(
     (a, b) => (b.likes || 0) - (a.likes || 0) || String(a.id).localeCompare(String(b.id))
   );
