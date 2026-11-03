@@ -25,6 +25,7 @@ export default function SubirCancion() {
 
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('');
+  const [genreOther, setGenreOther] = useState('');
   const [language, setLanguage] = useState('');
   const [tool, setTool] = useState('');
   const [lyrics, setLyrics] = useState('');
@@ -65,6 +66,7 @@ export default function SubirCancion() {
   const reset = () => {
     setTitle('');
     setGenre('');
+    setGenreOther('');
     setLanguage('');
     setTool('');
     setLyrics('');
@@ -81,6 +83,7 @@ export default function SubirCancion() {
     const missing = [];
     if (!title.trim()) missing.push('título');
     if (!genre) missing.push('tipo de música');
+    if (genre === 'Otros' && !genreOther.trim()) missing.push('qué género o tipo de música es');
     if (!language) missing.push('idioma');
     if (!tool) missing.push('herramienta de IA usada');
     if (!lyrics.trim()) missing.push('letra');
@@ -144,6 +147,7 @@ export default function SubirCancion() {
         email: user.email,
         song_title: title.trim(),
         genre,
+        genre_other: genre === 'Otros' ? genreOther.trim() : '',
         language,
         audio_link: audioRes.file_url,
         cover_url: coverRes.file_url,
@@ -257,6 +261,15 @@ export default function SubirCancion() {
               {FORM_GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
             </SelectContent>
           </Select>
+          {genre === 'Otros' && (
+            <Input
+              required
+              value={genreOther}
+              onChange={(e) => setGenreOther(e.target.value)}
+              maxLength={60}
+              placeholder="Escribe el género o tipo de música"
+            />
+          )}
         </div>
 
         <div className="space-y-2">
