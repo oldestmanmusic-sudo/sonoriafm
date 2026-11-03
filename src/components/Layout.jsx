@@ -106,7 +106,7 @@ export default function Layout() {
               <p className="font-heading text-lg font-extrabold tracking-tight">
                 SONOR<span className="text-primary">IA</span> FM
               </p>
-              <p className="mt-2 max-w-xs text-sm text-muted-foreground">Música en español creada con IA, 24/7
+              <p className="mt-2 max-w-xs text-sm text-muted-foreground">Música creada con IA, 24/7
 
               </p>
             </div>
@@ -130,7 +130,7 @@ export default function Layout() {
             </div>
           </div>
           <div className="mx-auto max-w-6xl px-4 mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-            <p>La radio de la música hecha con IA. Música en español, artistas de todo el mundo, las 24 horas.</p>
+            <p>La radio de la música hecha con IA. Artistas de todo el mundo, las 24 horas.</p>
             <div className="flex items-center gap-4">
               <p>© {new Date().getFullYear()} SONORIA FM</p>
             </div>
