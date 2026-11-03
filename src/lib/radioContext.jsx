@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 //   00:00-08:00  Club Electrónico  -> música electrónica
 //   08:00-10:00  Pop Rock           -> pop y rock (mejor hora de audiencia de la mañana)
 //   10:00-11:00  Baladas            -> género Baladas
-//   11:00-12:00  Música en otros idiomas -> idioma "Otros idiomas" y géneros añadidos por los artistas
+//   11:00-12:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
 //   12:00-16:00  Top Sonoria        -> igual que la franja de las 08:00
 //   16:00-24:00  Latino Total       -> pop, rock y urbano/reguetón latino
 // Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
@@ -120,10 +120,8 @@ const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetó
 const BALADAS_GENRES = new Set(['baladas']);
 const POPROCK_GENRES = new Set(['pop rock', 'pop rock latino']);
 const TOP_SIZE = 10;
-// Géneros "de siempre": cualquier otro género (añadido por los artistas) suena en la franja 11-12 h.
-const KNOWN_GENRES = new Set([
-  'electrónica', 'pop latino', 'pop rock latino', 'urbano/reguetón', 'baladas', 'pop rock', 'otros', 'cuña', '',
-]);
+// Los géneros añadidos por los artistas (en español) no tienen franja propia: suenan en el Top
+// Sonoria (12-16 h), que mezcla todo el catálogo.
 
 const madridFmt = new Intl.DateTimeFormat('en-GB', {
   timeZone: PARRILLA_TZ,
@@ -166,9 +164,7 @@ function slotLists(list) {
   const latino = list.filter((t) => LATINO_GENRES.has(normGenre(t.genre)));
   const poprock = list.filter((t) => POPROCK_GENRES.has(normGenre(t.genre)));
   const baladas = list.filter((t) => BALADAS_GENRES.has(normGenre(t.genre)));
-  const idiomas = list.filter(
-    (t) => normGenre(t.language) === 'otros idiomas' || !KNOWN_GENRES.has(normGenre(t.genre))
-  );
+  const idiomas = list.filter((t) => normGenre(t.language) === 'otros idiomas');
   const byLikes = [...list].sort(
     (a, b) => (b.likes || 0) - (a.likes || 0) || String(a.id).localeCompare(String(b.id))
   );
