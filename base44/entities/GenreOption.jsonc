@@ -1,0 +1,29 @@
+{
+  "name": "GenreOption",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "G\u00e9nero o tipo de m\u00fasica a\u00f1adido por un artista al elegir Otros."
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
