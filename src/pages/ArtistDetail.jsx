@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
-import { Loader2, ExternalLink, Play, Pause } from 'lucide-react';
+import { Loader2, ExternalLink, Play, Pause, Share2 } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { useRadio } from '@/lib/radioContext';
 
@@ -13,6 +13,7 @@ export default function ArtistDetail() {
   const [artist, setArtist] = useState(null);
   const [tracks, setTracks] = useState([]);
   const [notFound, setNotFound] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { onDemandTrack, isPlaying, isLoading, playOnDemand, toggle } = useRadio();
 
   useEffect(() => {
@@ -33,6 +34,21 @@ export default function ArtistDetail() {
     })();
     return () => { active = false; };
   }, [id]);
+
+  const share = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `${artist.name} en SONORIA FM`, text: `Escucha a ${artist.name} en SONORIA FM, la radio de la música hecha con IA`, url });
+        return;
+      } catch { /* cancelado */ }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* ignore */ }
+  };
 
   if (notFound) {
     return (
@@ -69,13 +85,18 @@ export default function ArtistDetail() {
             {[artist.genre, artist.country].filter(Boolean).join(' · ')}
           </p>
           {artist.bio && <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">{artist.bio}</p>}
-          {artist.social_url && (
-            <a href={artist.social_url} target="_blank" rel="noopener noreferrer" className="mt-5 inline-block">
-              <Button variant="outline" className="rounded-full">
-                <ExternalLink className="h-4 w-4" /> Redes y música
-              </Button>
-            </a>
-          )}
+          <div className="mt-5 flex flex-wrap gap-3">
+            {artist.social_url && (
+              <a href={artist.social_url} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="rounded-full">
+                  <ExternalLink className="h-4 w-4" /> Redes y música
+                </Button>
+              </a>
+            )}
+            <Button onClick={share} variant="outline" className="rounded-full">
+              <Share2 className="h-4 w-4" /> {copied ? 'Enlace copiado' : 'Compartir'}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -113,6 +134,14 @@ export default function ArtistDetail() {
           })}
         </div>
       )}
+
+      <div className="mt-14 rounded-3xl border border-border bg-secondary/40 p-6 text-center">
+        <p className="font-heading text-xl font-bold">¿Haces música con IA?</p>
+        <p className="mt-1 text-sm text-muted-foreground">Envía tu canción gratis y entra en la rotación de SONORIA FM.</p>
+        <Link to="/envia-tu-cancion" className="mt-4 inline-block">
+          <Button className="rounded-full">Envía tu canción</Button>
+        </Link>
+      </div>
     </section>
   );
 }
