@@ -38,12 +38,15 @@ export function useGenreOptions() {
   return { options, extra, reload: load };
 }
 
-// El valor del desplegable puede ser un género añadido por artistas: en la base de datos
-// se guarda siempre como "Otros" + el nombre escrito.
+// El género se guarda con su propio nombre: el de la lista, o el que escribió el artista
+// con "Otros" (si coincide con uno de siempre, se usa ese). genre_other solo marca que
+// el género lo escribió el artista.
 export function resolveGenre(selected, typedOther) {
-  if (selected === 'Otros') return { genre: 'Otros', genre_other: cleanGenre(typedOther) };
-  if (selected && !FORM_GENRES.includes(selected)) return { genre: 'Otros', genre_other: cleanGenre(selected) };
-  return { genre: selected, genre_other: '' };
+  if (selected !== 'Otros') return { genre: selected, genre_other: '' };
+  const clean = cleanGenre(typedOther);
+  const known = FORM_GENRES.find((g) => g !== 'Otros' && norm(g) === norm(clean));
+  if (known) return { genre: known, genre_other: '' };
+  return { genre: clean || 'Otros', genre_other: clean };
 }
 
 // Añade el género nuevo a la lista (si no existe ya) para las próximas subidas.
