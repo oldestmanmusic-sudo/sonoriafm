@@ -82,12 +82,13 @@ const AuthenticatedApp = () => {
         <Route path="/cookies" element={<Cookies />} />
         <Route path="/donar" element={<Donar />} />
         <Route path="/baja" element={<Baja />} />
+        {/* Artistas y canciones se pueden ver sin cuenta: así los enlaces que comparten los artistas funcionan. */}
+        <Route path="/artistas" element={<Artists />} />
+        <Route path="/artistas/:id" element={<ArtistDetail />} />
+        <Route path="/cancion/:id" element={<TrackDetail />} />
 
-        {/* Solo la radio (inicio) es libre: todo lo demás exige iniciar sesión o registrarse. */}
+        {/* Votar, enviar canciones y el resto exigen iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
-          <Route path="/artistas" element={<Artists />} />
-          <Route path="/artistas/:id" element={<ArtistDetail />} />
-          <Route path="/cancion/:id" element={<TrackDetail />} />
           <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
           <Route path="/subir-cancion" element={<SubirCancion />} />
           <Route path="/programacion" element={<Programming />} />
