@@ -13,14 +13,7 @@
     },
     "genre": {
       "type": "string",
-      "enum": [
-        "Pop latino",
-        "Pop Rock",
-        "Urbano/Reguet\u00f3n",
-        "Baladas",
-        "Electr\u00f3nica",
-        "Otros"
-      ],
+      "description": "Género: los de siempre o uno añadido por los artistas.",
       "default": "Otros"
     },
     "genre_other": {

@@ -1,7 +1,7 @@
 import EntityManager from '@/components/admin/EntityManager';
-import { FORM_GENRES as GENRES } from '@/lib/brand';
+import { useGenreOptions } from '@/lib/useGenres';
 
-const FIELDS = [
+const makeFields = (GENRES) => [
   { name: 'title', label: 'Tema', type: 'text', required: true, fullWidth: true },
   { name: 'artist', label: 'Artista', type: 'text', required: true },
   { name: 'genre', label: 'Canal', type: 'select', options: GENRES, help: 'Sin género asignado, entra en «Otros».' },
@@ -14,6 +14,8 @@ const FIELDS = [
 ];
 
 export default function AdminTracks() {
+  const { options } = useGenreOptions();
+  const FIELDS = makeFields(options);
   return (
     <EntityManager
       entity="Track"
