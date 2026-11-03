@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FORM_GENRES, LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
+import { LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
+import { useGenreOptions, resolveGenre, registerGenre } from '@/lib/useGenres';
 import { Loader2, Send, CheckCircle2, LogIn, UserRound, Upload } from 'lucide-react';
 
 const MAX_AUDIO_MB = 25;
@@ -26,6 +27,7 @@ export default function SubirCancion() {
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('');
   const [genreOther, setGenreOther] = useState('');
+  const { options: genreOptions, extra: extraGenres, reload: reloadGenres } = useGenreOptions();
   const [language, setLanguage] = useState('');
   const [tool, setTool] = useState('');
   const [lyrics, setLyrics] = useState('');
@@ -146,8 +148,7 @@ export default function SubirCancion() {
         artist_name: profile.artist_name,
         email: user.email,
         song_title: title.trim(),
-        genre,
-        genre_other: genre === 'Otros' ? genreOther.trim() : '',
+        ...resolveGenre(genre, genreOther),
         language,
         audio_link: audioRes.file_url,
         cover_url: coverRes.file_url,
@@ -161,6 +162,8 @@ export default function SubirCancion() {
         terms_accepted_at: new Date().toISOString(),
         // status queda en "pending" (valor por defecto): no suena hasta aprobarse.
       });
+      const gr = resolveGenre(genre, genreOther);
+      if (gr.genre_other) { await registerGenre(gr.genre_other, extraGenres); reloadGenres(); }
       setSent(true);
     } catch {
       setError('No se pudo enviar la canción. Inténtalo de nuevo.');
@@ -258,7 +261,7 @@ export default function SubirCancion() {
           <Select value={genre} onValueChange={setGenre}>
             <SelectTrigger><SelectValue placeholder="Elige el tipo de música" /></SelectTrigger>
             <SelectContent>
-              {FORM_GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+              {genreOptions.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
             </SelectContent>
           </Select>
           {genre === 'Otros' && (
