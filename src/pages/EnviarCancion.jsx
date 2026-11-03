@@ -31,6 +31,7 @@ export default function EnviarCancion() {
     email: '',
     song_title: '',
     genre: '',
+    genre_other: '',
     language: '',
     artist_bio: '',
     description: '',
@@ -62,6 +63,7 @@ export default function EnviarCancion() {
     if (!form.artist_bio.trim()) missing.push('descripción del artista');
     if (!form.song_title.trim()) missing.push('título de la canción');
     if (!form.genre) missing.push('género');
+    if (form.genre === 'Otros' && !form.genre_other.trim()) missing.push('qué género o tipo de música es');
     if (!form.language) missing.push('idioma');
     if (!file) missing.push('archivo de audio');
     if (!coverFile) missing.push('carátula de la canción');
@@ -124,6 +126,7 @@ export default function EnviarCancion() {
         email: form.email.trim(),
         song_title: form.song_title.trim(),
         genre: form.genre,
+        genre_other: form.genre === 'Otros' ? form.genre_other.trim() : '',
         language: form.language,
         audio_link: audioRes.file_url,
         cover_url: coverRes.file_url,
@@ -236,6 +239,15 @@ export default function EnviarCancion() {
                 {FORM_GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
               </SelectContent>
             </Select>
+            {form.genre === 'Otros' && (
+              <Input
+                required
+                value={form.genre_other}
+                onChange={(e) => set('genre_other', e.target.value)}
+                maxLength={60}
+                placeholder="Escribe el género o tipo de música"
+              />
+            )}
           </div>
         </div>
 
