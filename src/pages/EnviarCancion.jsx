@@ -46,6 +46,7 @@ export default function EnviarCancion() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const { options: genreOptions, extra: extraGenres, reload: reloadGenres } = useGenreOptions();
 
   const set = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
 
@@ -125,8 +126,7 @@ export default function EnviarCancion() {
         artist_name: form.artist_name.trim(),
         email: form.email.trim(),
         song_title: form.song_title.trim(),
-        genre: form.genre,
-        genre_other: form.genre === 'Otros' ? form.genre_other.trim() : '',
+        ...resolveGenre(form.genre, form.genre_other),
         language: form.language,
         audio_link: audioRes.file_url,
         cover_url: coverRes.file_url,
@@ -139,6 +139,8 @@ export default function EnviarCancion() {
         terms_accepted: true,
         terms_accepted_at: new Date().toISOString(),
       });
+      const gr = resolveGenre(form.genre, form.genre_other);
+      if (gr.genre_other) { await registerGenre(gr.genre_other, extraGenres); reloadGenres(); }
       setSent(true);
     } catch {
       setError('No se pudo enviar la canción. Inténtalo de nuevo.');
@@ -236,7 +238,7 @@ export default function EnviarCancion() {
             <Select value={form.genre} onValueChange={(v) => set('genre', v)}>
               <SelectTrigger><SelectValue placeholder="Elige el tipo de música" /></SelectTrigger>
               <SelectContent>
-                {FORM_GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                {genreOptions.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
               </SelectContent>
             </Select>
             {form.genre === 'Otros' && (
