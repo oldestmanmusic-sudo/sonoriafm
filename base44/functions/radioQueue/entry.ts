@@ -254,6 +254,17 @@ export default async function(req) {
       .sort((a, b) => a.seq - b.seq || String(a.created_date).localeCompare(String(b.created_date)))
       .filter((e) => (seen.has(e.seq) ? false : (seen.add(e.seq), true)));
 
+    // TEMPORAL: reconstruir lo que aún no ha sonado tras cambiar la parrilla.
+    const body = await req.json().catch(() => ({}));
+    if (body && body.reset === 'parrilla-2026-11-04') {
+      for (const e of [...entries]) {
+        if (e.starts_at > now) {
+          await db.RadioQueue.delete(e.id);
+          entries.splice(entries.indexOf(e), 1);
+        }
+      }
+    }
+
     let last = entries[entries.length - 1];
     const created = [];
     let seeded = false;
