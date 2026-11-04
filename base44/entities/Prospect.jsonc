@@ -1,0 +1,119 @@
+{
+  "name": "Prospect",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "anunciante",
+        "patrocinador",
+        "artista",
+        "colaborador",
+        "emisora",
+        "medio",
+        "playlist",
+        "otro"
+      ],
+      "default": "anunciante",
+      "description": "Tipo de oportunidad"
+    },
+    "name": {
+      "type": "string",
+      "description": "Empresa, artista o proyecto"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "social": {
+      "type": "string",
+      "description": "Instagram, TikTok, etc."
+    },
+    "locality": {
+      "type": "string"
+    },
+    "sector": {
+      "type": "string",
+      "description": "Sector o g\u00e9nero musical"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "nuevo",
+        "investigado",
+        "borrador_listo",
+        "aprobado_por_victor",
+        "contactado",
+        "respondio",
+        "negociando",
+        "cerrado",
+        "descartado"
+      ],
+      "default": "nuevo"
+    },
+    "priority": {
+      "type": "integer",
+      "description": "1 (m\u00e1xima) a 5",
+      "default": 3
+    },
+    "fit_reason": {
+      "type": "string",
+      "description": "Por qu\u00e9 encaja con SONORIA FM"
+    },
+    "offer": {
+      "type": "string",
+      "description": "Qu\u00e9 se le propone (cu\u00f1a, patrocinio, selecci\u00f3n musical...)"
+    },
+    "draft_message": {
+      "type": "string",
+      "description": "Borrador del primer mensaje, pendiente de aprobaci\u00f3n de V\u00edctor"
+    },
+    "next_step": {
+      "type": "string"
+    },
+    "next_step_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "source_url": {
+      "type": "string",
+      "description": "P\u00e1gina p\u00fablica donde se encontr\u00f3 el dato"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
