@@ -1,18 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
-// COLA DE EMISIÓN de SONORIA FM. Esta función mantiene en la entidad RadioQueue la lista de
-// canciones que van a sonar, cada una con su hora exacta de inicio y fin.
-//
-// Regla de oro: cada canción empieza EXACTAMENTE cuando acaba la anterior (ends_at = starts_at +
-// duración). Ninguna canción se corta y ninguna se solapa. La franja de la parrilla (hora de
-// Madrid) que manda sobre la canción siguiente es la que corresponde a la HORA EN QUE ESA
-// CANCIÓN EMPIEZA: si la franja cambia mientras suena una canción, esa canción termina entera y
-// la siguiente ya es de la franja nueva.
-//
-// El orden dentro de cada franja usa el mismo barajado que siempre (semilla = día + franja +
-// vuelta, artistas intercalados, Top 10 por "me gusta" congelado al empezar la vuelta, canciones
-// nuevas entran al empezar la vuelta). Se ejecuta por tarea programada cada 15 minutos y también
-// lo invoca radioNow si ve la cola corta. Mantiene unas 2 horas de emisión por delante.
+// COLA DE EMISIÓN de SONORIA FM (ver comentarios en el repositorio).
 
 const FALLBACK_DURATION = 240;
 const HORIZON_MS = 2 * 3600 * 1000;
@@ -65,13 +53,13 @@ function parseDuration(d) {
 
 const PARRILLA_TZ = 'Europe/Madrid';
 const SLOTS = [
-  { id: 0, start: 0, kind: 'electronic' },        // Club Electrónico 00-08
-  { id: 1, start: 8 * 3600, kind: 'poprock' },    // Pop Rock 08-10
-  { id: 4, start: 10 * 3600, kind: 'top' },       // Top Sonoria 10-16
-  { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-20
-  { id: 5, start: 20 * 3600, kind: 'baladas' },   // Baladas 20-21
-  { id: 3, start: 21 * 3600, kind: 'idiomas' },   // Música en otros idiomas 21-22
-  { id: 6, start: 22 * 3600, kind: 'latino' },    // Latino Total 22-24
+  { id: 0, start: 0, kind: 'electronic' },
+  { id: 1, start: 8 * 3600, kind: 'poprock' },
+  { id: 4, start: 10 * 3600, kind: 'top' },
+  { id: 2, start: 16 * 3600, kind: 'latino' },
+  { id: 5, start: 20 * 3600, kind: 'baladas' },
+  { id: 3, start: 21 * 3600, kind: 'idiomas' },
+  { id: 6, start: 22 * 3600, kind: 'latino' },
 ];
 const ELECTRONIC_GENRES = new Set(['electrónica']);
 const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetón']);
@@ -148,7 +136,6 @@ function slotAt(ms) {
   return { slot, dayIndex, secondsOfDay, slotKey: dayIndex * 100000 + slot.id * 1000 };
 }
 
-// Algoritmo antiguo (reloj puro): solo se usa para ARRANCAR la cola desde donde estaba la emisión.
 function legacyPosition(list, nowMs, lists) {
   const { slot, dayIndex, secondsOfDay, slotKey } = slotAt(nowMs);
   const secondsInSlot = secondsOfDay - slot.start;
@@ -208,7 +195,6 @@ function entryFor(track, startsAt, meta) {
   };
 }
 
-// Siguiente elemento de la cola: empieza justo cuando acaba el último.
 function nextEntry(last, lists, byId) {
   const start = last.ends_at;
   const { slot, slotKey } = slotAt(start);
@@ -222,7 +208,7 @@ function nextEntry(last, lists, byId) {
         seq: last.seq + 1, slotKey, k: last.k, pos, order: last.order,
       });
     }
-    k = (last.k || 0) + 1; // se acabó la vuelta: se baraja una nueva en la misma franja
+    k = (last.k || 0) + 1;
   }
   const raw = cycleList(lists, slot, k);
   let cl = raw.filter((t) => createdMs(t) <= start);
@@ -247,7 +233,6 @@ export default async function(req) {
     const byId = new Map(list.map((t) => [String(t.id), t]));
     const lists = slotLists(list);
 
-    // Cola actual (de más antigua a más nueva, sin seq repetidos).
     const rows = toList(await db.RadioQueue.filter({}, { sort: '-seq', limit: 300 }));
     const seen = new Set();
     const entries = rows
@@ -270,7 +255,6 @@ export default async function(req) {
     let seeded = false;
 
     if (!last || last.ends_at < now) {
-      // Arranque: se continúa desde donde estaba la emisión según el algoritmo de reloj.
       const pos = legacyPosition(list, now, lists);
       const track = pos.sched[pos.index];
       const startsAt = Math.round(now - pos.offset * 1000);
@@ -297,7 +281,6 @@ export default async function(req) {
 
     if (created.length) await db.RadioQueue.bulkCreate(created);
 
-    // Limpieza de lo ya emitido hace más de 3 horas.
     let pruned = 0;
     for (const e of entries) {
       if (e.ends_at < now - KEEP_PAST_MS) {
