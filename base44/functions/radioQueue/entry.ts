@@ -17,7 +17,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 const FALLBACK_DURATION = 240;
 const HORIZON_MS = 2 * 3600 * 1000;
 const KEEP_PAST_MS = 3 * 3600 * 1000;
-const MAX_NEW = 80;
+const MAX_NEW = 80; // parrilla v2 (10-16 Top, 20-22 Baladas+Idiomas)
 
 function hashStr(s) {
   let h = 2166136261;
