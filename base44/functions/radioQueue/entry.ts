@@ -5,7 +5,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 const FALLBACK_DURATION = 240;
 const HORIZON_MS = 2 * 3600 * 1000;
 const KEEP_PAST_MS = 3 * 3600 * 1000;
-const MAX_NEW = 80; // parrilla v2 (10-16 Top, 20-22 Baladas+Idiomas)
+const MAX_NEW = 80;
 
 function hashStr(s) {
   let h = 2166136261;
@@ -239,13 +239,10 @@ export default async function(req) {
       .sort((a, b) => a.seq - b.seq || String(a.created_date).localeCompare(String(b.created_date)))
       .filter((e) => (seen.has(e.seq) ? false : (seen.add(e.seq), true)));
 
-    // TEMPORAL: reconstruir lo que aún no ha sonado tras cambiar la parrilla.
-    const body = await req.json().catch(() => ({}));
-    const resetAll = !!(body && body.reset === 'parrilla-2026-11-04');
     {
       for (const e of [...entries]) {
         // Autocorrección: lo futuro cuya franja ya no coincide con la parrilla actual se regenera.
-        if (e.starts_at > now && (resetAll || e.slot_key !== slotAt(e.starts_at).slotKey)) {
+        if (e.starts_at > now && e.slot_key !== slotAt(e.starts_at).slotKey) {
           await db.RadioQueue.delete(e.id);
           entries.splice(entries.indexOf(e), 1);
         }
