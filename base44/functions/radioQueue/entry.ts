@@ -241,9 +241,11 @@ export default async function(req) {
 
     // TEMPORAL: reconstruir lo que aún no ha sonado tras cambiar la parrilla.
     const body = await req.json().catch(() => ({}));
-    if (body && body.reset === 'parrilla-2026-11-04') {
+    const resetAll = !!(body && body.reset === 'parrilla-2026-11-04');
+    {
       for (const e of [...entries]) {
-        if (e.starts_at > now) {
+        // Autocorrección: lo futuro cuya franja ya no coincide con la parrilla actual se regenera.
+        if (e.starts_at > now && (resetAll || e.slot_key !== slotAt(e.starts_at).slotKey)) {
           await db.RadioQueue.delete(e.id);
           entries.splice(entries.indexOf(e), 1);
         }
