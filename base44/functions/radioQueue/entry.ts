@@ -65,12 +65,13 @@ function parseDuration(d) {
 
 const PARRILLA_TZ = 'Europe/Madrid';
 const SLOTS = [
-  { id: 0, start: 0, kind: 'electronic' },
-  { id: 1, start: 8 * 3600, kind: 'poprock' },
-  { id: 5, start: 10 * 3600, kind: 'baladas' },
-  { id: 3, start: 11 * 3600, kind: 'idiomas' },
-  { id: 4, start: 12 * 3600, kind: 'top' },
-  { id: 2, start: 16 * 3600, kind: 'latino' },
+  { id: 0, start: 0, kind: 'electronic' },        // Club Electrónico 00-08
+  { id: 1, start: 8 * 3600, kind: 'poprock' },    // Pop Rock 08-10
+  { id: 4, start: 10 * 3600, kind: 'top' },       // Top Sonoria 10-16
+  { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-20
+  { id: 5, start: 20 * 3600, kind: 'baladas' },   // Baladas 20-21
+  { id: 3, start: 21 * 3600, kind: 'idiomas' },   // Música en otros idiomas 21-22
+  { id: 6, start: 22 * 3600, kind: 'latino' },    // Latino Total 22-24
 ];
 const ELECTRONIC_GENRES = new Set(['electrónica']);
 const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetón']);

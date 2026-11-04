@@ -21,7 +21,7 @@ export const FORM_GENRES = [
   'Otros',
 ];
 
-// Idioma de la canción: decide si suena en la franja "Música en otros idiomas" (10-12 h).
+// Idioma de la canción: decide si suena en la franja "Música en otros idiomas" (21-22 h).
 export const LANGUAGES = ['Español', 'Otros idiomas'];
 
 export const SUBMISSION_TOOLS = ['Suno', 'Udio', 'Otra'];
