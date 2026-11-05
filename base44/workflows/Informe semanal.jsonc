@@ -1,0 +1,45 @@
+{
+  "name": "Informe semanal",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "informe_semanal",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "envia_informe": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "weeklyGrowthReport",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Enviar el informe de crecimiento",
+            "description": "Usuarios, canciones, artistas, votos y embudo de marketing de la \u00faltima semana"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 9 * * 1",
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Cada lunes a las 9:00 env\u00eda a V\u00edctor el informe de crecimiento de SONORIA FM"
+}
