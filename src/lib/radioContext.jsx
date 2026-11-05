@@ -2,13 +2,13 @@ import { createContext, useContext, useRef, useState, useCallback, useEffect } f
 import { base44 } from '@/api/base44Client';
 
 // PARRILLA SONORIA FM (hora de Madrid, igual para todos los oyentes):
-//   00:00-08:00  Club Electrónico  -> música electrónica
-//   08:00-10:00  Pop Rock           -> pop y rock (mejor hora de audiencia de la mañana)
+//   00:00-02:00  Club Electrónico  -> música electrónica
+//   02:00-05:00  Latino Total       -> pop, rock y urbano/reguetón latino
+//   05:00-10:00  Pop Rock           -> pop y rock
 //   10:00-16:00  Top Sonoria        -> Top 10 por "me gusta" y variedad de todo el catálogo
 //   16:00-20:00  Latino Total       -> pop, rock y urbano/reguetón latino
-//   20:00-21:00  Baladas            -> género Baladas
-//   21:00-22:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
-//   22:00-24:00  Latino Total       -> pop, rock y urbano/reguetón latino
+//   20:00-22:00  Baladas            -> género Baladas
+//   22:00-24:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
 // Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
 // Dentro de cada franja, la rotación funciona como se explica a continuación.
 //
@@ -109,13 +109,13 @@ const MAX_CYCLES_PER_DAY = 500;
 const PARRILLA_TZ = 'Europe/Madrid';
 // Franjas del día (el id solo sirve de semilla del barajado; no cambiarlo).
 const SLOTS = [
-  { id: 0, start: 0, kind: 'electronic' },        // Club Electrónico 00-08
-  { id: 1, start: 8 * 3600, kind: 'poprock' },    // Pop Rock 08-10
+  { id: 0, start: 0, kind: 'electronic' },        // Club Electrónico 00-02
+  { id: 7, start: 2 * 3600, kind: 'latino' },     // Latino Total 02-05
+  { id: 1, start: 5 * 3600, kind: 'poprock' },    // Pop Rock 05-10
   { id: 4, start: 10 * 3600, kind: 'top' },       // Top Sonoria 10-16
   { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-20
-  { id: 5, start: 20 * 3600, kind: 'baladas' },   // Baladas 20-21
-  { id: 3, start: 21 * 3600, kind: 'idiomas' },   // Música en otros idiomas 21-22
-  { id: 6, start: 22 * 3600, kind: 'latino' },    // Latino Total 22-24
+  { id: 5, start: 20 * 3600, kind: 'baladas' },   // Baladas 20-22
+  { id: 3, start: 22 * 3600, kind: 'idiomas' },   // Música en otros idiomas 22-24
 ];
 const ELECTRONIC_GENRES = new Set(['electrónica']);
 const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetón']);
