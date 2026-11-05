@@ -47,7 +47,7 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
 
-    let allowed = !!(body && body.test === 'prueba-2026-11-06'); // TEMPORAL
+    let allowed = false;
     if (body && body.force) {
       const user = await base44.auth.me().catch(() => null);
       allowed = !!user && user.role === 'admin';
