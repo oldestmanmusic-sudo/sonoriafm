@@ -102,13 +102,12 @@ export default async function(req) {
       `<h2 style="color:#8b33ff">Informe semanal de SONORIA FM</h2>` +
       `<p>Últimos 7 días frente a los 7 anteriores.</p>` +
       `<table style="border-collapse:collapse;width:100%"><tr style="background:#f3eaff"><th style="padding:6px 10px;text-align:left"></th><th style="padding:6px 10px">Esta semana</th><th style="padding:6px 10px">Anterior</th><th style="padding:6px 10px">Cambio</th></tr>` +
-      row('Usuarios nuevos', users) +
       row('Canciones enviadas', subs) +
       row('Artistas nuevos', artists) +
       row('Canciones en la radio', tracks) +
       row('Votos (likes)', likes) +
       `</table>` +
-      `<p><strong>Totales:</strong> ${artists.length} artistas · ${tracks.length} canciones · ${users.length} usuarios registrados.</p>` +
+      `<p><strong>Totales:</strong> ${artists.length} artistas · ${tracks.length} canciones.</p>` +
       `<p><strong>Envíos pendientes de revisar:</strong> ${pendingSubs}</p>` +
       `<p><strong>Último envío de un artista:</strong> ${lastExternal ? `hace ${daysSince} día(s) (${esc(lastExternal.artist_name || '')})` : 'ninguno'}</p>` +
       `<p><strong>Embudo de marketing (${prospects.length} oportunidades):</strong><br>${stageHtml}</p>` +
