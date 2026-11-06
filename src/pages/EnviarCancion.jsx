@@ -17,13 +17,34 @@ import {
 import { Mail, Loader2, Send, CheckCircle2, LogIn } from 'lucide-react';
 
 const Req = () => <span className="text-primary">*</span>;
+const PENDING_KEY = 'sonoria_pending_submission';
+const readPending = () => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); } catch { return null; } };
+const savePending = (v) => { try { localStorage.setItem(PENDING_KEY, JSON.stringify(v)); } catch { /* sin almacenamiento */ } };
+const clearPending = () => { try { localStorage.removeItem(PENDING_KEY); } catch { /* nada */ } };
 
 export default function EnviarCancion() {
   const [authed, setAuthed] = useState(null);
 
   useEffect(() => {
     let active = true;
-    base44.auth.isAuthenticated().then((ok) => { if (active) setAuthed(ok); });
+    (async () => {
+      const ok = await base44.auth.isAuthenticated().catch(() => false);
+      if (!active) return;
+      setAuthed(ok);
+      // Si el artista subió su canción antes de registrarse, se envía ahora.
+      const pending = ok ? readPending() : null;
+      if (pending) {
+        try {
+          await base44.entities.Submission.create(pending);
+          clearPending();
+          if (active) setSent(true);
+        } catch {
+          if (active) setError('No se pudo enviar tu canción. Vuelve a intentarlo.');
+        }
+      } else if (!ok && readPending()) {
+        setNeedsAuth(true);
+      }
+    })();
     return () => { active = false; };
   }, []);
 
@@ -47,6 +68,7 @@ export default function EnviarCancion() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const [needsAuth, setNeedsAuth] = useState(false);
   const { options: genreOptions } = useGenreOptions();
 
   const set = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
@@ -123,7 +145,7 @@ export default function EnviarCancion() {
       const coverRes = await base44.integrations.Core.UploadPublicFile({ file: coverFile });
       const imageRes = await base44.integrations.Core.UploadPublicFile({ file: artistImageFile });
 
-      await base44.entities.Submission.create({
+      const payload = {
         artist_name: form.artist_name.trim(),
         email: form.email.trim(),
         song_title: form.song_title.trim(),
@@ -139,7 +161,14 @@ export default function EnviarCancion() {
         confirmed: true,
         terms_accepted: true,
         terms_accepted_at: new Date().toISOString(),
-      });
+      };
+      if (!authed) {
+        // Archivos ya subidos: guardamos el envío y pedimos registro ahora.
+        savePending(payload);
+        setNeedsAuth(true);
+        return;
+      }
+      await base44.entities.Submission.create(payload);
       setSent(true);
     } catch {
       setError('No se pudo enviar la canción. Inténtalo de nuevo.');
@@ -156,20 +185,20 @@ export default function EnviarCancion() {
     );
   }
 
-  if (!authed) {
+  if (needsAuth && !authed) {
     return (
       <section className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <LogIn className="mx-auto h-12 w-12 text-primary" />
-        <h1 className="mt-4 font-heading text-3xl font-extrabold">Envía tu canción</h1>
+        <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />
+        <h1 className="mt-4 font-heading text-3xl font-extrabold">¡Tu canción está lista para enviar!</h1>
         <p className="mt-3 text-muted-foreground">
-          Necesitas una cuenta en SONORIA FM para enviarnos tu canción. Regístrate o inicia sesión y continúa donde estabas.
+          Último paso: crea tu cuenta gratis (o inicia sesión) y enviaremos tu canción automáticamente para su revisión.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link to="/login?returnTo=/subir-cancion">
-            <Button className="rounded-full">Iniciar sesión</Button>
-          </Link>
           <Link to="/register?returnTo=/envia-tu-cancion">
-            <Button variant="outline" className="rounded-full">Crear cuenta</Button>
+            <Button className="rounded-full">Crear cuenta</Button>
+          </Link>
+          <Link to="/login?returnTo=/envia-tu-cancion">
+            <Button variant="outline" className="rounded-full">Iniciar sesión</Button>
           </Link>
         </div>
       </section>
