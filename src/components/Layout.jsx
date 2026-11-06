@@ -7,6 +7,7 @@ import SocialLinks from '@/components/SocialLinks';
 import RadioPlayer from '@/components/RadioPlayer';
 import BottomTabs from '@/components/BottomTabs';
 import CookieNotice from '@/components/CookieNotice';
+import ClaimPendingSubmission from '@/components/ClaimPendingSubmission';
 import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';
 
@@ -78,7 +79,8 @@ export default function Layout() {
     <RadioProvider playlist={playlist}>
       <div className="min-h-screen flex flex-col">
         <SiteNav />
-        <CookieNotice />
+        <ClaimPendingSubmission />
+      <CookieNotice />
         <main className="flex-1">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
