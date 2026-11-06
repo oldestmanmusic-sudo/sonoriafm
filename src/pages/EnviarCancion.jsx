@@ -21,7 +21,6 @@ const PENDING_KEY = 'sonoria_pending_submission';
 // Token del navegador: enlaza el envío anónimo con la cuenta que se cree después.
 const readToken = () => { try { return localStorage.getItem(PENDING_KEY) || ''; } catch { return ''; } };
 const saveToken = (v) => { try { localStorage.setItem(PENDING_KEY, v); } catch { /* sin almacenamiento */ } };
-const clearToken = () => { try { localStorage.removeItem(PENDING_KEY); } catch { /* nada */ } };
 
 export default function EnviarCancion() {
   const [authed, setAuthed] = useState(null);
@@ -32,24 +31,9 @@ export default function EnviarCancion() {
       const ok = await base44.auth.isAuthenticated().catch(() => false);
       if (!active) return;
       setAuthed(ok);
-      // Si el artista subió su canción antes de registrarse, se envía ahora.
-      if (ok) {
-        try {
-          const res = await base44.functions.invoke('claimPendingSubmission', { token: readToken() });
-          const items = res?.data?.items || res?.items || [];
-          for (const p of items) {
-            // eslint-disable-next-line no-unused-vars
-            const { id, token, created_date, updated_date, created_by, created_by_id, is_sample, entity_name, app_id, ...fields } = p;
-            await base44.entities.Submission.create(fields);
-          }
-          clearToken();
-          if (active && items.length) setSent(true);
-        } catch {
-          /* si falla, el envío sigue guardado y se reintenta la próxima vez */
-        }
-      } else if (readToken()) {
-        setNeedsAuth(true);
-      }
+      // El envío guardado antes de registrarse lo reclama ClaimPendingSubmission (en el Layout).
+      if (ok && new URLSearchParams(window.location.search).get('enviada')) setSent(true);
+      else if (!ok && readToken()) setNeedsAuth(true);
     })();
     return () => { active = false; };
   }, []);
