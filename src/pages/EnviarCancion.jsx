@@ -18,9 +18,10 @@ import { Mail, Loader2, Send, CheckCircle2, LogIn } from 'lucide-react';
 
 const Req = () => <span className="text-primary">*</span>;
 const PENDING_KEY = 'sonoria_pending_submission';
-const readPending = () => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); } catch { return null; } };
-const savePending = (v) => { try { localStorage.setItem(PENDING_KEY, JSON.stringify(v)); } catch { /* sin almacenamiento */ } };
-const clearPending = () => { try { localStorage.removeItem(PENDING_KEY); } catch { /* nada */ } };
+// Token del navegador: enlaza el envío anónimo con la cuenta que se cree después.
+const readToken = () => { try { return localStorage.getItem(PENDING_KEY) || ''; } catch { return ''; } };
+const saveToken = (v) => { try { localStorage.setItem(PENDING_KEY, v); } catch { /* sin almacenamiento */ } };
+const clearToken = () => { try { localStorage.removeItem(PENDING_KEY); } catch { /* nada */ } };
 
 export default function EnviarCancion() {
   const [authed, setAuthed] = useState(null);
@@ -32,16 +33,21 @@ export default function EnviarCancion() {
       if (!active) return;
       setAuthed(ok);
       // Si el artista subió su canción antes de registrarse, se envía ahora.
-      const pending = ok ? readPending() : null;
-      if (pending) {
+      if (ok) {
         try {
-          await base44.entities.Submission.create(pending);
-          clearPending();
-          if (active) setSent(true);
+          const res = await base44.functions.invoke('claimPendingSubmission', { token: readToken() });
+          const items = res?.data?.items || res?.items || [];
+          for (const p of items) {
+            // eslint-disable-next-line no-unused-vars
+            const { id, token, created_date, updated_date, created_by, created_by_id, is_sample, entity_name, app_id, ...fields } = p;
+            await base44.entities.Submission.create(fields);
+          }
+          clearToken();
+          if (active && items.length) setSent(true);
         } catch {
-          if (active) setError('No se pudo enviar tu canción. Vuelve a intentarlo.');
+          /* si falla, el envío sigue guardado y se reintenta la próxima vez */
         }
-      } else if (!ok && readPending()) {
+      } else if (readToken()) {
         setNeedsAuth(true);
       }
     })();
@@ -164,7 +170,9 @@ export default function EnviarCancion() {
       };
       if (!authed) {
         // Archivos ya subidos: guardamos el envío y pedimos registro ahora.
-        savePending(payload);
+        const token = readToken() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        await base44.entities.PendingSubmission.create({ ...payload, email: payload.email.toLowerCase(), token });
+        saveToken(token);
         setNeedsAuth(true);
         return;
       }
