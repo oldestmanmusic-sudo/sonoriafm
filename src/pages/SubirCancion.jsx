@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { normalizeTrackTitle } from '@/lib/trackUtils';
 import { Button } from '@/components/ui/button';
@@ -178,25 +178,8 @@ export default function SubirCancion() {
     );
   }
 
-  if (view === 'anon') {
-    return (
-      <section className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <LogIn className="mx-auto h-12 w-12 text-primary" />
-        <h1 className="mt-4 font-heading text-3xl font-extrabold">Sube tu canción</h1>
-        <p className="mt-3 text-muted-foreground">
-          Inicia sesión para subir una nueva canción. Si todavía no tienes cuenta, créala y envía tu primera canción.
-        </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link to="/login?returnTo=/subir-cancion">
-            <Button className="rounded-full">Iniciar sesión</Button>
-          </Link>
-          <Link to="/register?returnTo=/envia-tu-cancion">
-            <Button variant="outline" className="rounded-full">Crear cuenta</Button>
-          </Link>
-        </div>
-      </section>
-    );
-  }
+  // Sin sesión: el formulario completo se rellena libremente y el registro se pide al final.
+  if (view === 'anon') return <Navigate to="/envia-tu-cancion" replace />;
 
   if (view === 'error') {
     return (
