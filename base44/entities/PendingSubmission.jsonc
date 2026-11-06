@@ -1,0 +1,81 @@
+{
+  "name": "PendingSubmission",
+  "type": "object",
+  "description": "Env\u00edo de canci\u00f3n hecho antes de registrarse. Se convierte en Submission cuando el artista crea su cuenta (se reclama por email o token).",
+  "properties": {
+    "token": {
+      "type": "string"
+    },
+    "artist_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "song_title": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string"
+    },
+    "genre_other": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "audio_link": {
+      "type": "string"
+    },
+    "cover_url": {
+      "type": "string"
+    },
+    "artist_image_url": {
+      "type": "string"
+    },
+    "artist_bio": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "tool": {
+      "type": "string"
+    },
+    "lyrics": {
+      "type": "string"
+    },
+    "confirmed": {
+      "type": "boolean"
+    },
+    "terms_accepted": {
+      "type": "boolean"
+    },
+    "terms_accepted_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "artist_name",
+    "email",
+    "song_title"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
