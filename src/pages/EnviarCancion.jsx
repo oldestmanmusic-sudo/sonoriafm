@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Mail, Loader2, Send, CheckCircle2, LogIn } from 'lucide-react';
+import { Mail, Loader2, Send, CheckCircle2 } from 'lucide-react';
 
 const Req = () => <span className="text-primary">*</span>;
 const PENDING_KEY = 'sonoria_pending_submission';

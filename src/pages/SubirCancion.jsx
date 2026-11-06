@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LANGUAGES, SUBMISSION_TOOLS } from '@/lib/brand';
 import { useGenreOptions, resolveGenre } from '@/lib/useGenres';
-import { Loader2, Send, CheckCircle2, LogIn, UserRound, Upload } from 'lucide-react';
+import { Loader2, Send, CheckCircle2, UserRound, Upload } from 'lucide-react';
 
 const MAX_AUDIO_MB = 25;
 const Req = () => <span className="text-primary">*</span>;
