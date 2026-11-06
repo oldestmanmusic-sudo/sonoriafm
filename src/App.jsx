@@ -88,10 +88,10 @@ const AuthenticatedApp = () => {
         <Route path="/cancion/:id" element={<TrackDetail />} />
         {/* El formulario de envío es libre: el registro se pide al terminar de rellenarlo. */}
         <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
+        <Route path="/subir-cancion" element={<SubirCancion />} />
 
         {/* Votar, enviar canciones y el resto exigen iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
-          <Route path="/subir-cancion" element={<SubirCancion />} />
           <Route path="/programacion" element={<Programming />} />
           <Route path="/noticias" element={<Noticias />} />
           <Route path="/noticias/:id" element={<ArticleDetail />} />
