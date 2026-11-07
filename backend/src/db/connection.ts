@@ -19,6 +19,7 @@ const sql = postgres(databaseUrl, {
 });
 
 export const db = drizzle(sql, { schema });
+export { sql };
 
 export async function closeDb() {
   await sql.end();

@@ -1,7 +1,7 @@
 import { Hono } from '@hono/hono';
 import { cors } from '@hono/hono/cors';
 import { logger } from '@hono/hono/logger';
-import { prettyJSON } from '@hono/huno/pretty-json';
+import { prettyJSON } from '@hono/hono/pretty-json';
 
 import authRoute from './routes/auth.ts';
 import tracksRoute from './routes/tracks.ts';

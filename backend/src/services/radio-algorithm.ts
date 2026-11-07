@@ -4,7 +4,7 @@
  * Ported from Base44 radioQueue/entry.ts and radioContext.jsx
  */
 
-import { SLOTS, ELECTRONIC_GENRES, LATINO_GENRES, BALADAS_GENRES, POPROCK_GENRES, TOP_SIZE, MAX_CYCLES_PER_DAY, PARRILLA_TZ, FALLBACK_DURATION } from './radio-scheduler.ts';
+import { SLOTS, ELECTRONIC_GENRES, LATINO_GENRES, BALADAS_GENRES, POPROCK_GENRES, TOP_SIZE, MAX_CYCLES_PER_DAY, PARRILLA_TZ, FALLBACK_DURATION } from './radio-constants.ts';
 
 export type Track = {
   id: string;
