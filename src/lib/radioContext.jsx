@@ -320,6 +320,15 @@ export function RadioProvider({ children, playlist = [] }) {
     return new Promise((resolve) => {
       const audio = audioRef.current;
       if (!audio) { resolve(); return; }
+      // Entrada desde el principio (relevo natural entre canciones): se asigna la
+      // fuente y se arranca de inmediato, sin esperar a los metadatos. Con el móvil
+      // bloqueado o la app en segundo plano, cada segundo sin audio es una
+      // oportunidad para que el sistema suspenda la página y la radio se corte.
+      if (offset <= 2) {
+        audio.src = track.audio_url;
+        resolve();
+        return;
+      }
       let settled = false;
       // Si mientras carga se elige otra canción (a la carta) o se cambia de modo,
       // este arranque ya no es válido: no debe tocar la posición del audio nuevo.
@@ -717,10 +726,13 @@ export function RadioProvider({ children, playlist = [] }) {
     navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
     navigator.mediaSession.setActionHandler('play', () => toggle());
     navigator.mediaSession.setActionHandler('pause', () => toggle());
-    return () => {
-      navigator.mediaSession.playbackState = 'none';
-    };
   }, [currentTrack, scheduledTrack, onDemandTrack, isPlaying, toggle]);
+
+  // Solo al salir de la web se libera la sesión multimedia: entre canciones debe
+  // seguir activa para que el sistema no dé por terminada la radio en segundo plano.
+  useEffect(() => () => {
+    if (typeof navigator.mediaSession !== 'undefined') navigator.mediaSession.playbackState = 'none';
+  }, []);
 
   return (
     <RadioContext.Provider value={{ isPlaying, isLoading, error, toggle, volume, setVolume, currentTrack, scheduledTrack, onDemandTrack, playOnDemand, resumeLive }}>
