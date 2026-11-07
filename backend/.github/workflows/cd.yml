@@ -1,0 +1,114 @@
+name: CD Pipeline - Deploy to Production
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options: [staging, production]
+
+env:
+  DENO_VERSION: '2.1.0'
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging..."
+          # Add your staging deployment logic here
+          # Example for Railway:
+          # railway up --service sonoriafm-backend --environment staging
+          # Example for Fly.io:
+          # flyctl deploy --app sonoriafm-backend-staging --config fly.staging.toml
+          # Example for Render:
+          # curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_STAGING }}
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            sonoriafm/backend:${{ github.ref_name }}
+            sonoriafm/backend:latest
+
+      - name: Deploy to Production
+        run: |
+          echo "Deploying to production..."
+          # Add your production deployment logic here
+          # Example for Railway:
+          # railway up --service sonoriafm-backend --environment production
+          # Example for Fly.io:
+          # flyctl deploy --app sonoriafm-backend --config fly.production.toml
+          # Example for Render:
+          # curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_PRODUCTION }}
+          # Example for Kubernetes:
+          # kubectl set image deployment/sonoriafm-backend backend=sonoriafm/backend:${{ github.ref_name }}
+
+      - name: Run database migrations (production)
+        run: |
+          echo "Running production migrations..."
+          # Add migration command for production
+          # Example: deno run --allow-all migrations/run.ts
+
+      - name: Health check
+        run: |
+          echo "Waiting for deployment..."
+          sleep 30
+          curl -f https://api.sonoriafm.com/health || exit 1
+
+      - name: Notify success
+        run: |
+          echo "Production deployment successful!"
+          # Add notification (Slack, Discord, Email)
+
+  rollback:
+    name: Rollback
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    environment: production
+    steps:
+      - name: Rollback to previous version
+        run: |
+          echo "Rolling back production deployment..."
+          # Add rollback logic here
+          # Example for Fly.io: flyctl releases rollback --app sonoriafm-backend
+          # Example for Kubernetes: kubectl rollout undo deployment/sonoriafm-backend
+
+      - name: Notify rollback
+        run: |
+          echo "Production rollback completed"
+          # Add notification

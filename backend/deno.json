@@ -1,0 +1,31 @@
+{
+  "name": "sonoriafm-backend",
+  "version": "1.0.0",
+  "description": "SonoriaFM Backend - Radio streaming API with deterministic scheduling",
+  "type": "module",
+  "tasks": {
+    "dev": "deno run --allow-all --watch src/main.ts",
+    "start": "deno run --allow-all src/main.ts",
+    "migrate": "deno run --allow-all migrations/run.ts",
+    "test": "deno test --allow-all tests/",
+    "db:studio": "deno run --allow-all -A npm:drizzle-kit@latest studio"
+  },
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.6.0",
+    "@hono/cors": "jsr:@hono/hono@^4.6.0/cors",
+    "@hono/jwt": "jsr:@hono/hono@^4.6.0/jwt",
+    "@hono/zod-validator": "jsr:@hono/hono@^4.6.0/zod-validator",
+    "drizzle-orm": "npm:drizzle-orm@^0.35.0",
+    "drizzle-kit": "npm:drizzle-kit@^0.26.0",
+    "postgres": "npm:postgres@^3.4.0",
+    "zod": "npm:zod@^3.23.0",
+    "js-yaml": "npm:js-yaml@^4.1.0",
+    "date-fns": "npm:date-fns@^3.6.0",
+    "bcrypt": "npm:bcrypt@^5.1.0",
+    "ulid": "npm:ulid@^2.3.0"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  }
+}
