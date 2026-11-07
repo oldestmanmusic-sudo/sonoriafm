@@ -10,6 +10,7 @@ import programsRoute from './routes/programs.ts';
 import radioRoute from './routes/radio.ts';
 import streamingRoute from './routes/streaming.ts';
 import analyticsRoute from './routes/analytics.ts';
+import aiDjRoute from './routes/ai-dj.ts';
 import { closeDb } from './db/connection.ts';
 
 // Define app env types for proper typing
@@ -62,6 +63,7 @@ app.route('/api/artists', artistsRoute);
 app.route('/api/programs', programsRoute);
 app.route('/api/radio', radioRoute);
 app.route('/api/analytics', analyticsRoute);
+app.route('/api/ai-dj', aiDjRoute);
 
 // Streaming routes (public - no auth required)
 app.route('/stream', streamingRoute);
