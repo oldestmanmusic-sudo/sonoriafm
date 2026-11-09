@@ -206,7 +206,9 @@ function nextEntry(last, lists, byId) {
   if (last.slot_key === slotKey && last.order) {
     const ids = String(last.order).split(',');
     let pos = (last.pos || 0) + 1;
-    while (pos < ids.length && !byId.has(ids[pos])) pos++;
+    // Solo continuamos con canciones que sigan siendo válidas para esta franja.
+    const allowed = new Set(cycleList(lists, slot, last.k || 0).map((t) => String(t.id)));
+    while (pos < ids.length && (!byId.has(ids[pos]) || !allowed.has(ids[pos]))) pos++;
     if (pos < ids.length) {
       return entryFor(byId.get(ids[pos]), start, {
         seq: last.seq + 1, slotKey, k: last.k, pos, order: last.order,
