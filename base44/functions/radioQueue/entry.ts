@@ -103,12 +103,16 @@ function slotLists(list) {
   const poprock = list.filter((t) => POPROCK_GENRES.has(normGenre(t.genre)));
   const baladas = list.filter((t) => BALADAS_GENRES.has(normGenre(t.genre)));
   const idiomas = list.filter((t) => normGenre(t.language) === 'otros idiomas');
-  const byLikes = [...list].sort(
+  // Las canciones en otros idiomas suenan solo en su franja: no entran en el Top Sonoria
+  // (salvo que no exista ninguna otra canción).
+  const topPool = list.filter((t) => normGenre(t.language) !== 'otros idiomas');
+  const pool = topPool.length ? topPool : list;
+  const byLikes = [...pool].sort(
     (a, b) => (b.likes || 0) - (a.likes || 0) || String(a.id).localeCompare(String(b.id))
   );
   const top = byLikes.slice(0, TOP_SIZE);
   const topIds = new Set(top.map((t) => t.id));
-  const rest = list.filter((t) => !topIds.has(t.id));
+  const rest = pool.filter((t) => !topIds.has(t.id));
   return {
     electronic: electronic.length ? electronic : list,
     latino: latino.length ? latino : list,
