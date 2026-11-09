@@ -246,7 +246,9 @@ export default async function(req) {
     {
       for (const e of [...entries]) {
         // Autocorrección: lo futuro cuya franja ya no coincide con la parrilla actual se regenera.
-        if (e.starts_at > now && e.slot_key !== slotAt(e.starts_at).slotKey) {
+        const sa = e.starts_at > now ? slotAt(e.starts_at) : null;
+        const wrongLang = sa && sa.slot.kind === 'top' && normGenre(e.language) === 'otros idiomas';
+        if (sa && (e.slot_key !== sa.slotKey || wrongLang)) {
           await db.RadioQueue.delete(e.id);
           entries.splice(entries.indexOf(e), 1);
         }
