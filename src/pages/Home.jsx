@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import PullToRefresh from '@/components/PullToRefresh';
-import RadioPlayerZeroDowntime from '@/components/RadioPlayerZeroDowntime';
+import NowPlaying from '@/components/NowPlaying';
 import GenreChips from '@/components/GenreChips';
 import TrackHistory from '@/components/TrackHistory';
 import TopTen from '@/components/TopTen';
@@ -52,7 +52,7 @@ export default function Home() {
 
   return (
     <PullToRefresh onRefresh={refresh}>
-      <RadioPlayerZeroDowntime nowPlaying={nowPlaying} />
+      <NowPlaying nowPlaying={nowPlaying} />
 
       <section className="mx-auto max-w-md px-4 pb-8 lg:hidden">
         <TopTen tracks={topTen} />
