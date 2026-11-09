@@ -95,6 +95,9 @@ const createdMs = (t) => {
   return Number.isFinite(ms) ? ms : 0;
 };
 
+// Canciones retiradas definitivamente de la emisión (id de Track).
+const BLOCKED_TRACK_IDS = new Set(['6addbec396cb6a05e3141c27']);
+
 const normGenre = (g) => (g || '').toString().trim().toLowerCase();
 
 function slotLists(list) {
@@ -234,7 +237,13 @@ export default async function(req) {
     const now = Date.now();
 
     const all = toList(await db.Track.filter({}, { limit: 500 }));
-    const list = all.filter((t) => t && t.audio_url && t.genre !== 'Cuña');
+    // Canciones retiradas de la radio por decisión del propietario: se borran y nunca suenan.
+    for (const t of all) {
+      if (t && BLOCKED_TRACK_IDS.has(String(t.id))) {
+        try { await db.Track.delete(t.id); } catch { /* se reintenta en el próximo ciclo */ }
+      }
+    }
+    const list = all.filter((t) => t && t.audio_url && t.genre !== 'Cuña' && !BLOCKED_TRACK_IDS.has(String(t.id)));
     if (!list.length) return Response.json({ ok: false, reason: 'sin canciones' });
     const byId = new Map(list.map((t) => [String(t.id), t]));
     const lists = slotLists(list);
@@ -250,7 +259,8 @@ export default async function(req) {
         // Autocorrección: lo futuro cuya franja ya no coincide con la parrilla actual se regenera.
         const sa = e.starts_at > now ? slotAt(e.starts_at) : null;
         const wrongLang = sa && sa.slot.kind === 'top' && normGenre(e.language) === 'otros idiomas';
-        if (sa && (e.slot_key !== sa.slotKey || wrongLang)) {
+        const removed = sa && (BLOCKED_TRACK_IDS.has(String(e.track_id)) || !byId.has(String(e.track_id)));
+        if (sa && (e.slot_key !== sa.slotKey || wrongLang || removed)) {
           await db.RadioQueue.delete(e.id);
           entries.splice(entries.indexOf(e), 1);
         }
