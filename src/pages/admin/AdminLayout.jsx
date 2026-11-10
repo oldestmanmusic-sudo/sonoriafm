@@ -11,6 +11,7 @@ import {
   Inbox,
   Mail,
   Lightbulb,
+  UserCog,
   LogOut,
   ArrowLeft,
   ShieldAlert,
@@ -25,6 +26,7 @@ const NAV = [
   { to: '/admin/envios', label: 'Envíos', Icon: Inbox },
   { to: '/admin/mensajes', label: 'Mensajes', Icon: Mail },
   { to: '/admin/sugerencias', label: 'Sugerencias', Icon: Lightbulb },
+  { to: '/admin/usuarios', label: 'Usuarios', Icon: UserCog },
 ];
 
 export default function AdminLayout() {
