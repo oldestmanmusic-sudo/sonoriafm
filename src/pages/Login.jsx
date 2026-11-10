@@ -24,10 +24,10 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
+      await base44.auth.loginViaEmailPassword(email.trim().toLowerCase(), password);
       window.location.href = returnTo;
     } catch (err) {
-      setError(authError(err, "Correo o contraseña incorrectos."));
+      setError(authError(err, "Correo o contraseña incorrectos. Si no recuerdas la contraseña, pulsa «¿Has olvidado tu contraseña?»."));
     } finally {
       setLoading(false);
     }
@@ -87,6 +87,9 @@ export default function Login() {
               id="email"
               type="email"
               autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               autoFocus
               placeholder="tucorreo@email.com"
               value={email}
