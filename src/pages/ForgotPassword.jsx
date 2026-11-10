@@ -16,7 +16,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setLoading(true);
     try {
-      await base44.auth.resetPasswordRequest(email);
+      await base44.auth.resetPasswordRequest(email.trim().toLowerCase());
     } catch {
       // Always show success regardless
     } finally {
@@ -38,7 +38,7 @@ export default function ForgotPassword() {
     >
       {sent ? (
         <p className="text-sm text-foreground text-center">
-          Si existe una cuenta con ese correo, recibirás en breve un enlace para restablecer la contraseña.
+          Si existe una cuenta con ese correo, recibirás en breve un enlace para restablecer la contraseña. Mira también la carpeta de spam o correo no deseado.
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -50,6 +50,9 @@ export default function ForgotPassword() {
                 id="email"
                 type="email"
                 autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 autoFocus
                 placeholder="tucorreo@email.com"
                 value={email}
