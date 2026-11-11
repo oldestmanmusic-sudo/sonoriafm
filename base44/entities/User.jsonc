@@ -1,18 +1,18 @@
 {
+  "name": "User",
   "properties": {
     "role": {
-      "type": "string",
       "description": "The role of the user in the app",
       "enum": [
         "admin",
         "user",
         "artist"
-      ]
+      ],
+      "type": "string"
     }
   },
   "required": [
     "role"
   ],
-  "name": "User",
   "type": "object"
 }
