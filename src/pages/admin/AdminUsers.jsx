@@ -7,6 +7,9 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { Loader2, Search, Pencil, Trash2, UserX, ShieldCheck, MailCheck, X, Users } from 'lucide-react';
 
+const ROLE_LABEL = { admin: 'Administrador', artist: 'Artista', user: 'Usuario' };
+const ROLE_STYLE = { admin: 'bg-primary/15 text-primary', artist: 'bg-emerald-500/15 text-emerald-500', user: 'bg-secondary text-muted-foreground' };
+
 const fmt = (d) => (d ? new Date(d).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) : '—');
 
 export default function AdminUsers() {
@@ -133,8 +136,8 @@ export default function AdminUsers() {
                         <p className="truncate font-semibold">{u.full_name || '(sin nombre)'}{isMe && <span className="ml-2 text-xs font-normal text-muted-foreground">(tú)</span>}</p>
                         <p className="truncate text-sm text-primary">{u.email}</p>
                         <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                          <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1', u.role === 'admin' ? 'bg-primary/15 text-primary' : 'bg-secondary text-muted-foreground')}>
-                            <ShieldCheck className="h-3 w-3" /> {u.role === 'admin' ? 'Administrador' : 'Usuario'}
+                          <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1', ROLE_STYLE[u.role] || ROLE_STYLE.user)}>
+                            <ShieldCheck className="h-3 w-3" /> {ROLE_LABEL[u.role] || 'Usuario'}
                           </span>
                           <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1', u.is_verified ? 'bg-secondary text-muted-foreground' : 'bg-amber-500/15 text-amber-500')}>
                             <MailCheck className="h-3 w-3" /> {u.is_verified ? 'Correo verificado' : 'Sin verificar'}
@@ -200,6 +203,7 @@ export default function AdminUsers() {
                             className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                           >
                             <option value="user">Usuario</option>
+                            <option value="artist">Artista</option>
                             <option value="admin">Administrador</option>
                           </select>
                         </div>
