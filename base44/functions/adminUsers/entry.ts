@@ -40,6 +40,9 @@ export default async function(req) {
       for (const k of EDITABLE) {
         if (body.data && k in body.data) data[k] = body.data[k];
       }
+      if ('role' in data && !['admin', 'user', 'artist'].includes(data.role)) {
+        return Response.json({ error: 'Rol no válido' }, { status: 400 });
+      }
       if (id === me.id && (data.role && data.role !== 'admin')) {
         return Response.json({ error: 'No puedes quitarte a ti mismo el rol de administrador.' }, { status: 400 });
       }
