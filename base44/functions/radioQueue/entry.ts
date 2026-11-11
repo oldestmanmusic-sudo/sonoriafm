@@ -16,10 +16,13 @@ function hashStr(s) {
   return h >>> 0;
 }
 
+// Clave de una entrada de la vuelta: las copias extra de una canción votada llevan _copy > 0.
+const entryKey = (t) => (t._copy ? `${t.id}#${t._copy}` : String(t.id));
+
 function seededShuffle(list, seed) {
-  const arr = [...list].sort((a, b) => hashStr(String(a.id)) - hashStr(String(b.id)));
+  const arr = [...list].sort((a, b) => hashStr(entryKey(a)) - hashStr(entryKey(b)));
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = hashStr(String(arr[i].id) + ':' + seed) % (i + 1);
+    const j = hashStr(entryKey(arr[i]) + ':' + seed) % (i + 1);
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
@@ -34,10 +37,16 @@ function interleaveArtists(order, prevArtist) {
   const out = [];
   let prev = prevArtist || null;
   while (out.length < order.length) {
-    let candidates = [...groups.entries()].filter(([, g]) => g.length > 0 && g[0].artist !== prev);
+    // Una canción votada tiene varias copias en la vuelta: no repetirla hasta que hayan sonado otras 4.
+    const recent = new Set(out.slice(-4).map((t) => String(t.id)));
+    const fresh = (g) => g.findIndex((x) => !recent.has(String(x.id)));
+    let candidates = [...groups.entries()].filter(([, g]) => g.length > 0 && g[0].artist !== prev && fresh(g) >= 0);
+    if (!candidates.length) candidates = [...groups.entries()].filter(([, g]) => g.length > 0 && g[0].artist !== prev);
     if (!candidates.length) candidates = [...groups.entries()].filter(([, g]) => g.length > 0);
     candidates.sort((a, b) => b[1].length - a[1].length);
-    const pick = candidates[0][1].shift();
+    const g0 = candidates[0][1];
+    const fi = fresh(g0);
+    const pick = g0.splice(fi >= 0 ? fi : 0, 1)[0];
     prev = pick.artist;
     out.push(pick);
   }
@@ -117,12 +126,16 @@ function slotLists(list) {
   const topIds = new Set(top.map((t) => t.id));
   const rest = pool.filter((t) => !topIds.has(t.id));
   // El TOP 10 marca las reproducciones: cada canción votada del TOP suena más veces por vuelta
-  // que una sin votos (puestos 1-3: 3 veces; puestos 4-10: 2 veces; el resto: 1). Vale en todas las franjas.
+  // cuantos más votos tiene (sin votos: 1 vez; 1 voto: 2; 2 votos: 3; 3 votos: 4; 4 o más: 5).
+  // Con los mismos votos suenan lo mismo. Vale en todas las franjas.
+  const MAX_EXTRA_PLAYS = 4;
   const plays = new Map();
-  top.forEach((t, i) => {
-    if ((t.likes || 0) > 0) plays.set(t.id, i < 3 ? 3 : 2);
+  top.forEach((t) => {
+    const likes = Math.max(0, Math.floor(Number(t.likes) || 0));
+    if (likes > 0) plays.set(t.id, 1 + Math.min(likes, MAX_EXTRA_PLAYS));
   });
-  const weighted = (arr) => arr.flatMap((t) => Array(plays.get(t.id) || 1).fill(t));
+  const weighted = (arr) =>
+    arr.flatMap((t) => Array.from({ length: plays.get(t.id) || 1 }, (_, c) => (c ? { ...t, _copy: c } : t)));
   const electronicL = electronic.length ? electronic : list;
   const latinoL = latino.length ? latino : list;
   return {
