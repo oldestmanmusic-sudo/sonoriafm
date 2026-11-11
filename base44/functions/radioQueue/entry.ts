@@ -116,13 +116,22 @@ function slotLists(list) {
   const top = byLikes.slice(0, TOP_SIZE);
   const topIds = new Set(top.map((t) => t.id));
   const rest = pool.filter((t) => !topIds.has(t.id));
+  // El TOP 10 marca las reproducciones: cada canción votada del TOP suena más veces por vuelta
+  // que una sin votos (puestos 1-3: 3 veces; puestos 4-10: 2 veces; el resto: 1). Vale en todas las franjas.
+  const plays = new Map();
+  top.forEach((t, i) => {
+    if ((t.likes || 0) > 0) plays.set(t.id, i < 3 ? 3 : 2);
+  });
+  const weighted = (arr) => arr.flatMap((t) => Array(plays.get(t.id) || 1).fill(t));
+  const electronicL = electronic.length ? electronic : list;
+  const latinoL = latino.length ? latino : list;
   return {
-    electronic: electronic.length ? electronic : list,
-    latino: latino.length ? latino : list,
-    poprock,
-    baladas,
-    idiomas,
-    top,
+    electronic: weighted(electronicL),
+    latino: weighted(latinoL),
+    poprock: weighted(poprock),
+    baladas: weighted(baladas),
+    idiomas: weighted(idiomas),
+    top: weighted(top),
     rest,
   };
 }
