@@ -413,8 +413,10 @@ export function RadioProvider({ children, playlist = [] }) {
       }
     }
     setIsLoading(false);
-    setError(true);
     inFlightRef.current = false;
+    // Si ya está sonando algo (otra carga lo arrancó mientras se probaban fuentes),
+    // no se marca error: un aviso de fallo con la radio sonando es falso.
+    if (audio.paused) setError(true);
   }, [startAt, announcePlay]);
 
   // Entra en la emisión exactamente donde toca según la hora (y vuelta actual).
@@ -683,6 +685,22 @@ export function RadioProvider({ children, playlist = [] }) {
     }, 20000);
     return () => clearInterval(timer);
   }, [enter]);
+
+  // Si la conexión falla y no suena nada, reintenta sola cada 10 s en vez de
+  // pedir al oyente que recargue la página. Se para en cuanto suena o hay pausa.
+  useEffect(() => {
+    if (!error || isPlaying) return undefined;
+    const timer = setInterval(() => {
+      if (pausedByUserRef.current || onDemandRef.current || inFlightRef.current) return;
+      playScheduled();
+    }, 10000);
+    return () => clearInterval(timer);
+  }, [error, isPlaying, playScheduled]);
+
+  // Con la radio sonando nunca debe verse un error de conexión.
+  useEffect(() => {
+    if (isPlaying && error) setError(false);
+  }, [isPlaying, error]);
 
   const toggle = useCallback(() => {
     const audio = audioRef.current;
