@@ -54,8 +54,8 @@ export default function RadioPlayer({ nowPlaying }) {
           </button>
         )}
       </div>
-      {error && (
-        <p className="mt-1 text-center text-xs text-destructive">No se pudo conectar al stream. Recarga la página para reintentar.</p>
+      {error && !isPlaying && (
+        <p className="mt-1 text-center text-xs text-destructive">No se pudo conectar con la radio. Reintentando…</p>
       )}
     </div>
   );
