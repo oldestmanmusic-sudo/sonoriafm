@@ -90,12 +90,13 @@ const AuthenticatedApp = () => {
         {/* El formulario de envío es libre: el registro se pide al terminar de rellenarlo. */}
         <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
         <Route path="/subir-cancion" element={<SubirCancion />} />
+        {/* Las noticias son públicas: así las encuentra Google y se pueden compartir. */}
+        <Route path="/noticias" element={<Noticias />} />
+        <Route path="/noticias/:id" element={<ArticleDetail />} />
 
         {/* Votar, enviar canciones y el resto exigen iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
           <Route path="/programacion" element={<Programming />} />
-          <Route path="/noticias" element={<Noticias />} />
-          <Route path="/noticias/:id" element={<ArticleDetail />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/sugerencias" element={<Sugerencias />} />
