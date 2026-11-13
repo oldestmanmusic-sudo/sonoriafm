@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { useRadio } from '@/lib/radioContext';
 import { useTrackLike } from '@/lib/useTrackLike';
 import { DEFAULT_COVER } from '@/lib/brand';
@@ -8,6 +9,9 @@ export default function RadioPlayer({ nowPlaying }) {
   // Misma canción en portada y banner: la de la emisión según el reloj.
   const track = onDemandTrack || currentTrack || scheduledTrack || nowPlaying;
   const { likes, liked, liking, like } = useTrackLike(track?.id, track?.likes);
+  const { pathname } = useLocation();
+  // En la portada ya está la tarjeta «Ahora suena»: no se repite el banner.
+  if (pathname === '/') return null;
 
   return (
     <div className="fixed left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-2xl px-1 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] md:bottom-4">

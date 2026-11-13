@@ -30,7 +30,7 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await base44.auth.register({ email, password });
+      await base44.auth.register({ email: email.trim().toLowerCase(), password });
       setShowOtp(true);
     } catch (err) {
       setError(authError(err, "No se pudo crear la cuenta. Inténtalo de nuevo."));
@@ -43,7 +43,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
+      const result = await base44.auth.verifyOtp({ email: email.trim().toLowerCase(), otpCode });
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
@@ -58,7 +58,7 @@ export default function Register() {
   const handleResend = async () => {
     setError("");
     try {
-      await base44.auth.resendOtp(email);
+      await base44.auth.resendOtp(email.trim().toLowerCase());
       toast({
         title: "Código enviado",
         description: "Revisa tu correo: te hemos enviado un código nuevo.",
