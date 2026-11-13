@@ -15,7 +15,14 @@ export default function ArticleDetail() {
     (async () => {
       try {
         const data = await base44.entities.Article.get(id);
-        if (active) setArticle(data);
+        if (active) {
+          setArticle(data);
+          // Título y descripción propios de cada noticia (pestaña, compartir y buscadores).
+          if (data?.title) document.title = `${data.title} · SONORIA FM`;
+          const desc = data?.excerpt || '';
+          let meta = document.querySelector('meta[name="description"]');
+          if (meta && desc) meta.setAttribute('content', desc);
+        }
       } catch {
         if (active) setArticle(null);
       } finally {
