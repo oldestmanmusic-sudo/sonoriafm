@@ -47,6 +47,7 @@ const Promociona = lazy(() => import('@/pages/Promociona'));
 const Legal = lazy(() => import('@/pages/Legal'));
 const Privacidad = lazy(() => import('@/pages/Privacidad'));
 const Cookies = lazy(() => import('@/pages/Cookies'));
+const AppLogin = lazy(() => import('@/pages/AppLogin'));
 
 
 const AuthenticatedApp = () => {
@@ -105,6 +106,7 @@ const AuthenticatedApp = () => {
         </Route>
       </Route>
 
+      <Route path="/app-login" element={<AppLogin />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
