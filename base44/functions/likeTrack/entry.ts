@@ -20,6 +20,24 @@ export default async function(req) {
       return Response.json({ likedIds: [...new Set(mine.map((l) => l.track_id))] });
     }
 
+    // Lista: las canciones favoritas (para el menú "Mis favoritas" de la app Android).
+    if (action === 'list') {
+      const mine = toList(
+        await base44.asServiceRole.entities.TrackLike.filter({ user_id: user.id }, { limit: 1000 })
+      ).sort((a, b) => String(b.created_date).localeCompare(String(a.created_date)));
+      const ids = [...new Set(mine.map((l) => l.track_id))].slice(0, 100);
+      const tracks = [];
+      for (const id of ids) {
+        try {
+          const t = await base44.asServiceRole.entities.Track.get(id);
+          if (t && t.audio_url) {
+            tracks.push({ id: t.id, title: t.title || '', artist: t.artist || '', audio_url: t.audio_url, cover_url: t.cover_url || '' });
+          }
+        } catch (_) { /* canción borrada */ }
+      }
+      return Response.json({ tracks });
+    }
+
     if (!trackId || typeof trackId !== 'string') {
       return Response.json({ error: 'trackId requerido' }, { status: 400 });
     }
