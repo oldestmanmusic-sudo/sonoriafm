@@ -4,7 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
-import { Heart, Share2, Loader2, Play, Pause } from 'lucide-react';
+import { Heart, Share2, Loader2, Play, Pause, ImageDown } from 'lucide-react';
+import { shareOrDownloadCard } from '@/lib/shareCard';
 import BackButton from '@/components/BackButton';
 import { useRadio } from '@/lib/radioContext';
 import { useTrackLike } from '@/lib/useTrackLike';
@@ -37,6 +38,20 @@ export default function TrackDetail() {
     })();
     return () => { active = false; };
   }, [id]);
+
+  const [cardBusy, setCardBusy] = useState(false);
+  const shareCard = async () => {
+    setCardBusy(true);
+    try {
+      await shareOrDownloadCard({
+        title: track.title,
+        artist: track.artist,
+        coverUrl: track.cover_url || DEFAULT_COVER,
+        text: `Escucha "${track.title}" de ${track.artist} en SONORIA FM: ${window.location.href}`,
+      });
+    } catch { /* ignore */ }
+    setCardBusy(false);
+  };
 
   const share = async () => {
     const url = window.location.href;
@@ -133,6 +148,9 @@ export default function TrackDetail() {
             </Button>
             <Button onClick={share} variant="outline" className="rounded-full">
               <Share2 className="h-4 w-4" /> {copied ? 'Enlace copiado' : 'Compartir'}
+            </Button>
+            <Button onClick={shareCard} variant="outline" className="rounded-full" disabled={cardBusy}>
+              {cardBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageDown className="h-4 w-4" />} Tarjeta para redes
             </Button>
           </div>
         </div>
