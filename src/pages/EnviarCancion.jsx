@@ -213,8 +213,24 @@ export default function EnviarCancion() {
     <section className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">Envía tu canción</h1>
       <p className="mt-2 text-muted-foreground">
-        ¿Haces música con IA? Envíanos tu tema: entrará como pendiente y el equipo de SONORIA FM la revisará antes de publicarla.
-        Las canciones solo se aceptan a través de este formulario y <strong>todos los campos son obligatorios</strong>.
+        ¿Haces música con IA o eres artista independiente? Envíanos tu tema: entrará como pendiente y el equipo de SONORIA FM lo revisará antes de publicarlo.
+      </p>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        {[
+          ['Suena en la radio', 'Emisión 24 h, en la franja de tu género.'],
+          ['Tu propia página', 'Ficha de artista y de canción para compartir con tu gente.'],
+          ['Entra en el TOP 10', 'Los oyentes votan: las más votadas suenan más veces.'],
+        ].map(([t, d]) => (
+          <div key={t} className="rounded-2xl border border-border bg-card p-4">
+            <p className="font-heading font-bold">{t}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-6 text-sm text-muted-foreground">
+        Para cuidar la calidad de la radio y por temas de derechos, <strong>todos los campos son obligatorios</strong> y cada canción pasa una revisión antes de emitirse. Las canciones solo se aceptan a través de este formulario.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5 rounded-3xl border border-border bg-card p-6 sm:p-8">
