@@ -21,7 +21,7 @@ export default function Legal() {
       <h1 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
         Términos para Artistas de Sonoria FM
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">Última actualización: 22/10/2026</p>
+      <p className="mt-2 text-sm text-muted-foreground">Última actualización: 18/11/2026</p>
       <p className="mt-4 text-muted-foreground">
         <strong>¡Hola, artista!</strong> 👋 Si quieres que tu música generada por IA suene en Sonoria FM,
         es importante que leas y aceptes estas condiciones. Así nos aseguramos de que todo esté claro y de
