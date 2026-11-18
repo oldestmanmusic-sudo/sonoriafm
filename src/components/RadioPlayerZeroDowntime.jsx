@@ -532,7 +532,8 @@ export default function RadioPlayerZeroDowntime({ nowPlaying }) {
               </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       {/* Error Message */}
       {(radioError || hlsError) && (
@@ -544,5 +545,3 @@ export default function RadioPlayerZeroDowntime({ nowPlaying }) {
     </div>
   );
 }
-
-export default RadioPlayerZeroDowntime;

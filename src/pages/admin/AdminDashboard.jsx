@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { Loader2, Newspaper, Users, CalendarClock, History, Mail, Inbox, ArrowRight } from 'lucide-react';
+import { Loader2, Newspaper, Users, CalendarClock, History, Mail, Inbox, ArrowRight, Send, CheckCircle2 } from 'lucide-react';
 
 const SECTIONS = [
   { key: 'articles', to: '/admin/articulos', label: 'Artículos', Icon: Newspaper, hint: 'Publica y edita noticias' },
@@ -16,6 +16,21 @@ const SECTIONS = [
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [counts, setCounts] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [sendResult, setSendResult] = useState(null);
+
+  const notifyAbandoned = async () => {
+    setSending(true);
+    setSendResult(null);
+    try {
+      const res = await base44.functions.invoke('notifyAbandonedCheckouts', {});
+      setSendResult(res.data);
+    } catch (e) {
+      setSendResult({ error: e?.response?.data?.error || 'No se pudo enviar el aviso.' });
+    } finally {
+      setSending(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -70,6 +85,37 @@ export default function AdminDashboard() {
             </p>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-heading text-lg font-bold">Reenviar aviso a pagos incompletos</p>
+            <p className="text-sm text-muted-foreground">
+              Envía un correo a quienes iniciaron una donación o servicio y no terminaron el pago, para avisarles de que la pasarela ya funciona.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={notifyAbandoned}
+            disabled={sending}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          >
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {sending ? 'Enviando…' : 'Enviar aviso'}
+          </button>
+        </div>
+        {sendResult && !sendResult.error && (
+          <p className="mt-3 flex items-center gap-2 text-sm text-primary">
+            <CheckCircle2 className="h-4 w-4" />
+            {sendResult.sent
+              ? `Aviso enviado a ${sendResult.sent} ${sendResult.sent === 1 ? 'destinatario' : 'destinatarios'}.`
+              : 'No hay pagos incompletos con email conocido para avisar.'}
+          </p>
+        )}
+        {sendResult?.error && (
+          <p className="mt-3 text-sm text-destructive">{sendResult.error}</p>
+        )}
       </div>
     </div>
   );
