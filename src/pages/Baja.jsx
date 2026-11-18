@@ -33,7 +33,7 @@ export default function Baja() {
       <p className="mt-4 text-muted-foreground">
         {state === 'ok' && 'No volverás a recibir comunicaciones comerciales de SONORIA FM. Disculpa las molestias.'}
         {state === 'error' &&
-          'El enlace no es válido o ha caducado. Escríbenos a Oldestmanmusic@gmail.com con la palabra BAJA y lo gestionamos a mano.'}
+          'El enlace no es válido o ha caducado. Escríbenos a sonoriafm@gmail.com con la palabra BAJA y lo gestionamos a mano.'}
       </p>
     </div>
   );

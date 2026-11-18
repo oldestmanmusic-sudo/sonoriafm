@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const CONTACT_EMAIL = 'Oldestmanmusic@gmail.com';
+const CONTACT_EMAIL = 'sonoriafm@gmail.com';
 
 function Section({ title, children }) {
   return (

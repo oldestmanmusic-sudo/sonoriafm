@@ -62,7 +62,7 @@ export default async function(req) {
         `<li><strong>Más rotación de tu tema:</strong> 10 €/mes</li></ul>` +
         `<p style="margin:12px 0 0"><a href="https://sonoriafm.com/promociona-tu-musica" style="color:#8b33ff;font-weight:bold">Ver servicios de promoción</a></p></div>` +
         `<p>Si te interesa alguno, responde a este email o escribe a ` +
-        `<a href="mailto:Oldestmanmusic@gmail.com" style="color:#8b33ff">Oldestmanmusic@gmail.com</a>.</p>` +
+        `<a href="mailto:sonoriafm@gmail.com" style="color:#8b33ff">sonoriafm@gmail.com</a>.</p>` +
         `<p>Un abrazo,<br><strong>Víctor, SONORIA FM</strong></p></div>`,
     });
 

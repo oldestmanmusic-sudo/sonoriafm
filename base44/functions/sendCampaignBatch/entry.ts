@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
 // Hoja de Drive "Contactos marketing SONORIA FM". La columna H guarda el estado de cada envío.
 const SHEET_ID = '1iA-tq4yh2U9IKNNno8Ckt6ryqyt6GgHz_h56cmzmQTM';
-const REPLY_TO = 'Oldestmanmusic@gmail.com';
+const REPLY_TO = 'sonoriafm@gmail.com';
 const SUBJECT = 'Propuesta de colaboración con SONORIA FM, la radio online';
 
 const b64 = (s) => {

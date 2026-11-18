@@ -383,7 +383,7 @@ export default function EnviarCancion() {
       <p className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
         <Mail className="h-4 w-4" />
         ¿Dudas sobre tu envío o tus derechos? Escríbenos a
-        <a href="mailto:Oldestmanmusic@gmail.com" className="font-medium text-primary hover:underline">Oldestmanmusic@gmail.com</a>
+        <a href="mailto:sonoriafm@gmail.com" className="font-medium text-primary hover:underline">sonoriafm@gmail.com</a>
       </p>
     </section>
   );
