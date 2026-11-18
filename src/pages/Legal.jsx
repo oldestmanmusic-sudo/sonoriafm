@@ -90,8 +90,9 @@ export default function Legal() {
             <li>
               <strong>Indemnizar y eximir de responsabilidad a Sonoria FM</strong> frente a cualquier
               reclamación, demanda, daño, pérdida o gasto (incluidos los honorarios de abogados) que
-              surja de cualquier incumplimiento de estas garantías por tu parte o de cualquier
-              reclamación de terceros relacionada con la música que nos has enviado.
+              se derive de un incumplimiento de estas garantías que te sea imputable, incluidas las
+              reclamaciones de terceros en la medida en que se deban a ese incumplimiento. Tu
+              responsabilidad se limita a los daños derivados de incumplimientos imputables a ti.
             </li>
           </List>
         </Section>
@@ -107,6 +108,11 @@ export default function Legal() {
             <li>
               <strong>Retirar</strong> tu música de nuestra programación en cualquier momento y por
               cualquier motivo, sin previo aviso.
+            </li>
+            <li>
+              <strong>Atender tu solicitud de retirada:</strong> puedes pedirnos en cualquier
+              momento que retiremos tu música de la emisora y de nuestros servidores escribiéndonos
+              al correo de contacto; la retiraremos en un plazo razonable de unos 7 días.
             </li>
             <li>
               <strong>Editar</strong> tu música para adaptarla a los formatos de emisión (por ejemplo,
