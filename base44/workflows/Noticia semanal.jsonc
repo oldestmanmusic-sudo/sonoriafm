@@ -1,0 +1,44 @@
+{
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "noticia_semanal",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "publicar": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "publicarNoticiaSemanal"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Redactar y publicar la noticia semanal",
+            "description": "Investiga en internet, redacta, genera la portada y publica"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Noticia semanal",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 10 * * 1",
+      "one_time_date": null,
+      "timezone": "Europe/Madrid",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Publica autom\u00e1ticamente una noticia semanal redactada por la IA con investigaci\u00f3n en internet sobre radio, artistas y m\u00fasica hecha con IA."
+}
