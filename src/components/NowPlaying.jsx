@@ -59,7 +59,7 @@ export default function NowPlaying({ track, sideLeft = null }) {
               <p className="truncate font-semibold">{liveTrack.title}</p>
               <p className="truncate text-sm text-muted-foreground">{liveTrack.artist}</p>
             </div>
-            <button
+            {liveTrack.kind !== 'cuna' && <button
             onClick={like}
             disabled={liking}
             className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent disabled:opacity-50"
@@ -68,7 +68,7 @@ export default function NowPlaying({ track, sideLeft = null }) {
             
               {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={`h-4 w-4 text-accent ${liked ? 'fill-accent' : ''}`} />}
               {likes}
-            </button>
+            </button>}
           </div>
         }
 
