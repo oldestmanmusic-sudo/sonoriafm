@@ -15,6 +15,8 @@ import {
   LogOut,
   ArrowLeft,
   ShieldAlert,
+  AudioLines,
+  Download,
 } from 'lucide-react';
 
 const NAV = [
@@ -22,7 +24,9 @@ const NAV = [
   { to: '/admin/articulos', label: 'Artículos', Icon: Newspaper },
   { to: '/admin/artistas', label: 'Artistas', Icon: Users },
   { to: '/admin/programacion', label: 'Programación', Icon: CalendarClock },
+  { to: '/admin/emision', label: 'Emisión', Icon: AudioLines },
   { to: '/admin/historial', label: 'Historial', Icon: History },
+  { to: '/admin/descargas', label: 'Descargas', Icon: Download },
   { to: '/admin/envios', label: 'Envíos', Icon: Inbox },
   { to: '/admin/mensajes', label: 'Mensajes', Icon: Mail },
   { to: '/admin/sugerencias', label: 'Sugerencias', Icon: Lightbulb },

@@ -39,6 +39,8 @@ const AdminMessages = lazy(() => import('@/pages/admin/AdminMessages'));
 const AdminSuggestions = lazy(() => import('@/pages/admin/AdminSuggestions'));
 const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
+const AdminEmision = lazy(() => import('@/pages/admin/AdminEmision'));
+const AdminDescargas = lazy(() => import('@/pages/admin/AdminDescargas'));
 const Cuenta = lazy(() => import('@/pages/Cuenta'));
 const Donar = lazy(() => import('@/pages/Donar'));
 const Baja = lazy(() => import('@/pages/Baja'));
@@ -123,6 +125,8 @@ const AuthenticatedApp = () => {
           <Route path="mensajes" element={<AdminMessages />} />
           <Route path="sugerencias" element={<AdminSuggestions />} />
           <Route path="usuarios" element={<AdminUsers />} />
+          <Route path="emision" element={<AdminEmision />} />
+          <Route path="descargas" element={<AdminDescargas />} />
         </Route>
       </Route>
 
