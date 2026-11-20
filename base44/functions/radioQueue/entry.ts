@@ -109,6 +109,59 @@ const BLOCKED_TRACK_IDS = new Set(['6addbec396cb6a05e3141c27']);
 
 const normGenre = (g) => (g || '').toString().trim().toLowerCase();
 
+// CUÑAS Y ANUNCIO de SONORIA FM. No se emiten entre todas las canciones: solo en horas punta,
+// con un mínimo de separación entre una y otra y rotando entre las disponibles.
+// Una cuña sin url todavía no se emite.
+const MEDIA = 'https://media.base44.com/files/public/6ace0c27732bbb0f4d7504e1/';
+const SPOTS = [
+  { id: 'cuna-anuncio', title: 'Anuncio de SONORIA FM', url: MEDIA + '46901995f_anuncio-sonoria-fm.mp3', duration: '0:37' },
+  { id: 'cuna-votar', title: 'Vota tu canción favorita', url: '', duration: '0:10' },
+  { id: 'cuna-compartir', title: 'Comparte SONORIA FM', url: '', duration: '0:11' },
+];
+// Horas punta (hora de Madrid, en segundos desde las 0:00): mañana, mediodía y tarde-noche.
+const PEAK_WINDOWS = [
+  [8 * 3600, 10 * 3600],
+  [13 * 3600, 15 * 3600],
+  [18 * 3600, 21 * 3600 + 1800],
+];
+
+function maybeSpot(last, lastSpot) {
+  if (!last || (last.kind && last.kind !== 'song')) return null;
+  const spots = SPOTS.filter((s) => s.url);
+  if (!spots.length) return null;
+  const start = last.ends_at;
+  const { secondsOfDay, slotKey } = slotAt(start);
+  if (slotKey !== last.slot_key) return null; // nunca en un cambio de franja
+  if (!PEAK_WINDOWS.some(([a, b]) => secondsOfDay >= a && secondsOfDay < b)) return null;
+  // Separación mínima: con pocas piezas, más espacio para no cansar; más un margen de hasta 15 min.
+  const minGap = (spots.length >= 3 ? 40 : 90) * 60000 + (hashStr(String(Math.floor(start / 60000))) % 15) * 60000;
+  if (lastSpot && start - lastSpot.ends_at < minGap) return null;
+  const order = spots.map((s) => s.id);
+  const prevIdx = lastSpot ? order.indexOf(lastSpot.track_id) : -1;
+  const spot = spots[(prevIdx + 1) % spots.length];
+  const dur = parseDuration(spot.duration) || 30;
+  const s = Math.round(start);
+  return {
+    seq: last.seq + 1,
+    kind: 'cuna',
+    track_id: spot.id,
+    title: spot.title,
+    artist: 'SONORIA FM',
+    genre: 'Cuña',
+    language: '',
+    audio_url: spot.url,
+    cover_url: '',
+    duration: spot.duration,
+    starts_at: s,
+    ends_at: s + dur * 1000,
+    // Conserva el punto de la vuelta para que la canción siguiente continúe donde iba.
+    slot_key: last.slot_key,
+    k: last.k,
+    pos: last.pos,
+    order: last.order,
+  };
+}
+
 function slotLists(list) {
   const electronic = list.filter((t) => ELECTRONIC_GENRES.has(normGenre(t.genre)));
   const latino = list.filter((t) => LATINO_GENRES.has(normGenre(t.genre)));
@@ -280,8 +333,9 @@ export default async function(req) {
       for (const e of [...entries]) {
         // Autocorrección: lo futuro cuya franja ya no coincide con la parrilla actual se regenera.
         const sa = e.starts_at > now ? slotAt(e.starts_at) : null;
-        const wrongLang = sa && sa.slot.kind === 'top' && normGenre(e.language) === 'otros idiomas';
-        const removed = sa && (BLOCKED_TRACK_IDS.has(String(e.track_id)) || !byId.has(String(e.track_id)));
+        const isSong = !e.kind || e.kind === 'song';
+        const wrongLang = isSong && sa && sa.slot.kind === 'top' && normGenre(e.language) === 'otros idiomas';
+        const removed = isSong && sa && (BLOCKED_TRACK_IDS.has(String(e.track_id)) || !byId.has(String(e.track_id)));
         if (sa && (e.slot_key !== sa.slotKey || wrongLang || removed)) {
           await db.RadioQueue.delete(e.id);
           entries.splice(entries.indexOf(e), 1);
@@ -312,7 +366,15 @@ export default async function(req) {
       seeded = true;
     }
 
+    let lastSpot = [...entries, ...created].reverse().find((e) => e.kind === 'cuna') || null;
     while (last.ends_at < now + HORIZON_MS && created.length < MAX_NEW) {
+      const spot = maybeSpot(last, lastSpot);
+      if (spot) {
+        created.push(spot);
+        last = spot;
+        lastSpot = spot;
+        continue;
+      }
       const next = nextEntry(last, lists, byId);
       created.push(next);
       last = next;
