@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
-import { Loader2, Radio, Play, Pause, RefreshCw, Pencil, ExternalLink } from 'lucide-react';
+import { Loader2, Radio, Play, Pause, RefreshCw, Pencil, Download, ExternalLink } from 'lucide-react';
 import { DEFAULT_COVER } from '@/lib/brand';
 
 const madridTime = (ms) => {
@@ -18,6 +18,36 @@ const madridTime = (ms) => {
     return '';
   }
 };
+
+function fileSafe(s) {
+  return String(s || 'cancion')
+    .replace(/[\\/:*?"<>|]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80) || 'cancion';
+}
+
+function downloadName(track) {
+  const ext = (track?.audio_url || '').split('?')[0].split('.').pop() || 'mp3';
+  return `${fileSafe(track?.artist)} - ${fileSafe(track?.title)}.${ext}`;
+}
+
+function DownloadButton({ track, size = 'icon' }) {
+  if (!track?.audio_url) return null;
+  return (
+    <a
+      href={track.audio_url}
+      download={downloadName(track)}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Descargar audio"
+      title="Descargar audio"
+      className="inline-flex items-center justify-center rounded-md h-9 w-9 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+    >
+      <Download className="h-4 w-4" />
+    </a>
+  );
+}
 
 export default function AdminEmision() {
   const [data, setData] = useState(null);
@@ -117,12 +147,13 @@ export default function AdminEmision() {
                   {current.genre || 'Sin canal'} · hasta las {madridTime(current.endsAt)}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex shrink-0 items-center gap-1">
                 {current.audio_url && (
                   <Button variant="outline" size="icon" aria-label="Escuchar" onClick={() => togglePlay(current)}>
                     {playingId === current.id ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   </Button>
                 )}
+                <DownloadButton track={current} />
                 <Link to="/admin/historial">
                   <Button variant="ghost" size="icon" aria-label="Editar en historial">
                     <Pencil className="h-4 w-4" />
@@ -165,6 +196,7 @@ export default function AdminEmision() {
                       {playingId === t.id ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                     </Button>
                   )}
+                  <DownloadButton track={t} />
                   <Link to="/admin/historial" className="hidden sm:block">
                     <Button variant="ghost" size="icon" aria-label="Editar en historial">
                       <Pencil className="h-4 w-4" />
