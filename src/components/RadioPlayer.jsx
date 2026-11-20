@@ -45,7 +45,7 @@ export default function RadioPlayer({ nowPlaying }) {
           <p className="line-clamp-2 text-xs text-muted-foreground">{track?.artist ?? 'La radio de la música hecha con IA'}</p>
         </div>
 
-        {track?.id && (
+        {track?.id && track.kind !== 'cuna' && (
           <button
             onClick={like}
             disabled={liking}
