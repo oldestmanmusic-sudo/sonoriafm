@@ -115,7 +115,7 @@ const normGenre = (g) => (g || '').toString().trim().toLowerCase();
 const MEDIA = 'https://media.base44.com/files/public/6ace0c27732bbb0f4d7504e1/';
 const SPOTS = [
   { id: 'cuna-anuncio', title: 'Anuncio de SONORIA FM', url: MEDIA + '46901995f_anuncio-sonoria-fm.mp3', duration: '0:37' },
-  { id: 'cuna-votar', title: 'Vota tu canción favorita', url: '', duration: '0:10' },
+  { id: 'cuna-votar', title: 'Vota tu canción favorita', url: MEDIA + '4b6294f07_cuna-votar.mp3', duration: '0:09' },
   { id: 'cuna-compartir', title: 'Comparte SONORIA FM', url: '', duration: '0:11' },
 ];
 // Horas punta (hora de Madrid, en segundos desde las 0:00): mañana, mediodía y tarde-noche.
@@ -134,7 +134,7 @@ function maybeSpot(last, lastSpot) {
   if (slotKey !== last.slot_key) return null; // nunca en un cambio de franja
   if (!PEAK_WINDOWS.some(([a, b]) => secondsOfDay >= a && secondsOfDay < b)) return null;
   // Separación mínima: con pocas piezas, más espacio para no cansar; más un margen de hasta 15 min.
-  const minGap = (spots.length >= 3 ? 40 : 90) * 60000 + (hashStr(String(Math.floor(start / 60000))) % 15) * 60000;
+  const minGap = (spots.length >= 3 ? 40 : spots.length === 2 ? 60 : 90) * 60000 + (hashStr(String(Math.floor(start / 60000))) % 15) * 60000;
   if (lastSpot && start - lastSpot.ends_at < minGap) return null;
   const order = spots.map((s) => s.id);
   const prevIdx = lastSpot ? order.indexOf(lastSpot.track_id) : -1;
