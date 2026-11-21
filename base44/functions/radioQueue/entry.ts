@@ -116,7 +116,7 @@ const MEDIA = 'https://media.base44.com/files/public/6ace0c27732bbb0f4d7504e1/';
 const SPOTS = [
   { id: 'cuna-anuncio', title: 'Anuncio de SONORIA FM', url: MEDIA + '46901995f_anuncio-sonoria-fm.mp3', duration: '0:37' },
   { id: 'cuna-votar', title: 'Vota tu canción favorita', url: MEDIA + '4b6294f07_cuna-votar.mp3', duration: '0:09' },
-  { id: 'cuna-compartir', title: 'Comparte SONORIA FM', url: '', duration: '0:11' },
+  { id: 'cuna-compartir', title: 'Comparte SONORIA FM', url: MEDIA + 'fcdf9b4d6_cuna-compartir.mp3', duration: '0:09' },
 ];
 // Horas punta (hora de Madrid, en segundos desde las 0:00): mañana, mediodía y tarde-noche.
 const PEAK_WINDOWS = [
