@@ -10,6 +10,10 @@
       "type": "string",
       "description": "Tipo de elemento: song (canci\u00f3n). Reservado para cu\u00f1a y locutor."
     },
+    "zone": {
+      "type": "string",
+      "description": "Zona de emisi\u00f3n: eu (Espa\u00f1a/Europa, por defecto), sa (Cono Sur), co (Colombia/Per\u00fa/Ecuador/EE. UU. este), mx (M\u00e9xico/Centroam\u00e9rica/EE. UU. centro y oeste)."
+    },
     "track_id": {
       "type": "string",
       "description": "Id de la canci\u00f3n."
