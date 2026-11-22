@@ -110,7 +110,7 @@ const MAX_CYCLES_PER_DAY = 500;
 // programas de madrugada en pleno día). La zona se deduce del huso horario del dispositivo:
 //   eu: España/Europa · sa: Argentina/Chile/Uruguay (UTC-3/-4) · co: Colombia/Perú/Ecuador/EE. UU. este (UTC-5)
 //   mx: México/Centroamérica/EE. UU. centro y oeste (UTC-6 o menos)
-const ZONE_TZ = {
+export const ZONE_TZ = {
   eu: 'Europe/Madrid',
   sa: 'America/Argentina/Buenos_Aires',
   co: 'America/Bogota',
