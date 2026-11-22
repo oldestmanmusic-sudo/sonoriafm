@@ -1,7 +1,7 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
-// PARRILLA SONORIA FM (hora de Madrid, igual para todos los oyentes):
+// PARRILLA SONORIA FM (en la hora local de la zona de cada oyente; abajo, horas locales):
 //   00:00-02:00  Club Electrónico  -> música electrónica
 //   02:00-05:00  Latino Total       -> pop, rock y urbano/reguetón latino
 //   05:00-10:00  Pop Rock           -> pop y rock
@@ -106,7 +106,28 @@ function parseDuration(d) {
 const MAX_CYCLES_PER_DAY = 500;
 
 // --- Parrilla por franjas ------------------------------------------------
-const PARRILLA_TZ = 'Europe/Madrid';
+// La parrilla es la misma en todo el mundo pero en la hora local de cada zona (así nadie oye los
+// programas de madrugada en pleno día). La zona se deduce del huso horario del dispositivo:
+//   eu: España/Europa · sa: Argentina/Chile/Uruguay (UTC-3/-4) · co: Colombia/Perú/Ecuador/EE. UU. este (UTC-5)
+//   mx: México/Centroamérica/EE. UU. centro y oeste (UTC-6 o menos)
+const ZONE_TZ = {
+  eu: 'Europe/Madrid',
+  sa: 'America/Argentina/Buenos_Aires',
+  co: 'America/Bogota',
+  mx: 'America/Mexico_City',
+};
+export function detectZone() {
+  try {
+    const off = -new Date().getTimezoneOffset(); // minutos al este de UTC
+    if (off >= -60) return 'eu';
+    if (off > -300) return 'sa';
+    if (off === -300) return 'co';
+    return 'mx';
+  } catch {
+    return 'eu';
+  }
+}
+const ZONE = detectZone();
 // Franjas del día (el id solo sirve de semilla del barajado; no cambiarlo).
 const SLOTS = [
   { id: 0, start: 0, kind: 'electronic' },        // Club Electrónico 00-02
@@ -126,7 +147,7 @@ const TOP_SIZE = 10;
 // Sonoria (12-16 h), que mezcla todo el catálogo.
 
 const madridFmt = new Intl.DateTimeFormat('en-GB', {
-  timeZone: PARRILLA_TZ,
+  timeZone: ZONE_TZ[ZONE],
   hourCycle: 'h23',
   year: 'numeric',
   month: '2-digit',
@@ -246,7 +267,7 @@ const queueState = { entries: [], clockOffset: 0, version: 0, mapped: null, mapp
 async function loadQueue() {
   try {
     const t0 = Date.now();
-    const res = await base44.functions.invoke('radioNow', { count: 40, backMs: 10 * 60 * 1000 });
+    const res = await base44.functions.invoke('radioNow', { count: 40, backMs: 10 * 60 * 1000, zone: ZONE });
     const t1 = Date.now();
     const data = res && res.data ? res.data : res;
     const tracks = data && Array.isArray(data.tracks) ? data.tracks : [];
