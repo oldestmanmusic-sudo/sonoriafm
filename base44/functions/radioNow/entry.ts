@@ -8,6 +8,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 // Uso: POST/GET .../functions/radioNow   (opcional: { "count": 12, "at": 1700000000000, "backMs": 0 })
 //   count  -> cuántas canciones devolver (1-60, por defecto 12)
 //   at     -> instante a partir del cual se devuelve (por defecto, ahora)
+//   zone   -> zona de emisión: eu (por defecto), sa, co o mx (parrilla en la hora local de cada una)
 //   backMs -> empezar esos ms ANTES de "at" (la web pide algo de historial para no perder la actual)
 // Respuesta: { serverTime, tracks: [{ id, kind, title, artist, genre, language, audio_url,
 //   cover_url, duration, startsAt, endsAt }] }. tracks[0] es la que cubre "at" (o "at - backMs").
@@ -16,8 +17,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 const MIN_AHEAD_MS = 8 * 60 * 1000;
 const toList = (r) => (Array.isArray(r) ? r : (r?.items ?? []));
 
-async function loadQueue(db) {
-  const rows = toList(await db.RadioQueue.filter({}, { sort: '-seq', limit: 300 }));
+const ZONE_KEYS = ['eu', 'sa', 'co', 'mx'];
+
+async function loadQueue(db, zone) {
+  const rows = toList(await db.RadioQueue.filter({}, { sort: '-seq', limit: 900 })).filter((e) => (e.zone || 'eu') === zone);
   const seen = new Set();
   return rows
     .sort((a, b) => a.seq - b.seq || String(a.created_date).localeCompare(String(b.created_date)))
@@ -38,14 +41,15 @@ export default async function(req) {
     const backMs = Math.max(0, Number(params.backMs) || 0);
     const t = (Number.isFinite(at) && at > 0 ? at : Date.now()) - backMs;
     const db = base44.asServiceRole.entities;
+    const zone = ZONE_KEYS.includes(params.zone) ? params.zone : 'eu';
 
-    let queue = await loadQueue(db);
+    let queue = await loadQueue(db, zone);
     let last = queue[queue.length - 1];
     // Si la cola se queda corta (la tarea programada no ha corrido), se rellena aquí mismo.
     if (!last || last.ends_at < Math.max(t, Date.now()) + MIN_AHEAD_MS) {
       try {
-        await base44.asServiceRole.functions.invoke('radioQueue', {});
-        queue = await loadQueue(db);
+        await base44.asServiceRole.functions.invoke('radioQueue', { zone });
+        queue = await loadQueue(db, zone);
       } catch (e) {
         /* se responde con lo que haya */
       }
