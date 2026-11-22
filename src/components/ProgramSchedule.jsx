@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
+import { detectZone, ZONE_TZ } from '@/lib/radioContext';
 
 const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 const WEEKDAY_KEYS = { Mon: 'Lun', Tue: 'Mar', Wed: 'Mié', Thu: 'Jue', Fri: 'Vie', Sat: 'Sáb', Sun: 'Dom' };
 const madridFmt = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Europe/Madrid',
+  timeZone: ZONE_TZ[detectZone()],
   weekday: 'short',
   hour: '2-digit',
   minute: '2-digit',
   hourCycle: 'h23',
 });
 
-// Día y hora actuales en Madrid, igual que la emisión de la radio.
+// Día y hora actuales en la zona del oyente, igual que su emisión (la parrilla va en hora local).
 function madridNow() {
   const p = {};
   for (const part of madridFmt.formatToParts(new Date())) p[part.type] = part.value;
@@ -50,7 +51,8 @@ export default function ProgramSchedule() {
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-12">
-      <h2 className="font-heading text-2xl font-bold mb-6">Programación</h2>
+      <h2 className="font-heading text-2xl font-bold mb-1">Programación</h2>
+      <p className="mb-6 text-sm text-muted-foreground">Horario en tu hora local: cada país escucha cada programa a la misma hora.</p>
 
       {programs === null ? (
         <div className="flex justify-center py-10">
