@@ -60,7 +60,14 @@ function parseDuration(d) {
   return parts.reduce((acc, p) => acc * 60 + p, 0);
 }
 
-const PARRILLA_TZ = 'Europe/Madrid';
+// Zonas de emisión: cada una sigue la misma parrilla pero en su hora local, para que nadie oiga
+// los programas de madrugada en pleno día. El cliente elige su zona según el huso horario del dispositivo.
+const ZONES = {
+  eu: 'Europe/Madrid',
+  sa: 'America/Argentina/Buenos_Aires',
+  co: 'America/Bogota',
+  mx: 'America/Mexico_City',
+};
 const SLOTS = [
   { id: 0, start: 0, kind: 'electronic' },
   { id: 7, start: 2 * 3600, kind: 'latino' },
@@ -77,20 +84,23 @@ const POPROCK_GENRES = new Set(['pop rock', 'pop rock latino']);
 const TOP_SIZE = 10;
 const MAX_CYCLES_PER_DAY = 500;
 
-const madridFmt = new Intl.DateTimeFormat('en-GB', {
-  timeZone: PARRILLA_TZ,
-  hourCycle: 'h23',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-});
+const fmtCache = {};
+const fmtFor = (zone) =>
+  (fmtCache[zone] ||= new Intl.DateTimeFormat('en-GB', {
+    timeZone: ZONES[zone],
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }));
+let CURRENT_ZONE = 'eu';
 
 function madridClock(nowMs) {
   const p = {};
-  for (const part of madridFmt.formatToParts(new Date(nowMs))) p[part.type] = part.value;
+  for (const part of fmtFor(CURRENT_ZONE).formatToParts(new Date(nowMs))) p[part.type] = part.value;
   const dayIndex = Math.floor(Date.UTC(+p.year, +p.month - 1, +p.day) / 86400000);
   const frac = (((nowMs % 1000) + 1000) % 1000) / 1000;
   const secondsOfDay = (+p.hour % 24) * 3600 + +p.minute * 60 + +p.second + frac;
@@ -306,6 +316,19 @@ function nextEntry(last, lists, byId) {
 const toList = (r) => (Array.isArray(r) ? r : (r?.items ?? []));
 
 export default async function(req) {
+  const body = await req.json().catch(() => ({}));
+  const only = body && ZONES[body.zone] ? [body.zone] : Object.keys(ZONES);
+  const out = {};
+  for (const z of only) {
+    CURRENT_ZONE = z;
+    const r = await processZone(req, z);
+    out[z] = await r.json();
+  }
+  CURRENT_ZONE = 'eu';
+  return Response.json({ ok: true, zones: out });
+}
+
+async function processZone(req, zone) {
   try {
     const base44 = createClientFromRequest(req);
     const db = base44.asServiceRole.entities;
@@ -323,7 +346,7 @@ export default async function(req) {
     const byId = new Map(list.map((t) => [String(t.id), t]));
     const lists = slotLists(list);
 
-    const rows = toList(await db.RadioQueue.filter({}, { sort: '-seq', limit: 300 }));
+    const rows = toList(await db.RadioQueue.filter({}, { sort: '-seq', limit: 900 })).filter((e) => (e.zone || 'eu') === zone);
     const seen = new Set();
     const entries = rows
       .sort((a, b) => a.seq - b.seq || String(a.created_date).localeCompare(String(b.created_date)))
@@ -380,7 +403,7 @@ export default async function(req) {
       last = next;
     }
 
-    if (created.length) await db.RadioQueue.bulkCreate(created);
+    if (created.length) await db.RadioQueue.bulkCreate(created.map((e) => ({ ...e, zone })));
 
     let pruned = 0;
     for (const e of entries) {
