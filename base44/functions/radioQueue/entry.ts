@@ -82,6 +82,7 @@ const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetó
 const BALADAS_GENRES = new Set(['baladas']);
 const POPROCK_GENRES = new Set(['pop rock', 'pop rock latino']);
 const TOP_SIZE = 10;
+const TODO_RULE_FROM = '2026-11-24T19:56:00';
 const MAX_CYCLES_PER_DAY = 500;
 
 const fmtCache = {};
@@ -361,7 +362,9 @@ async function processZone(req, zone) {
         const isSong = !e.kind || e.kind === 'song';
         const wrongLang = isSong && sa && sa.slot.kind === 'top' && normGenre(e.language) === 'otros idiomas';
         const removed = isSong && sa && (BLOCKED_TRACK_IDS.has(String(e.track_id)) || !byId.has(String(e.track_id)));
-        if (sa && (e.slot_key !== sa.slotKey || wrongLang || removed)) {
+        // Franja 22-24 h pasa a ser "Todo SONORIA": lo futuro generado con la regla anterior (solo otros idiomas) se regenera.
+        const oldTodo = sa && sa.slot.kind === 'todo' && String(e.created_date || '') < TODO_RULE_FROM;
+        if (sa && (e.slot_key !== sa.slotKey || wrongLang || removed || oldTodo)) {
           await db.RadioQueue.delete(e.id);
           entries.splice(entries.indexOf(e), 1);
         }
