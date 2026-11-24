@@ -21,7 +21,7 @@ export const FORM_GENRES = [
   'Otros',
 ];
 
-// Idioma de la canción: decide si suena en la franja "Música en otros idiomas" (22-24 h).
+// Idioma de la canción: las canciones en otros idiomas suenan en "Todo SONORIA" (22-24 h), junto al resto del catálogo.
 export const LANGUAGES = ['Español', 'Otros idiomas'];
 
 export const SUBMISSION_TOOLS = ['Suno', 'Udio', 'Otra'];
