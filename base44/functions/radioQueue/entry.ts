@@ -356,7 +356,17 @@ async function processZone(req, zone) {
       .filter((e) => (seen.has(e.seq) ? false : (seen.add(e.seq), true)));
 
     {
+      // Si se borra algo futuro (o hay un hueco), todo lo posterior se regenera para que la cola sea continua.
+      let purgeRest = false;
+      let prevEnd = 0;
       for (const e of [...entries]) {
+        if (e.starts_at > now && (purgeRest || (prevEnd && e.starts_at - prevEnd > 30000))) {
+          purgeRest = true;
+          await db.RadioQueue.delete(e.id);
+          entries.splice(entries.indexOf(e), 1);
+          continue;
+        }
+        prevEnd = e.ends_at;
         // Autocorrección: lo futuro cuya franja ya no coincide con la parrilla actual se regenera.
         const sa = e.starts_at > now ? slotAt(e.starts_at) : null;
         const isSong = !e.kind || e.kind === 'song';
@@ -365,6 +375,7 @@ async function processZone(req, zone) {
         // Franja 22-24 h pasa a ser "Todo SONORIA": lo futuro generado con la regla anterior (solo otros idiomas) se regenera.
         const oldTodo = sa && sa.slot.kind === 'todo' && String(e.created_date || '') < TODO_RULE_FROM;
         if (sa && (e.slot_key !== sa.slotKey || wrongLang || removed || oldTodo)) {
+          purgeRest = true;
           await db.RadioQueue.delete(e.id);
           entries.splice(entries.indexOf(e), 1);
         }
