@@ -62,7 +62,7 @@ function buildEmail(contact) {
     `Nuestra programación tiene varias franjas (Pop Rock, Top Sonoria, Latino Total y Todo SONORIA) y buscamos negocios y marcas que quieran sumarse al proyecto. Estas son las formas de colaborar:</p>` +
     `<ul style="padding-left:20px">` +
     li('Cuñas publicitarias:', 'mensajes de su marca dentro de la emisión, en la franja que mejor encaje con su público.') +
-    li('Patrocinio de franjas o programas:', 'su nombre asociado a Club Electrónico, Top Sonoria o Latino Total.') +
+    li('Patrocinio de franjas o programas:', 'su nombre asociado a Top Sonoria, Latino Total o Todo SONORIA.') +
     li('Presencia en la web:', 'menciones y espacio para su marca en sonoriafm.com.') +
     li('Colaboraciones y canjes:', 'sorteos, eventos, acciones conjuntas o música para su local o negocio.') +
     li('Donaciones:', `si prefiere apoyar el proyecto sin más, puede hacerlo en <a href="${SITE}/donar" style="color:#8b33ff">sonoriafm.com/donar</a>.`) +
