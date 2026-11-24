@@ -8,7 +8,7 @@ import { base44 } from '@/api/base44Client';
 //   10:00-16:00  Top Sonoria        -> Top 10 por "me gusta" y variedad de todo el catálogo
 //   16:00-20:00  Latino Total       -> pop, rock y urbano/reguetón latino
 //   20:00-22:00  Baladas            -> género Baladas
-//   22:00-24:00  Música en otros idiomas -> canciones con idioma "Otros idiomas"
+//   22:00-24:00  Todo SONORIA      -> todo el catálogo, incluidas las canciones en inglés / otros idiomas
 // Es la misma parrilla todos los días de la semana (hoja "Parrilla Sonoria FM").
 // Dentro de cada franja, la rotación funciona como se explica a continuación.
 //
@@ -136,7 +136,7 @@ const SLOTS = [
   { id: 4, start: 10 * 3600, kind: 'top' },       // Top Sonoria 10-16
   { id: 2, start: 16 * 3600, kind: 'latino' },    // Latino Total 16-20
   { id: 5, start: 20 * 3600, kind: 'baladas' },   // Baladas 20-22
-  { id: 3, start: 22 * 3600, kind: 'idiomas' },   // Música en otros idiomas 22-24
+  { id: 3, start: 22 * 3600, kind: 'todo' },      // Todo SONORIA 22-24 (todo el catálogo, con las de inglés)
 ];
 const ELECTRONIC_GENRES = new Set(['electrónica']);
 const LATINO_GENRES = new Set(['pop latino', 'pop rock latino', 'urbano/reguetón']);
@@ -202,7 +202,8 @@ function slotLists(list) {
     latino: latino.length ? latino : list,
     poprock, // si no hay pop rock, la franja sigue como Top Sonoria
     baladas, // si no hay baladas, la franja sigue como Top Sonoria
-    idiomas, // si no hay canciones en otros idiomas, la franja sigue como Top Sonoria
+    idiomas,
+    todo: list, // Todo SONORIA: todo el catálogo, incluidas las canciones en otros idiomas
     top,
     rest,
   };
@@ -217,7 +218,7 @@ function cycleList(lists, slot, k) {
   if (slot.kind === 'latino') return lists.latino;
   if (slot.kind === 'poprock' && lists.poprock.length) return lists.poprock;
   if (slot.kind === 'baladas' && lists.baladas.length) return lists.baladas;
-  if (slot.kind === 'idiomas' && lists.idiomas.length) return lists.idiomas;
+  if (slot.kind === 'todo' && lists.todo.length) return lists.todo;
   if (!lists.rest.length) return lists.top;
   return k % 3 === 1 ? lists.rest : lists.top;
 }
