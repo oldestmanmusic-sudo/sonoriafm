@@ -24,7 +24,7 @@ function buildHtml() {
     `<p style="font-size:12px;color:#6b7280;margin:0 0 16px">Comunicación comercial de SONORIA FM</p>` +
     `<h2 style="color:#8b33ff;margin:0 0 12px">Hagamos sonar tu marca en SONORIA FM</h2>` +
     `<p>Hola:</p>` +
-    `<p>Soy Víctor, de <strong>SONORIA FM</strong> (<a href="https://sonoriafm.com" style="color:#8b33ff">sonoriafm.com</a>), una radio online independiente que emite las 24 horas con tres franjas propias: <em>Club Electrónico</em> (madrugada), <em>Top Sonoria</em> (mañana y mediodía) y <em>Latino Total</em> (tarde y noche), con música de artistas emergentes.</p>` +
+    `<p>Soy Víctor, de <strong>SONORIA FM</strong> (<a href="https://sonoriafm.com" style="color:#8b33ff">sonoriafm.com</a>), una radio online independiente que emite las 24 horas con franjas propias: <em>Top Sonoria</em> (mañana y mediodía), <em>Latino Total</em> (tarde) y <em>Todo SONORIA</em> (noche y madrugada), con música de artistas emergentes.</p>` +
     `<p>Estamos abriendo la radio a negocios y personas que quieran acompañarnos. Estas son las formas de colaborar:</p>` +
     `<ul style="padding-left:20px">` +
     li('Cuñas publicitarias.', 'Anuncios de 20 a 30 segundos dentro de la programación; si lo prefieres, te los producimos nosotros.') +
