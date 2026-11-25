@@ -95,11 +95,12 @@ const AuthenticatedApp = () => {
         {/* Las noticias son públicas: así las encuentra Google y se pueden compartir. */}
         <Route path="/noticias" element={<Noticias />} />
         <Route path="/noticias/:id" element={<ArticleDetail />} />
+        {/* Programación y Sobre nosotros son informativas: públicas para que Google las indexe. */}
+        <Route path="/programacion" element={<Programming />} />
+        <Route path="/sobre-nosotros" element={<SobreNosotros />} />
 
         {/* Votar, enviar canciones y el resto exigen iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
-          <Route path="/programacion" element={<Programming />} />
-          <Route path="/sobre-nosotros" element={<SobreNosotros />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/sugerencias" element={<Sugerencias />} />
           <Route path="/promociona-tu-musica" element={<Promociona />} />
