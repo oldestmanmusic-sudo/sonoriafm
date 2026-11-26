@@ -40,6 +40,7 @@ const AdminSuggestions = lazy(() => import('@/pages/admin/AdminSuggestions'));
 const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminEmision = lazy(() => import('@/pages/admin/AdminEmision'));
+const AdminOyentes = lazy(() => import('@/pages/admin/AdminOyentes'));
 const Cuenta = lazy(() => import('@/pages/Cuenta'));
 const Donar = lazy(() => import('@/pages/Donar'));
 const Baja = lazy(() => import('@/pages/Baja'));
@@ -126,6 +127,7 @@ const AuthenticatedApp = () => {
           <Route path="sugerencias" element={<AdminSuggestions />} />
           <Route path="usuarios" element={<AdminUsers />} />
           <Route path="emision" element={<AdminEmision />} />
+          <Route path="oyentes" element={<AdminOyentes />} />
         </Route>
       </Route>
 
