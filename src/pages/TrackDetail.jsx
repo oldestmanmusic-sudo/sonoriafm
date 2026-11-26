@@ -53,7 +53,7 @@ export default function TrackDetail() {
         title: track.title,
         artist: track.artist,
         coverUrl: track.cover_url || DEFAULT_COVER,
-        text: `Escucha "${track.title}" de ${track.artist} en SONORIA FM: ${window.location.href}`,
+        text: `Vota "${track.title}" de ${track.artist} en SONORIA FM, sin registrarte: ${window.location.href}`,
       });
     } catch { /* ignore */ }
     setCardBusy(false);
