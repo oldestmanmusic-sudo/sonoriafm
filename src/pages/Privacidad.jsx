@@ -26,7 +26,8 @@ export default function Privacidad() {
           <li><strong>Contacto y sugerencias:</strong> nombre, correo y mensaje, para responderte y mejorar la web.</li>
           <li><strong>Donaciones y servicios de pago:</strong> el pago lo gestiona Wix Payments. Nosotros guardamos la referencia de la compra, el importe, el correo del comprador y, en los servicios de promoción, el nombre artístico y la canción. No vemos ni guardamos los datos de tu tarjeta.</li>
           <li><strong>Correos a empresas y colaboradores:</strong> enviamos propuestas de colaboración (cuñas, patrocinios, donaciones) a datos de contacto profesionales de empresas obtenidos de fuentes de acceso público. Cada correo incluye un enlace para darse de baja.</li>
-          <li><strong>Datos técnicos:</strong> información básica del navegador y de la conexión necesaria para que la web funcione y esté protegida frente a abusos. No usamos analítica ni publicidad (ver la <Link to="/cookies" className="text-primary hover:underline">Política de Cookies</Link>).</li>
+          <li><strong>Datos técnicos:</strong> información básica del navegador y de la conexión necesaria para que la web funcione y esté protegida frente a abusos. No usamos publicidad (ver la <Link to="/cookies" className="text-primary hover:underline">Política de Cookies</Link>).</li>
+          <li><strong>Escucha de la radio:</strong> contamos de forma anónima cuántos minutos suena la radio en la web, qué canción y en qué zona horaria, con un código aleatorio que se pierde al cerrar la página. No se guarda nada en tu dispositivo ni se asocia a tu cuenta o a tu IP.</li>
         </List>
       </Section>
 
