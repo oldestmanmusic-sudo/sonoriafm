@@ -4,11 +4,27 @@
   "properties": {
     "track_id": {
       "type": "string",
-      "description": "Id de la canci\u00f3n a la que el usuario dio me gusta."
+      "description": "Id de la canci\u00f3n a la que se dio me gusta."
     },
     "user_id": {
       "type": "string",
-      "description": "Id del usuario que dio me gusta."
+      "description": "Id del usuario que dio me gusta, o \"anon:<c\u00f3digo>\" si vot\u00f3 sin cuenta."
+    },
+    "did": {
+      "type": "string",
+      "description": "C\u00f3digo aleatorio del dispositivo desde el que se vot\u00f3."
+    },
+    "anon": {
+      "type": "boolean",
+      "description": "Verdadero si el voto se hizo sin cuenta."
+    },
+    "day": {
+      "type": "string",
+      "description": "D\u00eda del voto (AAAA-MM-DD, hora de Madrid)."
+    },
+    "net": {
+      "type": "string",
+      "description": "Resumen cifrado de la conexi\u00f3n, distinto cada d\u00eda; solo para los topes de votos sin cuenta. Nunca la IP."
     }
   },
   "required": [
@@ -17,19 +33,14 @@
   ],
   "rls": {
     "create": {
-      "created_by_id": "{{user.id}}"
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "read": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "update": {
       "user_condition": {
