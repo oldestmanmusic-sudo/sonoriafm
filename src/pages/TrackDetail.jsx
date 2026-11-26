@@ -150,7 +150,7 @@ export default function TrackDetail() {
             )}
             <Button onClick={like} variant="outline" className="rounded-full" disabled={liking}>
               {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={`h-4 w-4 text-accent ${liked ? 'fill-accent' : ''}`} />}
-              {likes}
+              {liked ? 'Votado' : 'Votar'} · {likes}
             </Button>
             <Button onClick={share} variant="outline" className="rounded-full">
               <Share2 className="h-4 w-4" /> {copied ? 'Enlace copiado' : 'Compartir'}
