@@ -100,7 +100,7 @@ const AuthenticatedApp = () => {
         <Route path="/programacion" element={<Programming />} />
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
 
-        {/* Votar, enviar canciones y el resto exigen iniciar sesión o registrarse. */}
+        {/* Votar no exige cuenta. Enviar canciones y el resto exigen iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/sugerencias" element={<Sugerencias />} />
