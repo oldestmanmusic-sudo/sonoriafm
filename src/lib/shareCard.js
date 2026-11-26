@@ -31,7 +31,19 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-export async function buildShareCard({ title, artist, coverUrl, url = 'sonoriafm.com' }) {
+// La carátula tiene que poder dibujarse en la imagen: si el servidor de origen no lo permite,
+// se pide la misma ruta desde la propia web.
+async function loadCover(src) {
+  const direct = await loadImage(src);
+  if (direct) return direct;
+  const local = src.replace(/^https:\/\/base44\.app(?=\/api\/)/, '');
+  return local !== src ? loadImage(local) : null;
+}
+
+export const cardFileName = (title) =>
+  `${(title || 'cancion').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w]+/g, '-').toLowerCase()}-sonoria-fm.png`;
+
+export async function buildShareCard({ title, artist, coverUrl, url = 'sonoriafm.com', headline = 'VOTA ESTA CANCIÓN' }) {
   const canvas = document.createElement('canvas');
   canvas.width = W;
   canvas.height = H;
@@ -46,10 +58,10 @@ export async function buildShareCard({ title, artist, coverUrl, url = 'sonoriafm
   ctx.fillRect(0, 0, W, H);
 
   // Carátula
-  const size = 760;
+  const size = 730;
   const x = (W - size) / 2;
   const y = 150;
-  const cover = coverUrl ? await loadImage(coverUrl) : null;
+  const cover = coverUrl ? await loadCover(coverUrl) : null;
   ctx.save();
   roundRect(ctx, x, y, size, size, 48);
   ctx.clip();
@@ -68,25 +80,33 @@ export async function buildShareCard({ title, artist, coverUrl, url = 'sonoriafm
   ctx.restore();
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#B9A4FF';
-  ctx.font = '700 36px system-ui, sans-serif';
-  ctx.fillText('SUENA EN SONORIA FM', W / 2, 100);
+  ctx.fillStyle = '#FFFFFF';
+  fitText(ctx, headline, W - 140, 68);
+  ctx.fillText(headline, W / 2, 105);
 
   // Título y artista
   ctx.fillStyle = '#FFFFFF';
   const t = title || '';
-  fitText(ctx, t, W - 140, 72);
-  ctx.fillText(t, W / 2, y + size + 100);
+  fitText(ctx, t, W - 140, 68);
+  ctx.fillText(t, W / 2, y + size + 90);
 
   ctx.fillStyle = '#D8D8E8';
   const a = artist || '';
-  fitText(ctx, a, W - 140, 48, '600');
-  ctx.fillText(a, W / 2, y + size + 170);
+  fitText(ctx, a, W - 140, 46, '600');
+  ctx.fillText(a, W / 2, y + size + 155);
+
+  // Botón de voto
+  ctx.fillStyle = '#FF4D8D';
+  roundRect(ctx, (W - 720) / 2, 1085, 720, 104, 52);
+  ctx.fill();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '800 44px system-ui, sans-serif';
+  ctx.fillText('♥ VOTA SIN REGISTRARTE', W / 2, 1153);
 
   // Pie
-  ctx.fillStyle = '#FF4D8D';
-  ctx.font = '700 44px system-ui, sans-serif';
-  ctx.fillText(`📻 ${url}`, W / 2, H - 70);
+  ctx.fillStyle = '#B9A4FF';
+  ctx.font = '700 40px system-ui, sans-serif';
+  ctx.fillText(`SONORIA FM · ${url}`, W / 2, H - 70);
 
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
   return blob;
@@ -95,7 +115,7 @@ export async function buildShareCard({ title, artist, coverUrl, url = 'sonoriafm
 export async function shareOrDownloadCard(opts) {
   const blob = await buildShareCard(opts);
   if (!blob) throw new Error('no se pudo crear la imagen');
-  const name = `${(opts.title || 'cancion').replace(/[^\w]+/g, '-').toLowerCase()}-sonoria-fm.png`;
+  const name = cardFileName(opts.title);
   const file = new File([blob], name, { type: 'image/png' });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
