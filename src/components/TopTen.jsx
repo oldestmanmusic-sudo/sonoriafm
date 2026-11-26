@@ -22,6 +22,8 @@ export default function TopTen({ tracks, className = '' }) {
         </h2>
       </div>
 
+      <p className="-mt-2 mb-3 text-xs text-muted-foreground">Abre una canción o usa «Votar» en la que suena. Sin registrarte.</p>
+
       {tracks === null ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
