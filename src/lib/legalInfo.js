@@ -5,5 +5,5 @@ export const LEGAL = {
   email: 'sonoriafm@gmail.com',
   nif: '48320804N',
   address: 'C/ Javier Carratala 6, 6°B',
-  updated: '31/10/2026',
+  updated: '26/11/2026',
 };
