@@ -24,6 +24,10 @@ const RadioContext = createContext(null);
 
 const FALLBACK_DURATION = 240; // 4 min si falta la duración declarada
 
+// Contador anónimo de escucha: código aleatorio que vive solo en memoria (no se guarda
+// en el dispositivo ni identifica a nadie).
+const LISTEN_SID = (Math.random().toString(36).slice(2) + Date.now().toString(36)).slice(0, 32);
+
 // Hash determinista: todo el mundo calcula la misma emisión.
 function hashStr(s) {
   let h = 2166136261;
@@ -590,6 +594,30 @@ export function RadioProvider({ children, playlist = [] }) {
     };
     document.addEventListener('visibilitychange', onVisible);
 
+    // Minutos escuchados de verdad: solo suma mientras el audio avanza y se oye. Va con
+    // los avisos del propio reproductor, así también cuenta con la pantalla bloqueada.
+    let lastTick = 0;
+    let heard = 0; // segundos pendientes de apuntar
+    const onTime = () => {
+      const now = Date.now();
+      const delta = (now - lastTick) / 1000;
+      lastTick = now;
+      if (audio.paused || audio.muted || audio.volume === 0 || delta <= 0 || delta > 5) return;
+      heard += delta;
+      if (heard < 60) return;
+      heard -= 60;
+      const t = onDemandRef.current || currentRef.current || {};
+      base44.functions.invoke('listenPing', {
+        sid: LISTEN_SID,
+        mode: onDemandRef.current ? 'cancion' : 'directo',
+        zone: ZONE,
+        track_id: t.id || '',
+        title: t.title || '',
+        artist: t.artist || '',
+      }).catch(() => { /* el contador nunca debe afectar a la radio */ });
+    };
+    audio.addEventListener('timeupdate', onTime);
+
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('waiting', onWaiting);
@@ -601,6 +629,7 @@ export function RadioProvider({ children, playlist = [] }) {
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
       audio.pause();
+      audio.removeEventListener('timeupdate', onTime);
       audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('waiting', onWaiting);
