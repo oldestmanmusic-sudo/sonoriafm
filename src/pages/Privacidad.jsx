@@ -20,8 +20,8 @@ export default function Privacidad() {
 
       <Section title="2. ¿Qué datos tratamos y para qué?">
         <List>
-          <li><strong>Cuenta:</strong> nombre y correo electrónico (y los datos de acceso), para que puedas iniciar sesión, votar canciones y enviar música.</li>
-          <li><strong>Me gusta:</strong> el identificador de tu cuenta y la canción votada, para que cada persona vote una sola vez por canción y para el TOP 10.</li>
+          <li><strong>Cuenta:</strong> nombre y correo electrónico (y los datos de acceso), para que puedas iniciar sesión, enviar música y conservar tus canciones favoritas.</li>
+          <li><strong>Me gusta:</strong> la canción votada, el día y un código aleatorio que se guarda en tu navegador o en la app (y, si has iniciado sesión, el identificador de tu cuenta), para contar un voto por canción y para el TOP 10. Si votas sin cuenta, guardamos además un resumen cifrado de tu conexión, distinto cada día, para limitar los abusos; no guardamos tu dirección IP. No pedimos ni recogemos tu correo para votar. Los registros de votos se borran cada lunes al cerrar el ranking semanal.</li>
           <li><strong>Envío de canciones (artistas):</strong> nombre artístico, correo, título, audio, portada, foto, biografía, descripción, letra, herramienta de creación y la aceptación de los Términos con su fecha. Sirven para valorar la canción, emitirla y avisarte de la decisión.</li>
           <li><strong>Contacto y sugerencias:</strong> nombre, correo y mensaje, para responderte y mejorar la web.</li>
           <li><strong>Donaciones y servicios de pago:</strong> el pago lo gestiona Wix Payments. Nosotros guardamos la referencia de la compra, el importe, el correo del comprador y, en los servicios de promoción, el nombre artístico y la canción. No vemos ni guardamos los datos de tu tarjeta.</li>
