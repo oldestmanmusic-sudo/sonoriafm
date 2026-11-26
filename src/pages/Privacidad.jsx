@@ -21,7 +21,8 @@ export default function Privacidad() {
       <Section title="2. ¿Qué datos tratamos y para qué?">
         <List>
           <li><strong>Cuenta:</strong> nombre y correo electrónico (y los datos de acceso), para que puedas iniciar sesión, enviar música y conservar tus canciones favoritas.</li>
-          <li><strong>Me gusta:</strong> la canción votada, el día y un código aleatorio que se guarda en tu navegador o en la app (y, si has iniciado sesión, el identificador de tu cuenta), para contar un voto por canción y para el TOP 10. Si votas sin cuenta, guardamos además un resumen cifrado de tu conexión, distinto cada día, para limitar los abusos; no guardamos tu dirección IP. No pedimos ni recogemos tu correo para votar. Los registros de votos se borran cada lunes al cerrar el ranking semanal.</li>
+          <li><strong>Me gusta:</strong> la canción votada, el día y un código aleatorio que se guarda en tu navegador o en la app (y, si has iniciado sesión, el identificador de tu cuenta), para contar un voto por canción y para el TOP 10. Si votas sin cuenta, guardamos además un resumen cifrado de tu conexión, distinto cada día, para limitar los abusos; no guardamos tu dirección IP. Para votar no hace falta dar ningún correo. Los registros de votos se borran cada lunes al cerrar el ranking semanal.</li>
+          <li><strong>Correo de oyentes (opcional):</strong> si después de votar decides dejarlo y marcas la casilla, guardamos tu correo, la fecha, el texto que aceptaste, la canción que acababas de votar y un resumen cifrado de tu conexión (para evitar abusos), para enviarte novedades de SONORIA FM y el TOP semanal. Para darte de baja, responde a cualquiera de esos correos con la palabra BAJA o escribe a {LEGAL.email}.</li>
           <li><strong>Envío de canciones (artistas):</strong> nombre artístico, correo, título, audio, portada, foto, biografía, descripción, letra, herramienta de creación y la aceptación de los Términos con su fecha. Sirven para valorar la canción, emitirla y avisarte de la decisión.</li>
           <li><strong>Contacto y sugerencias:</strong> nombre, correo y mensaje, para responderte y mejorar la web.</li>
           <li><strong>Donaciones y servicios de pago:</strong> el pago lo gestiona Wix Payments. Nosotros guardamos la referencia de la compra, el importe, el correo del comprador y, en los servicios de promoción, el nombre artístico y la canción. No vemos ni guardamos los datos de tu tarjeta.</li>
@@ -33,7 +34,7 @@ export default function Privacidad() {
 
       <Section title="3. ¿En qué nos basamos para tratarlos?">
         <List>
-          <li><strong>Tu consentimiento:</strong> al registrarte, escribirnos o enviarnos una sugerencia.</li>
+          <li><strong>Tu consentimiento:</strong> al registrarte, escribirnos, enviarnos una sugerencia o dejarnos tu correo después de votar.</li>
           <li><strong>Ejecución de un contrato:</strong> cuando envías música para su emisión o compras un servicio.</li>
           <li><strong>Interés legítimo:</strong> mantener la web segura, evitar el spam y proponer colaboraciones a empresas, siempre con opción de baja.</li>
           <li><strong>Obligación legal:</strong> por ejemplo, las obligaciones fiscales y contables de los pagos.</li>
@@ -62,6 +63,7 @@ export default function Privacidad() {
         <List>
           <li><strong>Tu cuenta y tus envíos:</strong> mientras la mantengas. Puedes eliminarla en <Link to="/cuenta" className="text-primary hover:underline">Mi cuenta</Link>; se borran tu perfil y los datos asociados (envíos de canciones y mensajes de contacto).</li>
           <li><strong>Pagos:</strong> el tiempo que exijan las obligaciones fiscales y contables.</li>
+          <li><strong>Correo de oyentes:</strong> hasta que te des de baja o nos pidas que lo borremos. Si te das de baja, lo conservamos marcado como baja para no volver a escribirte.</li>
           <li><strong>Contactos de empresas:</strong> hasta que te des de baja o nos lo pidas.</li>
           <li><strong>Mensajes y sugerencias:</strong> el tiempo necesario para atenderlos.</li>
         </List>

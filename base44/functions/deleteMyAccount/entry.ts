@@ -15,6 +15,10 @@ export default async function(req) {
       await service.entities.ContactMessage.deleteMany({ created_by_id: user.id });
     } catch { /* sin registros propios */ }
 
+    try {
+      if (user.email) await service.entities.Subscriber.deleteMany({ email: user.email.toLowerCase() });
+    } catch { /* sin correo apuntado */ }
+
     await service.entities.User.delete(user.id);
 
     return Response.json({ ok: true });

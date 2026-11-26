@@ -8,6 +8,8 @@ const VOTE_KEY = 'sonoria_voto_id';
 // Aviso entre botones de la misma página (la canción puede estar a la vez en la ficha y en el reproductor).
 const VOTE_EVENT = 'sonoria:voto';
 let memoryId = '';
+// Aviso para ofrecer (opcionalmente) dejar el correo tras un voto sin cuenta.
+export const ASK_EMAIL_EVENT = 'sonoria:pedir-correo';
 
 function deviceId(create = false) {
   try {
@@ -84,9 +86,17 @@ export function useTrackLike(trackId, initialLikes = 0) {
     if (liking || liked || !trackId) return;
     setLiking(true);
     try {
-      const res = await base44.functions.invoke('likeTrack', { trackId, did: deviceId(true) });
+      const did = deviceId(true);
+      const res = await base44.functions.invoke('likeTrack', { trackId, did });
       if (likedCache) likedCache.add(trackId);
       window.dispatchEvent(new CustomEvent(VOTE_EVENT, { detail: { trackId, likes: res.data.likes } }));
+      if (!res.data.already) {
+        base44.auth.isAuthenticated()
+          .then((authed) => {
+            if (!authed) window.dispatchEvent(new CustomEvent(ASK_EMAIL_EVENT, { detail: { trackId, did } }));
+          })
+          .catch(() => {});
+      }
     } catch (error) {
       const limit = (error?.response?.status ?? error?.status) === 429;
       toast({

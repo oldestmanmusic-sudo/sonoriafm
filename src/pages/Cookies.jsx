@@ -20,7 +20,7 @@ export default function Cookies() {
         <p>Hoy SONORIA FM solo usa cookies y almacenamiento <strong>técnicos y necesarios</strong>:</p>
         <List>
           <li><strong>Sesión:</strong> te mantienen conectado cuando inicias sesión (y se borran al cerrar sesión).</li>
-          <li><strong>Voto:</strong> al votar una canción se guarda en tu navegador un código aleatorio para contar un solo voto por canción. No se crea si no votas.</li>
+          <li><strong>Voto:</strong> al votar una canción se guarda en tu navegador un código aleatorio para contar un solo voto por canción, y una marca para no volver a preguntarte si quieres dejar tu correo. No se crean si no votas.</li>
           <li><strong>Seguridad:</strong> una marca de tiempo que evita envíos repetidos en los formularios de contacto y sugerencias.</li>
           <li><strong>Aviso de cookies:</strong> recuerda que ya has leído este aviso para no mostrártelo otra vez.</li>
         </List>

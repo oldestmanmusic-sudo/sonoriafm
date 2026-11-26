@@ -1,0 +1,21 @@
+{
+  "name": "Subscriber",
+  "type": "object",
+  "description": "Correos que los oyentes dejan voluntariamente después de votar, con su consentimiento. Sin verificar.",
+  "properties": {
+    "email": { "type": "string" },
+    "status": { "type": "string", "enum": ["activo", "baja"], "default": "activo" },
+    "consent_text": { "type": "string", "description": "Texto exacto que aceptó." },
+    "consent_at": { "type": "string", "format": "date-time" },
+    "track_id": { "type": "string", "description": "Canción que acababa de votar." },
+    "day": { "type": "string", "description": "Día del alta (AAAA-MM-DD, hora de Madrid)." },
+    "net": { "type": "string", "description": "Resumen cifrado de la conexión, distinto cada día; solo para topes contra abusos." }
+  },
+  "required": ["email"],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

@@ -11,6 +11,7 @@ import { lazy, Suspense } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RedirectToLogin from '@/components/RedirectToLogin';
 import Layout from '@/components/Layout';
+import CorreoTrasVoto from '@/components/CorreoTrasVoto';
 
 // Carga diferida: cada pantalla se descarga solo cuando se visita.
 const Home = lazy(() => import('@/pages/Home'));
@@ -42,6 +43,7 @@ const AdminSubmissions = lazy(() => import('@/pages/admin/AdminSubmissions'));
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminEmision = lazy(() => import('@/pages/admin/AdminEmision'));
 const AdminOyentes = lazy(() => import('@/pages/admin/AdminOyentes'));
+const AdminCorreos = lazy(() => import('@/pages/admin/AdminCorreos'));
 const Cuenta = lazy(() => import('@/pages/Cuenta'));
 const Donar = lazy(() => import('@/pages/Donar'));
 const Baja = lazy(() => import('@/pages/Baja'));
@@ -130,6 +132,7 @@ const AuthenticatedApp = () => {
           <Route path="usuarios" element={<AdminUsers />} />
           <Route path="emision" element={<AdminEmision />} />
           <Route path="oyentes" element={<AdminOyentes />} />
+          <Route path="correos" element={<AdminCorreos />} />
         </Route>
       </Route>
 
@@ -152,6 +155,7 @@ function App() {
             <Suspense fallback={null}>
               <AuthenticatedApp />
             </Suspense>
+            <CorreoTrasVoto />
           </Router>
           <Toaster />
         </QueryClientProvider>

@@ -17,6 +17,7 @@ import {
   ShieldAlert,
   AudioLines,
   Headphones,
+  AtSign,
 } from 'lucide-react';
 
 const NAV = [
@@ -30,6 +31,7 @@ const NAV = [
   { to: '/admin/envios', label: 'Envíos', Icon: Inbox },
   { to: '/admin/mensajes', label: 'Mensajes', Icon: Mail },
   { to: '/admin/sugerencias', label: 'Sugerencias', Icon: Lightbulb },
+  { to: '/admin/correos', label: 'Correos', Icon: AtSign },
   { to: '/admin/usuarios', label: 'Usuarios', Icon: UserCog },
 ];
 
