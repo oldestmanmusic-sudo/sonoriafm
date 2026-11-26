@@ -16,10 +16,12 @@ import {
   ArrowLeft,
   ShieldAlert,
   AudioLines,
+  Headphones,
 } from 'lucide-react';
 
 const NAV = [
   { to: '/admin', label: 'Resumen', Icon: LayoutDashboard, end: true },
+  { to: '/admin/oyentes', label: 'Oyentes', Icon: Headphones },
   { to: '/admin/articulos', label: 'Artículos', Icon: Newspaper },
   { to: '/admin/artistas', label: 'Artistas', Icon: Users },
   { to: '/admin/programacion', label: 'Programación', Icon: CalendarClock },
