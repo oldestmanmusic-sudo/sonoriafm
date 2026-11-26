@@ -67,7 +67,7 @@ export default function NowPlaying({ track, sideLeft = null }) {
             aria-pressed={liked}>
             
               {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={`h-4 w-4 text-accent ${liked ? 'fill-accent' : ''}`} />}
-              {likes}
+              <span>{liked ? 'Votado' : 'Votar'} · {likes}</span>
             </button>}
           </div>
         }
