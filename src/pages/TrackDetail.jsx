@@ -28,6 +28,12 @@ export default function TrackDetail() {
         if (!active) return;
         if (!t) { setNotFound(true); return; }
         setTrack(t);
+        // SEO: título y descripción propios de cada canción
+        document.title = `«${t.title}» de ${t.artist} · SONORIA FM`;
+        document.querySelector('meta[name="description"]')?.setAttribute(
+          'content',
+          `Escucha «${t.title}» de ${t.artist} en SONORIA FM, la radio online 24 horas de música creada con IA. Dale a me gusta y súbela al TOP 10.`
+        );
         try {
           const { items } = await base44.entities.Artist.filter({ name: t.artist }, { limit: 1 });
           if (active && items.length) setArtist(items[0]);
