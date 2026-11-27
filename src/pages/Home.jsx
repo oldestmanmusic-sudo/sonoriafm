@@ -55,6 +55,8 @@ export default function Home() {
     <PullToRefresh onRefresh={refresh}>
       <NowPlaying nowPlaying={nowPlaying} />
 
+      <LoveTypeBanner />
+
       <section className="mx-auto max-w-md px-4 pb-8 lg:hidden">
         <TopTen tracks={topTen} />
       </section>
@@ -65,8 +67,6 @@ export default function Home() {
       </section>
 
       <TrackHistory genre={genre} key={refreshKey} />
-
-      <LoveTypeBanner />
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-end justify-between mb-6">
