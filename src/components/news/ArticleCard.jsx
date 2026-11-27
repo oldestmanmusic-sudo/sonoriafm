@@ -5,7 +5,10 @@ import { CalendarDays } from 'lucide-react';
 export function formatDate(value) {
   if (!value) return '';
   try {
-    return new Date(value).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    // Una fecha sin hora (AAAA-MM-DD) se muestra tal cual en cualquier país.
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) options.timeZone = 'UTC';
+    return new Date(value).toLocaleDateString('es-ES', options);
   } catch {
     return '';
   }
