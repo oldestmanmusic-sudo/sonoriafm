@@ -1,6 +1,6 @@
 // Datos de la app de Android: enlace de descarga y textos para compartirla.
 // El enlace "latest" apunta siempre a la última versión publicada.
-export const APK_URL = 'https://github.com/oldestmanmusic-sudo/sonoriafm-android/releases/latest/download/SONORIA-FM.apk';
+export const APK_URL = 'https://github.com/oldestmanmusic-sudo/Sonoriafm-android/releases/latest/download/SONORIA-FM.apk';
 export const APP_PAGE_URL = 'https://sonoriafm.com/app';
 export const APP_SHARE_TEXT = 'Escucha SONORIA FM, la radio 24 horas de música creada con IA. La app es gratis:';
 export const SUPPORT_AMOUNT = 0.99;
