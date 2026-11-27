@@ -17,6 +17,15 @@ const EMAIL_RE = /^[^\s@;,]+@[^\s@;,]+\.[A-Za-z]{2,}$/;
 const SKIP_EMAIL = /(@|\.)(gva\.es|tip-sa\.com|grupomrw\.com|ontimelogistica\.com)|^(contabilidad|facturacion|proveedores|reclamacion|envios|pedidos|\d+@)/i;
 const SKIP_NAME = /mensajer|transporte|paqueter|logistic|express|zynest/i;
 
+// Botón de la app: va en todos los correos de la radio.
+const APP_URL = 'https://sonoriafm.com/app';
+const appButton = () =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto 8px">` +
+  `<tr><td bgcolor="#8b33ff" style="background:#8b33ff;border-radius:999px;text-align:center">` +
+  `<a href="${APP_URL}" style="display:inline-block;padding:14px 30px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Descargar la app</a>` +
+  `</td></tr></table>` +
+  `<p style="margin:0 0 22px;text-align:center;font-size:13px;color:#6b7280">La app de SONORIA FM es gratis.</p>`;
+
 function buildHtml() {
   const li = (t, d) => `<li style="margin:0 0 10px"><strong>${t}</strong> ${d}</li>`;
   return (
@@ -37,6 +46,7 @@ function buildHtml() {
     `</ul>` +
     `<p>Si te interesa alguna, responde a este correo con lo que te gustaría hacer y te preparo una propuesta a medida, sin compromiso.</p>` +
     `<p>Un saludo,<br><strong>Víctor</strong><br>SONORIA FM · <a href="mailto:${REPLY_TO}" style="color:#8b33ff">${REPLY_TO}</a></p>` +
+    appButton() +
     `<p style="font-size:12px;color:#6b7280;margin-top:28px;border-top:1px solid #e5e7eb;padding-top:12px">` +
     `Si no quieres recibir más mensajes nuestros, responde a este correo con la palabra BAJA y no volveremos a escribirte.</p>` +
     `</div>`

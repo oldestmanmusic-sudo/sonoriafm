@@ -40,6 +40,15 @@ const ms = (s) => {
 };
 const DAY = 86400000;
 
+// Botón de la app: va en todos los correos de la radio.
+const APP_URL = 'https://sonoriafm.com/app';
+const appButton = () =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto 8px">` +
+  `<tr><td bgcolor="#8b33ff" style="background:#8b33ff;border-radius:999px;text-align:center">` +
+  `<a href="${APP_URL}" style="display:inline-block;padding:14px 30px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Descargar la app</a>` +
+  `</td></tr></table>` +
+  `<p style="margin:0 0 22px;text-align:center;font-size:13px;color:#6b7280">La app de SONORIA FM es gratis.</p>`;
+
 // Informe semanal de crecimiento: solo se envía el lunes por la mañana (hora de Madrid),
 // salvo que lo pida el administrador con { force: true }.
 export default async function(req) {
@@ -112,6 +121,7 @@ export default async function(req) {
       `<p><strong>Último envío de un artista:</strong> ${lastExternal ? `hace ${daysSince} día(s) (${esc(lastExternal.artist_name || '')})` : 'ninguno'}</p>` +
       `<p><strong>Embudo de marketing (${prospects.length} oportunidades):</strong><br>${stageHtml}</p>` +
       `<p style="color:#666;font-size:13px">Si pasan más de 7 días sin envíos nuevos, conviene revisar la captación y que la web esté publicada.</p>` +
+      appButton() +
       `</div>`;
 
     await sendGmail(base44, { to: ADMIN_EMAIL, subject: 'Informe semanal de SONORIA FM', html });

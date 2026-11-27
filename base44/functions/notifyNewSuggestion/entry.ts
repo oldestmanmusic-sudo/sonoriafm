@@ -32,6 +32,15 @@ async function sendGmail(base44, { to, subject, html }) {
   if (!r.ok) throw new Error(`Gmail ${r.status}: ${(await r.text()).slice(0, 300)}`);
 }
 
+// Botón de la app: va en todos los correos de la radio.
+const APP_URL = 'https://sonoriafm.com/app';
+const appButton = () =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto 8px">` +
+  `<tr><td bgcolor="#8b33ff" style="background:#8b33ff;border-radius:999px;text-align:center">` +
+  `<a href="${APP_URL}" style="display:inline-block;padding:14px 30px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Descargar la app</a>` +
+  `</td></tr></table>` +
+  `<p style="margin:0 0 22px;text-align:center;font-size:13px;color:#6b7280">La app de SONORIA FM es gratis.</p>`;
+
 // Avisa al administrador por email cuando llega una sugerencia nueva.
 // Lo llama el flujo automático (como administrador).
 export default async function(req) {
@@ -60,7 +69,9 @@ export default async function(req) {
         `<h2 style="color:#8b33ff">Nueva sugerencia</h2>` +
         `<p><strong>Tipo:</strong> ${esc(suggestion.category || 'Mejora')}</p>` +
         `<p style="white-space:pre-wrap">${esc(suggestion.message)}</p>` +
-        `<p><a href="https://sonoriafm.com/sugerencias" style="color:#8b33ff">Revisar en el panel</a></p></div>`,
+        `<p><a href="https://sonoriafm.com/sugerencias" style="color:#8b33ff">Revisar en el panel</a></p>` +
+        appButton() +
+        `</div>`,
     });
 
     return Response.json({ sent: true });

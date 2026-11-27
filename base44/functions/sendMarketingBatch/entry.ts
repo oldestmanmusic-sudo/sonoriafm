@@ -49,6 +49,15 @@ async function sendGmail(svc, { to, subject, html, unsubscribeUrl }) {
 
 const li = (title, text) => `<li style="margin:0 0 10px"><strong>${title}</strong> ${text}</li>`;
 
+// Botón de la app: va en todos los correos de la radio.
+const APP_URL = 'https://sonoriafm.com/app';
+const appButton = () =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto 8px">` +
+  `<tr><td bgcolor="#8b33ff" style="background:#8b33ff;border-radius:999px;text-align:center">` +
+  `<a href="${APP_URL}" style="display:inline-block;padding:14px 30px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Descargar la app</a>` +
+  `</td></tr></table>` +
+  `<p style="margin:0 0 22px;text-align:center;font-size:13px;color:#6b7280">La app de SONORIA FM es gratis.</p>`;
+
 function buildEmail(contact) {
   const name = String(contact.contact_name || '').trim();
   const first = name && name === name.toUpperCase() ? name.charAt(0) + name.slice(1).toLowerCase() : name;
@@ -71,6 +80,7 @@ function buildEmail(contact) {
     `<p>Las condiciones de cuñas y patrocinios se ajustan a cada caso. Si le interesa algo, responda a este correo y le preparo una propuesta sin compromiso.</p>` +
     `<p>Un saludo,<br><strong>Víctor Amorós</strong><br>SONORIA FM · <a href="${SITE}" style="color:#8b33ff">sonoriafm.com</a><br>` +
     `<a href="mailto:${FROM_EMAIL}" style="color:#8b33ff">${FROM_EMAIL}</a></p>` +
+    appButton() +
     `<hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0 12px">` +
     `<p style="font-size:12px;color:#6b7280">Responsable: Víctor Amorós (SONORIA FM), ${FROM_EMAIL}. Si no desea recibir más mensajes nuestros, puede <a href="${unsub}" style="color:#6b7280">darse de baja aquí</a> o responder a este correo con la palabra BAJA.</p></div>`;
   return { subject: 'Colaboremos: cuñas, patrocinios y más en SONORIA FM', html, unsubscribeUrl: unsub };

@@ -1,5 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
+// Botón de la app: va en todos los correos de la radio.
+const APP_URL = 'https://sonoriafm.com/app';
+const appButton = () =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto 8px">` +
+  `<tr><td bgcolor="#8b33ff" style="background:#8b33ff;border-radius:999px;text-align:center">` +
+  `<a href="${APP_URL}" style="display:inline-block;padding:14px 30px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Descargar la app</a>` +
+  `</td></tr></table>` +
+  `<p style="margin:0 0 22px;text-align:center;font-size:13px;color:#6b7280">La app de SONORIA FM es gratis.</p>`;
+
 // Diagnóstico temporal: prueba de envío en runtime real.
 export default async function(req) {
   try {
@@ -17,7 +26,7 @@ export default async function(req) {
           to: 'oldestmanmusic@gmail.com',
           from_name: 'SONORIA',
           subject: 'Prueba de envío',
-          html: '<p>Correo de prueba del sistema de sugerencias.</p>',
+          html: '<p>Correo de prueba del sistema de sugerencias.</p>' + appButton(),
         });
       } else {
         await base44.asServiceRole.integrations.Core.SendEmail({

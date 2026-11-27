@@ -31,7 +31,75 @@ async function sendGmail(svc, { to, subject, html }) {
   if (!r.ok) throw new Error(`Gmail ${r.status}: ${(await r.text()).slice(0, 300)}`);
 }
 
-function buildHtml(name) {
+// Botón de la app: va en todos los correos de la radio.
+const APP_URL = 'https://sonoriafm.com/app';
+const appButton = () =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto 8px">` +
+  `<tr><td bgcolor="#8b33ff" style="background:#8b33ff;border-radius:999px;text-align:center">` +
+  `<a href="${APP_URL}" style="display:inline-block;padding:14px 30px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Descargar la app</a>` +
+  `</td></tr></table>` +
+  `<p style="margin:0 0 22px;text-align:center;font-size:13px;color:#6b7280">La app de SONORIA FM es gratis.</p>`;
+
+// Tarjetas de canción: solo en correos a artistas y solo con SUS canciones.
+const CARD_URL = 'https://sonoriafm.com/tarjeta/';
+// Artistas publicados sin envío desde la web, identificados por su correo de contacto.
+const EXTRA_ARTISTS = { 'dreamchip@hotmail.com': 'carbono vr', 'juanmalv97@gmail.com': 'los lohim', 'marketglow7@gmail.com': 'inert.ia' };
+const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+const asList = (r) => (Array.isArray(r) ? r : (r?.items ?? []));
+const sameSong = (s, t) => norm(s.artist_name) === norm(t.artist) && norm(s.song_title) === norm(t.title);
+const songsFor = (email, subs, tracks) => {
+  const mail = norm(email);
+  if (!mail) return [];
+  if (Object.hasOwn(EXTRA_ARTISTS, mail)) return tracks.filter((t) => norm(t.artist) === EXTRA_ARTISTS[mail]);
+  const mine = subs.filter((s) => s.status === 'approved' && norm(s.email) === mail);
+  return tracks.filter((t) => mine.some((s) => sameSong(s, t) ||
+    (!!s.cover_url && s.cover_url === t.cover_url && norm(s.artist_name) === norm(t.artist))));
+};
+// Si falla la lectura, el correo sale igualmente, sin tarjetas.
+async function loadCatalog(db) {
+  try {
+    const [subs, tracks] = await Promise.all([
+      db.entities.Submission.filter({ status: 'approved' }, '-created_date', 1000),
+      db.entities.Track.list('-created_date', 1000),
+    ]);
+    return { subs: asList(subs), tracks: asList(tracks) };
+  } catch (e) {
+    console.error('loadCatalog:', e?.message);
+    return { subs: [], tracks: [] };
+  }
+}
+const cover = (t, size) => /^https:\/\//.test(t.cover_url || '')
+  ? `<img src="${esc(t.cover_url)}" width="${size}" alt="Carátula de ${esc(t.title)}" style="display:block;width:100%;max-width:${size}px;height:auto;margin:auto;border:0;border-radius:14px">`
+  : '';
+const shareLink = (t) => t.id
+  ? `<a href="${CARD_URL}${encodeURIComponent(t.id)}" style="display:inline-block;margin-top:10px;padding:10px 20px;background:#ff4d8d;border-radius:999px;color:#ffffff;font-size:14px;font-weight:bold;text-decoration:none">Compartir mi tarjeta</a>`
+  : '';
+const songCard = (t) =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" width="100%" bgcolor="#1a1040" ` +
+  `style="max-width:360px;margin:22px auto;background:#1a1040;border-radius:24px;text-align:center">` +
+  `<tr><td style="padding:18px 20px 14px;color:#b9a4ff;font-size:13px;font-weight:bold;letter-spacing:1px">VOTA MI CANCIÓN</td></tr>` +
+  `<tr><td style="padding:0 20px">${cover(t, 320)}</td></tr>` +
+  `<tr><td style="padding:16px 20px 0;color:#ffffff;font-size:22px;font-weight:bold;line-height:1.3">${esc(t.title)}</td></tr>` +
+  `<tr><td style="padding:4px 20px 0;color:#d8d8e8;font-size:16px">${esc(t.artist)}</td></tr>` +
+  `<tr><td style="padding:4px 20px 0">${shareLink(t)}</td></tr>` +
+  `<tr><td style="padding:16px 20px 20px;color:#b9a4ff;font-size:13px;font-weight:bold">SONORIA FM · sonoriafm.com</td></tr></table>`;
+const songRow = (t) =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" width="100%" bgcolor="#1a1040" ` +
+  `style="max-width:480px;margin:10px auto;background:#1a1040;border-radius:18px"><tr>` +
+  `<td width="96" valign="middle" style="width:96px;padding:12px 0 12px 12px">${cover(t, 96)}</td>` +
+  `<td valign="middle" style="padding:12px 14px;text-align:left">` +
+  `<div style="color:#ffffff;font-size:17px;font-weight:bold;line-height:1.3">${esc(t.title)}</div>` +
+  `<div style="color:#d8d8e8;font-size:14px">${esc(t.artist)}</div>${shareLink(t)}</td></tr></table>`;
+const songCards = (songs) => {
+  const list = songs.slice(0, 30);
+  if (!list.length) return '';
+  const one = list.length === 1;
+  return `<p style="margin:26px 0 0;text-align:center;font-size:17px;font-weight:bold;color:#8b33ff">${one ? 'Tu tarjeta de canción' : 'Tus tarjetas de canciones'}</p>` +
+    `<p style="margin:4px 0 0;text-align:center;font-size:14px;color:#6b7280">${one ? 'Compártela y pide votos.' : 'Compártelas y pide votos.'}</p>` +
+    (one ? songCard(list[0]) : list.map(songRow).join(''));
+};
+
+function buildHtml(name, cards = '') {
   const hello = name ? `¡Hola, ${esc(name)}!` : '¡Hola!';
   return (
     `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#14141f;line-height:1.6">` +
@@ -41,6 +109,8 @@ function buildHtml(name) {
     `<p>Y, sobre todo, necesitamos vuestra ayuda con los <strong>votos del TOP 10</strong>. Las canciones con más &ldquo;me gusta&rdquo; forman el Top 10 de la semana, y esas suenan el doble en la franja Top Sonoria. Pide a quien te escuche que vote con un &ldquo;me gusta&rdquo; las canciones que más le gusten, también la tuya. Cada lunes a las 00:00 (hora de Madrid) empieza una semana nueva, así que todos partís de cero.</p>` +
     `<p style="margin-top:24px"><a href="https://sonoriafm.com" style="background:#8b33ff;color:#fff;padding:12px 26px;border-radius:24px;text-decoration:none;font-weight:bold">Escuchar y compartir SONORIA FM</a></p>` +
     `<p>Enlace para compartir: <a href="https://sonoriafm.com" style="color:#8b33ff">sonoriafm.com</a></p>` +
+    cards +
+    appButton() +
     `<p>Gracias por tu apoyo. Sin vosotros, esto no sería posible.</p>` +
     `<p>Un abrazo,<br><strong>SONORIA FM</strong><br>La radio de la música hecha con IA</p>` +
     `<p style="font-size:12px;color:#6b7280">Recibes este correo porque tienes cuenta de artista en SONORIA FM. Si prefieres no recibir más avisos como este, responde con la palabra BAJA.</p></div>`
@@ -59,8 +129,11 @@ export default async function (req) {
     const svc = base44.asServiceRole;
     const subject = 'Ayúdanos a hacer crecer SONORIA FM (y a votar el TOP 10)';
 
+    const catalog = await loadCatalog(svc);
+    const cardsFor = (email) => songCards(songsFor(email, catalog.subs, catalog.tracks));
+
     if (body.test_to) {
-      await sendGmail(svc, { to: String(body.test_to), subject, html: buildHtml('Artista') });
+      await sendGmail(svc, { to: String(body.test_to), subject, html: buildHtml('Artista', cardsFor(body.test_to)) });
       return Response.json({ test_sent: true });
     }
 
@@ -86,7 +159,7 @@ export default async function (req) {
     for (const r of recipients) {
       if (Date.now() - started > 45000) { failed.push(`${r.email}: sin tiempo`); continue; }
       try {
-        await sendGmail(svc, { to: r.email, subject, html: buildHtml(r.name) });
+        await sendGmail(svc, { to: r.email, subject, html: buildHtml(r.name, cardsFor(r.email)) });
         sent += 1;
       } catch (e) {
         failed.push(`${r.email}: ${String(e.message).slice(0, 120)}`);
