@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Image } from '@/components/ui/image';
 import { formatDate } from '@/components/news/ArticleCard';
+import ArticleBody from '@/components/news/ArticleBody';
 import { ArrowLeft, CalendarDays, Loader2, User } from 'lucide-react';
 
 export default function ArticleDetail() {
@@ -52,8 +53,6 @@ export default function ArticleDetail() {
     );
   }
 
-  const paragraphs = (article.content || '').split(/\n\s*\n/).filter(Boolean);
-
   return (
     <article className="mx-auto max-w-3xl px-4 py-12">
       <Link to="/noticias" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
@@ -88,11 +87,7 @@ export default function ArticleDetail() {
         </div>
       )}
 
-      <div className="mt-8 space-y-5 leading-relaxed text-foreground/90">
-        {paragraphs.map((p, i) => (
-          <p key={i}>{p}</p>
-        ))}
-      </div>
+      <ArticleBody content={article.content || ''} />
     </article>
   );
 }
