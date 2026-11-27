@@ -74,6 +74,7 @@ function weekLabel(sunday) {
 const positionName = (p) => ({ 1: '1.er puesto', 2: '2.º puesto', 3: '3.er puesto' }[p] || '');
 const joinList = (a) => (a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} y ${a[a.length - 1]}`);
 const songName = (w) => `«${w.title}», de ${w.artist}`;
+const votesText = (n) => `${n} ${n === 1 ? 'voto' : 'votos'}`;
 
 // Datos de contacto y presentación a partir de los envíos aprobados.
 function contactFor(track, subs) {
@@ -114,16 +115,17 @@ const quote = (t) =>
 // Noticia dedicada al número 1 (o a quienes lo comparten).
 function buildArticle(firsts, others, week, today) {
   const many = firsts.length > 1;
-  const names = joinList(firsts.map(songName));
+  // Con la coma que cierra cada «título», de artista, lista para seguir la frase.
+  const names = joinList(firsts.map((w) => `${songName(w)},`));
   const votes = firsts[0].likes;
   const title = many
     ? `Empate en lo más alto: ${names} comparten el número 1 de la semana`
-    : `${names}, número 1 del TOP de la semana`;
+    : `${songName(firsts[0])}, número 1 del TOP de la semana`;
   const excerpt = many
     ? `Con ${votes} votos cada una, ${names} comparten el primer puesto del TOP semanal de SONORIA FM.`
-    : `Con ${votes} votos de los oyentes, ${names}, ha ganado el TOP semanal de SONORIA FM.`;
+    : `Con ${votes} votos de los oyentes, ${names} ha ganado el TOP semanal de SONORIA FM.`;
   let content =
-    `<p><strong>¡Enhorabuena!</strong> En la semana ${week}, ${esc(names)}${many ? ', han sido las canciones más votadas' : ', ha sido la canción más votada'} de SONORIA FM, ` +
+    `<p><strong>¡Enhorabuena!</strong> En la semana ${week}, ${esc(names)} ${many ? 'han sido las canciones más votadas' : 'ha sido la canción más votada'} de SONORIA FM, ` +
     `con <strong>${votes} votos de los oyentes</strong>${many ? ' cada una' : ''}.</p>` +
     `<p>Cada voto es de alguien que ha escuchado y ha querido apoyar. Llegar a lo más alto del TOP es mérito de la música y del cariño de quienes la escuchan.</p>`;
   for (const w of firsts) {
@@ -136,7 +138,7 @@ function buildArticle(firsts, others, week, today) {
   }
   if (others.length) {
     content += `<h2>También en el podio</h2><ul>${others
-      .map((w) => `<li><strong>${positionName(w.position)}:</strong> ${esc(songName(w))} (${w.likes} votos)</li>`)
+      .map((w) => `<li><strong>${positionName(w.position)}:</strong> ${esc(songName(w))} (${votesText(w.likes)})</li>`)
       .join('')}</ul>`;
   }
   content +=
@@ -195,7 +197,7 @@ const diplomaBlock = (w, week) =>
   `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" width="100%" bgcolor="#1a1040" ` +
   `style="max-width:360px;margin:22px auto;background:#1a1040;border:4px solid ${ACCENTS[w.position]};border-radius:24px;text-align:center">` +
   `<tr><td style="padding:18px 20px 0;color:#ffffff;font-size:28px;font-weight:bold;letter-spacing:3px">DIPLOMA</td></tr>` +
-  `<tr><td style="padding:2px 20px 14px;color:${ACCENTS[w.position]};font-size:18px;font-weight:bold">${positionName(w.position).toUpperCase()}${w.tie ? ' (EMPATE)' : ''}</td></tr>` +
+  `<tr><td style="padding:2px 20px 14px;color:${ACCENTS[w.position]};font-size:18px;font-weight:bold">${positionName(w.position).replace('puesto', 'PUESTO')}${w.tie ? ' (EMPATE)' : ''}</td></tr>` +
   `<tr><td style="padding:0 20px">${cover(w.track, 280)}</td></tr>` +
   `<tr><td style="padding:16px 20px 0;color:#ffffff;font-size:22px;font-weight:bold;line-height:1.3">${esc(w.title)}</td></tr>` +
   `<tr><td style="padding:4px 20px 0;color:#d8d8e8;font-size:16px">${esc(w.artist)}</td></tr>` +
@@ -291,11 +293,11 @@ async function giveAwards(svc, entries, tracks, weekDate) {
   try {
     const social =
       `🏆 TOP de la semana en SONORIA FM (${week})\n` +
-      winners.map((w) => `${positionName(w.position)}: «${w.title}», de ${w.artist} (${w.likes} votos)`).join('\n') +
+      winners.map((w) => `${positionName(w.position)}: «${w.title}», de ${w.artist} (${votesText(w.likes)})`).join('\n') +
       `\n¡Enhorabuena! Escucha y vota en sonoriafm.com`;
     const list = rows.length
       ? `<ul>${rows
-          .map((w) => `<li><strong>${positionName(w.position)}:</strong> ${esc(songName(w))} (${w.likes} votos): ${esc(w.skip || w.status)}` +
+          .map((w) => `<li><strong>${positionName(w.position)}:</strong> ${esc(songName(w))} (${votesText(w.likes)}): ${esc(w.skip || w.status)}` +
             (!w.skip && w.id ? ` · <a href="${SITE}/diploma/${encodeURIComponent(w.id)}">diploma</a>` : '') + `</li>`)
           .join('')}</ul>`
       : '<p>Esta semana ninguna canción ha tenido votos.</p>';
