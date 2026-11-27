@@ -1,28 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Cookie } from 'lucide-react';
+import { SETTINGS_EVENT, getConsent, setConsent } from '@/lib/consent';
 
-const KEY = 'sonoria_cookie_notice';
+// Mismo peso visual en los dos botones: rechazar es tan fácil como aceptar.
+const BUTTON =
+  'flex-1 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 sm:flex-none sm:min-w-32';
 
-// Aviso informativo: la web solo usa cookies técnicas. Si algún día se añade analítica o
-// publicidad, aquí habrá que pedir consentimiento (Aceptar / Rechazar) antes de cargarlas.
 export default function CookieNotice() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      if (!localStorage.getItem(KEY)) setVisible(true);
-    } catch {
-      setVisible(true);
-    }
+    if (!getConsent()) setVisible(true);
+    const open = () => setVisible(true);
+    window.addEventListener(SETTINGS_EVENT, open);
+    return () => window.removeEventListener(SETTINGS_EVENT, open);
   }, []);
 
-  const close = () => {
-    try {
-      localStorage.setItem(KEY, '1');
-    } catch {
-      /* sin almacenamiento: se mostrará de nuevo */
-    }
+  const choose = (value) => {
+    setConsent(value);
     setVisible(false);
   };
 
@@ -37,19 +33,18 @@ export default function CookieNotice() {
       <div className="flex items-start gap-3">
         <Cookie className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
         <p className="text-sm text-muted-foreground">
-          Usamos solo cookies técnicas necesarias para que la web funcione (sesión y seguridad). No usamos analítica ni
-          publicidad. Más información en la{' '}
+          Usamos cookies técnicas necesarias para que la web funcione. Si las aceptas, usamos también cookies de
+          estadísticas para saber cuántas visitas tenemos y de dónde llegan. No hay publicidad. Más información en la{' '}
           <Link to="/cookies" className="text-primary hover:underline">Política de Cookies</Link> y la{' '}
           <Link to="/privacidad" className="text-primary hover:underline">Política de Privacidad</Link>.
         </p>
       </div>
-      <div className="mt-3 flex justify-end">
-        <button
-          type="button"
-          onClick={close}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Entendido
+      <div className="mt-3 flex gap-2 sm:justify-end">
+        <button type="button" onClick={() => choose('denied')} className={BUTTON}>
+          Rechazar
+        </button>
+        <button type="button" onClick={() => choose('granted')} className={BUTTON}>
+          Aceptar
         </button>
       </div>
     </div>
