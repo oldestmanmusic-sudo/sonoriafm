@@ -6,4 +6,6 @@ export const LEGAL = {
   nif: '48320804N',
   address: 'C/ Javier Carratala 6, 6°B',
   updated: '26/11/2026',
+  // Fecha de las políticas de privacidad y cookies.
+  privacyUpdated: '27/11/2026',
 };
