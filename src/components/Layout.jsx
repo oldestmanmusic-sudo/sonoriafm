@@ -8,6 +8,7 @@ import SocialLinks from '@/components/SocialLinks';
 import RadioPlayer from '@/components/RadioPlayer';
 import BottomTabs from '@/components/BottomTabs';
 import CookieNotice from '@/components/CookieNotice';
+import { openCookieSettings } from '@/lib/consent';
 import ClaimPendingSubmission from '@/components/ClaimPendingSubmission';
 import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';
@@ -126,6 +127,7 @@ export default function Layout() {
                 <li><Link to="/terminos" className="hover:text-foreground">Términos para Artistas</Link></li>
                 <li><Link to="/privacidad" className="hover:text-foreground">Política de Privacidad</Link></li>
                 <li><Link to="/cookies" className="hover:text-foreground">Política de Cookies</Link></li>
+                <li><button type="button" onClick={openCookieSettings} className="hover:text-foreground">Configurar cookies</button></li>
               </ul>
             </div>
             <div>
