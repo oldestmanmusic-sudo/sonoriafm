@@ -31,6 +31,46 @@ async function sendGmail(base44, { to, subject, html }) {
   if (!r.ok) throw new Error(`Gmail ${r.status}: ${(await r.text()).slice(0, 300)}`);
 }
 
+const APP_URL = 'https://sonoriafm.com/app';
+
+// Tarjeta de la canción recién enviada, hecha con tablas para que se vea en cualquier correo.
+// La canción aún está en revisión, así que no invita a votar ni enlaza a su página.
+const songCard = ({ title, artist, coverUrl }) =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" width="100%" bgcolor="#1a1040" ` +
+  `style="max-width:360px;margin:22px auto;background:#1a1040;border-radius:24px;text-align:center">` +
+  `<tr><td style="padding:18px 20px 14px;color:#b9a4ff;font-size:13px;font-weight:bold;letter-spacing:1px">NUEVA CANCIÓN · EN REVISIÓN</td></tr>` +
+  (coverUrl
+    ? `<tr><td style="padding:0 20px"><img src="${esc(coverUrl)}" width="320" alt="Carátula de ${esc(title)}" ` +
+      `style="display:block;width:100%;max-width:320px;height:auto;margin:auto;border:0;border-radius:16px"></td></tr>`
+    : '') +
+  `<tr><td style="padding:16px 20px 0;color:#ffffff;font-size:22px;font-weight:bold;line-height:1.3">${esc(title)}</td></tr>` +
+  `<tr><td style="padding:4px 20px 0;color:#d8d8e8;font-size:16px">${esc(artist)}</td></tr>` +
+  `<tr><td style="padding:16px 20px 20px;color:#b9a4ff;font-size:13px;font-weight:bold">SONORIA FM · sonoriafm.com</td></tr>` +
+  `</table>`;
+
+const appButton = () =>
+  `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 8px">` +
+  `<tr><td bgcolor="#8b33ff" style="background:#8b33ff;border-radius:999px;text-align:center">` +
+  `<a href="${APP_URL}" style="display:inline-block;padding:14px 30px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Descargar la app</a>` +
+  `</td></tr></table>` +
+  `<p style="margin:0 0 22px;text-align:center;font-size:13px;color:#6b7280">La app de SONORIA FM es gratis.</p>`;
+
+// Carátula del envío que ha disparado este correo. Si no se encuentra, la tarjeta va sin imagen.
+async function findCover(base44, email, songTitle) {
+  try {
+    const found = await base44.asServiceRole.entities.Submission.filter(
+      { email, song_title: songTitle },
+      '-created_date',
+      1,
+    );
+    const url = String(found?.[0]?.cover_url || '');
+    return url.startsWith('https://') ? url : '';
+  } catch (error) {
+    console.error('welcomeArtist sin carátula:', error?.message);
+    return '';
+  }
+}
+
 // Email de bienvenida al artista que acaba de enviar una canción.
 // Lo llama el flujo automático como administrador.
 export default async function(req) {
@@ -46,6 +86,9 @@ export default async function(req) {
       return Response.json({ sent: false, reason: 'El envío no tiene un email válido' });
     }
 
+    const songTitle = typeof b.song_title === 'string' ? b.song_title : '';
+    const coverUrl = songTitle ? await findCover(base44, email, songTitle) : '';
+
     await sendGmail(base44, {
       to: email,
       subject: 'Hemos recibido tu canción en SONORIA FM',
@@ -54,6 +97,8 @@ export default async function(req) {
         `<h2 style="color:#8b33ff">¡Gracias por tu canción, ${esc(b.artist_name || 'artista')}!</h2>` +
         `<p>Ya tenemos <strong>${esc(b.song_title || 'tu canción')}</strong> y en breve la escuchamos con calma. ` +
         `Antes de publicarla la revisamos con cariño; en cuanto tengamos novedades te escribimos por aquí.</p>` +
+        songCard({ title: songTitle || 'Tu canción', artist: b.artist_name || '', coverUrl }) +
+        appButton() +
         `<div style="background:#f0f0f4;border-radius:16px;padding:16px 20px">` +
         `<p style="margin:0 0 8px"><strong>Consigue más visibilidad</strong> (extras de pago opcionales):</p>` +
         `<ul style="margin:0;padding-left:18px">` +
