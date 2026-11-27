@@ -6,7 +6,7 @@ export default function Privacidad() {
   return (
     <LegalPage
       title="Política de Privacidad de SONORIA FM"
-      updated={LEGAL.updated}
+      updated={LEGAL.privacyUpdated}
       intro="En SONORIA FM tratamos solo los datos necesarios para que puedas escuchar la radio, tener tu cuenta, enviarnos música y contactar con nosotros. Aquí te explicamos qué datos usamos, para qué y qué derechos tienes."
     >
       <Section title="1. ¿Quién es el responsable de tus datos?">
@@ -28,13 +28,14 @@ export default function Privacidad() {
           <li><strong>Donaciones y servicios de pago:</strong> el pago lo gestiona Wix Payments. Nosotros guardamos la referencia de la compra, el importe, el correo del comprador y, en los servicios de promoción, el nombre artístico y la canción. No vemos ni guardamos los datos de tu tarjeta.</li>
           <li><strong>Correos a empresas y colaboradores:</strong> enviamos propuestas de colaboración (cuñas, patrocinios, donaciones) a datos de contacto profesionales de empresas obtenidos de fuentes de acceso público. Cada correo incluye un enlace para darse de baja.</li>
           <li><strong>Datos técnicos:</strong> información básica del navegador y de la conexión necesaria para que la web funcione y esté protegida frente a abusos. No usamos publicidad (ver la <Link to="/cookies" className="text-primary hover:underline">Política de Cookies</Link>).</li>
+          <li><strong>Estadísticas de visitas (solo si las aceptas):</strong> páginas vistas, fecha y duración, web o campaña de procedencia y un identificador aleatorio guardado en tu navegador; si has iniciado sesión, también el identificador de tu cuenta. Las recoge Base44 por nuestra cuenta y puedes rechazarlas o retirar tu permiso cuando quieras (ver la <Link to="/cookies" className="text-primary hover:underline">Política de Cookies</Link>).</li>
           <li><strong>Escucha de la radio:</strong> contamos de forma anónima cuántos minutos suena la radio en la web, qué canción y en qué zona horaria, con un código aleatorio que se pierde al cerrar la página. No se guarda nada en tu dispositivo ni se asocia a tu cuenta o a tu IP.</li>
         </List>
       </Section>
 
       <Section title="3. ¿En qué nos basamos para tratarlos?">
         <List>
-          <li><strong>Tu consentimiento:</strong> al registrarte, escribirnos, enviarnos una sugerencia o dejarnos tu correo después de votar.</li>
+          <li><strong>Tu consentimiento:</strong> al registrarte, escribirnos, enviarnos una sugerencia, dejarnos tu correo después de votar o aceptar las cookies de estadísticas.</li>
           <li><strong>Ejecución de un contrato:</strong> cuando envías música para su emisión o compras un servicio.</li>
           <li><strong>Interés legítimo:</strong> mantener la web segura, evitar el spam y proponer colaboraciones a empresas, siempre con opción de baja.</li>
           <li><strong>Obligación legal:</strong> por ejemplo, las obligaciones fiscales y contables de los pagos.</li>
