@@ -2,6 +2,47 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Cookies de estadísticas (Google Consent Mode): quedan denegadas hasta que el visitante pulsa «Aceptar».
+      (function () {
+        var KEY = 'sonoria_consent';
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { window.dataLayer.push(arguments); }
+        function saved() {
+          try { return localStorage.getItem(KEY); } catch (e) { return null; }
+        }
+        function removeTracking() {
+          try { localStorage.removeItem('base44_analytics_session_id'); } catch (e) {}
+          ['base44_referrer_id', 'base44_referrer_origin'].forEach(function (name) {
+            document.cookie = name + '=; Max-Age=0; Path=/; Secure; SameSite=Lax';
+          });
+        }
+        function apply(choice) {
+          var granted = choice === 'granted';
+          try {
+            if (granted) localStorage.removeItem('base44_analytics_denied');
+            else localStorage.setItem('base44_analytics_denied', '1');
+          } catch (e) {}
+          gtag('consent', 'update', { analytics_storage: granted ? 'granted' : 'denied' });
+          if (!granted) removeTracking();
+        }
+        gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+        var current = saved();
+        apply(current);
+        // La plataforma puede crear sus cookies después de este script: se borran al terminar de cargar.
+        document.addEventListener('DOMContentLoaded', function () {
+          if (current !== 'granted') removeTracking();
+        });
+        window.sonoriaConsent = {
+          get: function () { var v = saved() || current; return v === 'granted' || v === 'denied' ? v : null; },
+          set: function (value) {
+            current = value;
+            try { localStorage.setItem(KEY, value); localStorage.removeItem('sonoria_cookie_notice'); } catch (e) {}
+            apply(value);
+          }
+        };
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0f" />
