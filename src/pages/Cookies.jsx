@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { LegalPage, Section, List } from '@/components/LegalBlocks';
 import { LEGAL } from '@/lib/legalInfo';
-import { openCookieSettings } from '@/lib/consent';
+import { openCookieSettings } from '@/lib/cookieConsent';
 
 const BROWSERS = [
   ['Google Chrome', 'https://support.google.com/chrome/answer/95647'],

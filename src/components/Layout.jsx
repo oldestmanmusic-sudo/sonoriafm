@@ -8,7 +8,7 @@ import SocialLinks from '@/components/SocialLinks';
 import RadioPlayer from '@/components/RadioPlayer';
 import BottomTabs from '@/components/BottomTabs';
 import CookieNotice from '@/components/CookieNotice';
-import { openCookieSettings } from '@/lib/consent';
+import { openCookieSettings } from '@/lib/cookieConsent';
 import ClaimPendingSubmission from '@/components/ClaimPendingSubmission';
 import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Cookie } from 'lucide-react';
-import { SETTINGS_EVENT, getConsent, setConsent } from '@/lib/consent';
+import { SETTINGS_EVENT, getConsent, setConsent } from '@/lib/cookieConsent';
 
 // Mismo peso visual en los dos botones: rechazar es tan fácil como aceptar.
 const BUTTON =
