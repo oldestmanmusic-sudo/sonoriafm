@@ -10,6 +10,7 @@ import BottomTabs from '@/components/BottomTabs';
 import CookieNotice from '@/components/CookieNotice';
 import { openCookieSettings } from '@/lib/cookieConsent';
 import ClaimPendingSubmission from '@/components/ClaimPendingSubmission';
+import PreguntaOpinion from '@/components/PreguntaOpinion';
 import { RadioProvider } from '@/lib/radioContext';
 import { base44 } from '@/api/base44Client';
 
@@ -85,6 +86,7 @@ export default function Layout() {
         <LoveTypeTopBar />
         <ClaimPendingSubmission />
       <CookieNotice />
+        <PreguntaOpinion />
         <main className="flex-1">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div

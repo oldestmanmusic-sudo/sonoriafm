@@ -69,7 +69,7 @@ export default async function(req) {
         `<h2 style="color:#8b33ff">Nueva sugerencia</h2>` +
         `<p><strong>Tipo:</strong> ${esc(suggestion.category || 'Mejora')}</p>` +
         `<p style="white-space:pre-wrap">${esc(suggestion.message)}</p>` +
-        `<p><a href="https://sonoriafm.com/sugerencias" style="color:#8b33ff">Revisar en el panel</a></p>` +
+        `<p><a href="https://sonoriafm.com/admin/sugerencias" style="color:#8b33ff">Revisar en el panel</a></p>` +
         appButton() +
         `</div>`,
     });
