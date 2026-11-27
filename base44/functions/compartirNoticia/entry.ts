@@ -4,6 +4,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 // Las redes sociales leen estas etiquetas; las personas pasan al momento a la noticia.
 //
 // Uso: GET .../functions/compartirNoticia?id=ID_DE_LA_NOTICIA
+//   ver=1 -> muestra las etiquetas sin pasar a la noticia (para comprobarlas).
 
 const SITE = 'https://sonoriafm.com';
 const DEFAULT_IMAGE = 'https://media.base44.com/images/public/6ace0c27732bbb0f4d7504e1/9af340917_Postpromocional1080x10802x.png';
@@ -13,7 +14,8 @@ const plain = (v) => String(v ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' 
 const goTo = (url) => new Response(null, { status: 302, headers: { location: url } });
 
 export default async function(req) {
-  const id = new URL(req.url).searchParams.get('id') || '';
+  const query = new URL(req.url).searchParams;
+  const id = query.get('id') || '';
   if (!/^[a-f0-9]{24}$/i.test(id)) return goTo(`${SITE}/noticias`);
 
   let article = null;
@@ -45,7 +47,7 @@ export default async function(req) {
 <meta name="twitter:title" content="${title}">
 <meta name="twitter:description" content="${description}">
 <meta name="twitter:image" content="${image}">
-<script>location.replace(${JSON.stringify(url)});</script>
+${query.get('ver') === '1' ? '' : `<script>location.replace(${JSON.stringify(url)});</script>`}
 </head>
 <body>
 <p><a href="${url}">Leer «${title}» en SONORIA FM</a></p>
