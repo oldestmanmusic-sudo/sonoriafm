@@ -112,12 +112,6 @@ export default function ArticleDetail() {
       )}
 
       <ArticleBody content={article.content || ''} />
-
-      <div className="mt-10 flex justify-center">
-        <Button onClick={share} variant="outline" className="rounded-full">
-          <Share2 className="h-4 w-4" /> {copied ? 'Enlace copiado' : 'Compartir noticia'}
-        </Button>
-      </div>
     </article>
   );
 }
