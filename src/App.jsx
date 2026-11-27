@@ -19,6 +19,7 @@ const Artists = lazy(() => import('@/pages/Artists'));
 const ArtistDetail = lazy(() => import('@/pages/ArtistDetail'));
 const TrackDetail = lazy(() => import('@/pages/TrackDetail'));
 const Tarjeta = lazy(() => import('@/pages/Tarjeta'));
+const Diploma = lazy(() => import('@/pages/Diploma'));
 const EnviarCancion = lazy(() => import('@/pages/EnviarCancion'));
 const SubirCancion = lazy(() => import('@/pages/SubirCancion'));
 const Programming = lazy(() => import('@/pages/Programming'));
@@ -95,6 +96,7 @@ const AuthenticatedApp = () => {
         <Route path="/artistas/:id" element={<ArtistDetail />} />
         <Route path="/cancion/:id" element={<TrackDetail />} />
         <Route path="/tarjeta/:id" element={<Tarjeta />} />
+        <Route path="/diploma/:id" element={<Diploma />} />
         {/* El formulario de envío es libre: el registro se pide al terminar de rellenarlo. */}
         <Route path="/envia-tu-cancion" element={<EnviarCancion />} />
         <Route path="/subir-cancion" element={<SubirCancion />} />
