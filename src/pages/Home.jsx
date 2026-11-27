@@ -7,6 +7,7 @@ import GenreChips from '@/components/GenreChips';
 import TrackHistory from '@/components/TrackHistory';
 import TopTen from '@/components/TopTen';
 import ArtistCard from '@/components/ArtistCard';
+import LoveTypeBanner from '@/components/LoveTypeBanner';
 import { ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Home() {
@@ -64,6 +65,8 @@ export default function Home() {
       </section>
 
       <TrackHistory genre={genre} key={refreshKey} />
+
+      <LoveTypeBanner />
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-end justify-between mb-6">
