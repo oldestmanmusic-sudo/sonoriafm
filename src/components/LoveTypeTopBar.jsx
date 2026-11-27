@@ -17,7 +17,10 @@ export default function LoveTypeTopBar() {
       <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-3 py-2.5 text-center text-sm font-semibold sm:gap-3 sm:text-base">
         <span className="lt-beat" aria-hidden="true">💘</span>
         <span className="hidden rounded-full bg-amber-300 px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-[#1a1033] sm:inline">Nuevo</span>
-        <span className="truncate">
+        <span className="sm:hidden">
+          Test gratis: ¿amas con <span className="text-amber-200">miedo</span>?
+        </span>
+        <span className="hidden truncate sm:inline">
           ¿Cuánto de tu forma de amar es <span className="text-amber-200">miedo</span>? Haz el test LoveType gratis
         </span>
         <span className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-black text-[#4c1d95] transition group-hover:scale-105 sm:text-sm">
