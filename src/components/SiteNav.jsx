@@ -15,6 +15,7 @@ const mainLinks = [
   { to: '/noticias', label: 'Noticias' },
 ];
 const moreLinks = [
+  { to: '/app', label: 'Descarga la app' },
   { to: '/sobre-nosotros', label: 'Sobre Nosotros' },
   { to: '/contacto', label: 'Contacto' },
   { to: '/sugerencias', label: 'Sugerencias' },

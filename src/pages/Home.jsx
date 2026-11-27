@@ -8,6 +8,7 @@ import TrackHistory from '@/components/TrackHistory';
 import TopTen from '@/components/TopTen';
 import ArtistCard from '@/components/ArtistCard';
 import LoveTypeBanner from '@/components/LoveTypeBanner';
+import AppBanner from '@/components/AppBanner';
 import { ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Home() {
@@ -54,6 +55,8 @@ export default function Home() {
   return (
     <PullToRefresh onRefresh={refresh}>
       <NowPlaying nowPlaying={nowPlaying} />
+
+      <AppBanner />
 
       <LoveTypeBanner />
 

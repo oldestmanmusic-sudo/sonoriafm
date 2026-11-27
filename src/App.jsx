@@ -53,6 +53,7 @@ const Legal = lazy(() => import('@/pages/Legal'));
 const Privacidad = lazy(() => import('@/pages/Privacidad'));
 const Cookies = lazy(() => import('@/pages/Cookies'));
 const AppLogin = lazy(() => import('@/pages/AppLogin'));
+const DescargaApp = lazy(() => import('@/pages/DescargaApp'));
 
 
 const AuthenticatedApp = () => {
@@ -103,6 +104,8 @@ const AuthenticatedApp = () => {
         {/* Programación y Sobre nosotros son informativas: públicas para que Google las indexe. */}
         <Route path="/programacion" element={<Programming />} />
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
+        {/* Descarga de la app: pública, es la página que se comparte. */}
+        <Route path="/app" element={<DescargaApp />} />
 
         {/* Votar no exige cuenta. Enviar canciones y el resto exigen iniciar sesión o registrarse. */}
         <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>

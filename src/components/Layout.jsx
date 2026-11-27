@@ -15,6 +15,7 @@ import { base44 } from '@/api/base44Client';
 
 // Título de la pestaña según la página (mejora la pestaña del navegador y las búsquedas).
 const PAGE_TITLES = [
+  ['/app', 'Descarga la app'],
   ['/artistas', 'Artistas'],
   ['/cancion', 'Canción'],
   ['/programacion', 'Programación'],
@@ -118,6 +119,7 @@ export default function Layout() {
             <div>
               <p className="text-sm font-semibold">Explora</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li><Link to="/app" className="hover:text-foreground">Descarga la app</Link></li>
                 <li><Link to="/artistas" className="hover:text-foreground">Artistas</Link></li>
                 <li><Link to="/programacion" className="hover:text-foreground">Programación</Link></li>
                 <li><Link to="/noticias" className="hover:text-foreground">Noticias</Link></li>
