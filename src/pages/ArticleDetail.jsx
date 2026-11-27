@@ -4,12 +4,32 @@ import { base44 } from '@/api/base44Client';
 import { Image } from '@/components/ui/image';
 import { formatDate } from '@/components/news/ArticleCard';
 import ArticleBody from '@/components/news/ArticleBody';
-import { ArrowLeft, CalendarDays, Loader2, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, CalendarDays, Loader2, Share2, User } from 'lucide-react';
+
+// Enlace para compartir: muestra el título y la foto de la noticia y lleva a ella.
+const shareUrl = (id) => `https://sonoriafm.com/functions/compartirNoticia?id=${id}`;
 
 export default function ArticleDetail() {
   const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const share = async () => {
+    const url = shareUrl(article.id);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: article.title, url });
+        return;
+      } catch { /* cancelado */ }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     let active = true;
@@ -79,6 +99,10 @@ export default function ArticleDetail() {
 
       <h1 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">{article.title}</h1>
 
+      <Button onClick={share} variant="outline" size="sm" className="mt-4 rounded-full">
+        <Share2 className="h-4 w-4" /> {copied ? 'Enlace copiado' : 'Compartir'}
+      </Button>
+
       {article.excerpt && <p className="mt-4 text-lg text-muted-foreground">{article.excerpt}</p>}
 
       {article.cover_url && (
@@ -88,6 +112,12 @@ export default function ArticleDetail() {
       )}
 
       <ArticleBody content={article.content || ''} />
+
+      <div className="mt-10 flex justify-center">
+        <Button onClick={share} variant="outline" className="rounded-full">
+          <Share2 className="h-4 w-4" /> {copied ? 'Enlace copiado' : 'Compartir noticia'}
+        </Button>
+      </div>
     </article>
   );
 }
