@@ -7,27 +7,31 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import { inCooldown, looksLikeBot, markSent } from '@/lib/antiSpam';
 
-// Sale una vez en cada visita. Quien ya ha respondido no vuelve a verla.
-const SEEN_KEY = 'sonoria_opinion_vista';
+// No sale nada más entrar: primero se deja escuchar la radio. Aparece tras unos minutos en la
+// web, como mucho una vez cada 30 días, y nunca más a quien ya ha respondido.
+const SEEN_KEY = 'sonoria_opinion_vista_at';
 const SENT_KEY = 'sonoria_opinion_enviada';
 const COOLDOWN_KEY = 'sonoria_last_suggestion';
-const DELAY_MS = 1500;
+const DELAY_MS = 3 * 60 * 1000;
+const REASK_MS = 30 * 24 * 3600 * 1000;
 let seenInMemory = false;
 
 function shouldAsk() {
   if (seenInMemory) return false;
   try {
-    return !window.localStorage.getItem(SENT_KEY) && !window.sessionStorage.getItem(SEEN_KEY);
+    if (window.localStorage.getItem(SENT_KEY)) return false;
+    const seenAt = Number(window.localStorage.getItem(SEEN_KEY)) || 0;
+    return Date.now() - seenAt > REASK_MS;
   } catch {
-    return true;
+    return false;
   }
 }
 
-function remember(storage, key) {
-  try { window[storage].setItem(key, '1'); } catch { /* sin almacenamiento */ }
+function remember(storage, key, value = '1') {
+  try { window[storage].setItem(key, value); } catch { /* sin almacenamiento */ }
 }
 
-/** Al abrir la web, pregunta qué echa en falta el visitante. Las respuestas llegan a Sugerencias. */
+/** Tras unos minutos en la web, pregunta qué echa en falta el visitante. Las respuestas llegan a Sugerencias. */
 export default function PreguntaOpinion() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
@@ -43,7 +47,7 @@ export default function PreguntaOpinion() {
     if (skip || !shouldAsk()) return undefined;
     const timer = setTimeout(() => {
       seenInMemory = true;
-      remember('sessionStorage', SEEN_KEY);
+      remember('localStorage', SEEN_KEY, String(Date.now()));
       openedAt.current = Date.now();
       setOpen(true);
     }, DELAY_MS);
@@ -92,9 +96,9 @@ export default function PreguntaOpinion() {
       >
         <DialogHeader>
           <DialogTitle className="pr-4 text-xl leading-snug">
-            ¿¿¿Hay algo que eches en falta o que te gustaría que estuviera en SONORIA FM???
+            ¿Echas algo en falta en SONORIA FM?
           </DialogTitle>
-          <DialogDescription className="sr-only">Escribe tu respuesta y pulsa ENVIAR, o pulsa CANCELAR.</DialogDescription>
+          <DialogDescription>Cuéntanos qué te gustaría encontrar en la radio. Lo leemos todo.</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} noValidate className="space-y-4">
           <input
