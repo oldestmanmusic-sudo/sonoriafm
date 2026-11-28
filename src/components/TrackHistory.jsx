@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useRadio } from '@/lib/radioContext';
+import { useRadio, detectZone } from '@/lib/radioContext';
 import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Loader2, History, Play, Pause } from 'lucide-react';
@@ -14,23 +14,44 @@ function formatTime(d) {
   }
 }
 
+// Lo que ha sonado de verdad en la emisión de tu zona (últimas 3 horas), de lo más reciente
+// a lo más antiguo, con la hora a la que empezó cada canción.
+async function loadAired() {
+  const res = await base44.functions.invoke('radioNow', { count: 60, backMs: 3 * 3600 * 1000, zone: detectZone() });
+  const data = res?.data ?? res;
+  const now = Number(data?.serverTime) || Date.now();
+  const list = Array.isArray(data?.tracks) ? data.tracks : [];
+  return list
+    .filter((e) => e && e.kind !== 'cuna' && e.genre !== 'Cuña' && e.endsAt <= now)
+    .reverse()
+    .slice(0, 12)
+    .map((e) => ({ ...e, key: `${e.id}-${e.startsAt}`, played_at: e.startsAt }));
+}
+
 export default function TrackHistory({ genre = 'Todo SONORIA FM' }) {
   const [tracks, setTracks] = useState(null);
   const { onDemandTrack, isPlaying, isLoading, playOnDemand, toggle } = useRadio();
+  const isChannel = Boolean(genre && genre !== 'Todo SONORIA FM');
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const load = async () => {
       try {
-        const query = genre && genre !== 'Todo SONORIA FM' ? { genre } : {};
-        const { items } = await base44.entities.Track.filter(query, { sort: '-played_at', limit: 12 });
-        if (active) setTracks(items);
+        if (isChannel) {
+          const { items } = await base44.entities.Track.filter({ genre }, { sort: '-created_date', limit: 12 });
+          if (active) setTracks(items);
+          return;
+        }
+        const aired = await loadAired();
+        if (active) setTracks(aired);
       } catch {
-        if (active) setTracks([]);
+        if (active) setTracks((prev) => prev || []);
       }
-    })();
-    return () => { active = false; };
-  }, [genre]);
+    };
+    load();
+    const timer = isChannel ? null : setInterval(load, 2 * 60 * 1000);
+    return () => { active = false; if (timer) clearInterval(timer); };
+  }, [genre, isChannel]);
 
   const play = (e, t) => {
     e.preventDefault();
@@ -44,7 +65,7 @@ export default function TrackHistory({ genre = 'Todo SONORIA FM' }) {
       <div className="flex items-center gap-2 mb-6">
         <History className="h-5 w-5 text-primary" />
         <h2 className="font-heading text-2xl font-bold">
-          {genre && genre !== 'Todo SONORIA FM' ? `Canal ${genre}` : 'Historial musical'}
+          {isChannel ? `Canal ${genre}` : 'Ha sonado en SONORIA FM'}
         </h2>
       </div>
 
@@ -53,13 +74,15 @@ export default function TrackHistory({ genre = 'Todo SONORIA FM' }) {
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : tracks.length === 0 ? (
-        <p className="text-muted-foreground">Todavía no hay canciones en este canal.</p>
+        <p className="text-muted-foreground">
+          {isChannel ? 'Todavía no hay canciones en este canal.' : 'En cuanto termine la canción que suena, aparecerá aquí.'}
+        </p>
       ) : (
         <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
           {tracks.map((t) => {
             const active = onDemandTrack?.id === t.id;
             return (
-              <div key={t.id} className="relative snap-start shrink-0 w-40 group">
+              <div key={t.key || t.id} className="relative snap-start shrink-0 w-40 group">
                 <Link to={`/cancion/${t.id}`} className="block">
                   <div className="relative aspect-square overflow-hidden rounded-2xl bg-secondary">
                     <Image
@@ -70,7 +93,9 @@ export default function TrackHistory({ genre = 'Todo SONORIA FM' }) {
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm font-semibold leading-snug">{t.title}</p>
                   <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">{t.artist}</p>
-                  {t.played_at && <p className="text-[11px] text-muted-foreground/70">{formatTime(t.played_at)}</p>}
+                  {!isChannel && t.played_at && (
+                    <p className="text-[11px] text-muted-foreground/70">Sonó a las {formatTime(t.played_at)}</p>
+                  )}
                 </Link>
                 <button
                   onClick={(e) => play(e, t)}
