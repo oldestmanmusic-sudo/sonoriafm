@@ -1,9 +1,10 @@
-import { Instagram, Youtube } from 'lucide-react';
+import { Instagram, Music2, Youtube } from 'lucide-react';
 
 // Solo las cuentas oficiales (las mismas que declara index.html en "sameAs").
 export const SONORIA_SOCIALS = [
 { name: 'Instagram', url: 'https://www.instagram.com/sonoria.fm', Icon: Instagram },
-{ name: 'YouTube', url: 'https://www.youtube.com/@sonoriafm', Icon: Youtube }];
+{ name: 'YouTube', url: 'https://www.youtube.com/@sonoriafm', Icon: Youtube },
+{ name: 'TikTok', url: 'https://www.tiktok.com/@sonoria.fm', Icon: Music2 }];
 
 
 export default function SocialLinks({ className = '' }) {
