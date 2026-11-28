@@ -28,7 +28,25 @@ function seededShuffle(list, seed) {
   return arr;
 }
 
-function interleaveArtists(order, prevArtist) {
+// Tope por artista en cada vuelta: como mucho tantas canciones distintas como le tocarían en un
+// reparto equitativo (mínimo 2). Las que no entran rotan a la vuelta siguiente (la semilla cambia).
+// Las copias extra por votos se conservan: los votos siguen dando más reproducciones.
+function capPerArtist(list, seed) {
+  const base = list.filter((t) => !t._copy);
+  const max = Math.max(2, Math.ceil(base.length / Math.max(1, new Set(base.map((t) => t.artist)).size)));
+  const ids = new Map();
+  seededShuffle(base, seed).forEach((t) => {
+    if (!ids.has(t.artist)) ids.set(t.artist, []);
+    const a = ids.get(t.artist);
+    if (a.length < max) a.push(String(t.id));
+  });
+  const keep = new Set([...ids.values()].flat());
+  const out = list.filter((t) => keep.has(String(t.id)));
+  return out.length ? out : list;
+}
+
+// prevIds: últimas canciones de la vuelta anterior, para no repetir un tema justo al cambiar de vuelta.
+function interleaveArtists(order, prevArtist, prevIds = []) {
   const groups = new Map();
   order.forEach((t) => {
     if (!groups.has(t.artist)) groups.set(t.artist, []);
@@ -38,7 +56,7 @@ function interleaveArtists(order, prevArtist) {
   let prev = prevArtist || null;
   while (out.length < order.length) {
     // Una canción votada tiene varias copias en la vuelta: no repetirla hasta que hayan sonado otras 4.
-    const recent = new Set(out.slice(-4).map((t) => String(t.id)));
+    const recent = new Set([...prevIds, ...out.map((t) => String(t.id))].slice(-4));
     const fresh = (g) => g.findIndex((x) => !recent.has(String(x.id)));
     let candidates = [...groups.entries()].filter(([, g]) => g.length > 0 && g[0].artist !== prev && fresh(g) >= 0);
     if (!candidates.length) candidates = [...groups.entries()].filter(([, g]) => g.length > 0 && g[0].artist !== prev);
@@ -240,6 +258,7 @@ function legacyPosition(list, nowMs, lists) {
     const startMs = slotStartMs + acc * 1000;
     let cl = raw.filter((t) => createdMs(t) <= startMs);
     if (!cl.length) cl = raw;
+    cl = capPerArtist(cl, slotKey + k);
     const sched = interleaveArtists(seededShuffle(cl, slotKey + k), prevLast);
     return { cl, sched };
   };
@@ -310,7 +329,11 @@ function nextEntry(last, lists, byId) {
   const raw = cycleList(lists, slot, k);
   let cl = raw.filter((t) => createdMs(t) <= start);
   if (!cl.length) cl = raw;
-  const sched = interleaveArtists(seededShuffle(cl, slotKey + k), last.artist);
+  cl = capPerArtist(cl, slotKey + k);
+  const prevIds = last.order
+    ? String(last.order).split(',').slice(0, (last.pos || 0) + 1).slice(-4)
+    : [String(last.track_id)];
+  const sched = interleaveArtists(seededShuffle(cl, slotKey + k), last.artist, prevIds);
   return entryFor(sched[0], start, {
     seq: last.seq + 1, slotKey, k, pos: 0, order: sched.map((t) => t.id).join(','),
   });
