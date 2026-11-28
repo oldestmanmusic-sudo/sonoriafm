@@ -9,6 +9,7 @@ import { shareOrDownloadCard } from '@/lib/shareCard';
 import BackButton from '@/components/BackButton';
 import { useRadio } from '@/lib/radioContext';
 import { useTrackLike } from '@/lib/useTrackLike';
+import { setShareMeta } from '@/lib/seoMeta';
 
 export default function TrackDetail() {
   const { id } = useParams();
@@ -30,10 +31,11 @@ export default function TrackDetail() {
         setTrack(t);
         // SEO: título y descripción propios de cada canción
         document.title = `«${t.title}» de ${t.artist} · SONORIA FM`;
-        document.querySelector('meta[name="description"]')?.setAttribute(
-          'content',
-          `Escucha «${t.title}» de ${t.artist} en SONORIA FM, la radio online 24 horas de música creada con IA. Dale a me gusta y súbela al TOP 10.`
-        );
+        setShareMeta({
+          title: `«${t.title}» de ${t.artist} · SONORIA FM`,
+          description: `Escucha «${t.title}» de ${t.artist} en SONORIA FM, la radio online 24 horas de música creada con IA. Vótala y súbela al TOP 10.`,
+          image: t.cover_url,
+        });
         try {
           const { items } = await base44.entities.Artist.filter({ name: t.artist }, { limit: 1 });
           if (active && items.length) setArtist(items[0]);
