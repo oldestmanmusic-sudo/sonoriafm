@@ -8,6 +8,7 @@ import { Loader2, ExternalLink, Play, Pause, Share2, Heart } from 'lucide-react'
 import { useArtistLike } from '@/lib/useArtistLike';
 import BackButton from '@/components/BackButton';
 import { useRadio } from '@/lib/radioContext';
+import { setShareMeta } from '@/lib/seoMeta';
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -28,10 +29,11 @@ export default function ArtistDetail() {
         setArtist(a);
         // SEO: título y descripción propios de cada artista
         document.title = `${a.name} · Artista en SONORIA FM`;
-        document.querySelector('meta[name="description"]')?.setAttribute(
-          'content',
-          `Escucha las canciones de ${a.name} en SONORIA FM, la radio online 24 horas de música creada con IA.`
-        );
+        setShareMeta({
+          title: `${a.name} · Artista en SONORIA FM`,
+          description: `Escucha las canciones de ${a.name} en SONORIA FM, la radio online 24 horas de música creada con IA.`,
+          image: a.image_url,
+        });
         try {
           const { items } = await base44.entities.Track.filter({ artist: a.name }, { sort: '-played_at', limit: 50 });
           if (active) setTracks(items);
