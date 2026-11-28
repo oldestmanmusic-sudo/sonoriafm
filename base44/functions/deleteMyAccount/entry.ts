@@ -19,6 +19,14 @@ export default async function(req) {
       if (user.email) await service.entities.Subscriber.deleteMany({ email: user.email.toLowerCase() });
     } catch { /* sin correo apuntado */ }
 
+    try {
+      const hearts = await service.entities.ArtistLike.filter({ user_id: user.id }, { limit: 1000 });
+      for (const h of Array.isArray(hearts) ? hearts : (hearts?.items ?? [])) {
+        await service.entities.ArtistLike.delete(h.id);
+        await service.entities.Artist.updateMany({ id: h.artist_id }, { $inc: { likes: -1 } });
+      }
+    } catch { /* sin corazones */ }
+
     await service.entities.User.delete(user.id);
 
     return Response.json({ ok: true });

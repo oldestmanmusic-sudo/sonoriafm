@@ -1,0 +1,56 @@
+{
+  "name": "ArtistLike",
+  "type": "object",
+  "properties": {
+    "artist_id": {
+      "type": "string",
+      "description": "Id del artista que recibió el corazón."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Id del usuario, o \"anon:<código>\" si lo dio sin cuenta."
+    },
+    "did": {
+      "type": "string",
+      "description": "Código aleatorio del dispositivo desde el que se votó."
+    },
+    "anon": {
+      "type": "boolean",
+      "description": "Verdadero si el voto se hizo sin cuenta."
+    },
+    "day": {
+      "type": "string",
+      "description": "Día del corazón (AAAA-MM-DD, hora de Madrid)."
+    },
+    "net": {
+      "type": "string",
+      "description": "Resumen cifrado de la conexión, solo para los topes del día; se vacía después. Nunca la IP."
+    }
+  },
+  "required": [
+    "artist_id",
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

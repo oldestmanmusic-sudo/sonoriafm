@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, Loader2 } from 'lucide-react';
+import { useArtistLike } from '@/lib/useArtistLike';
 
 export default function ArtistCard({ artist }) {
+  const { likes, liked, liking, like } = useArtistLike(artist.id, artist.likes);
+
+  // El botón del corazón va fuera del enlace: al pulsarlo no se abre la ficha.
   return (
-    <Link
-      to={`/artistas/${artist.id}`}
-      className="group relative block overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
-    >
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50">
+    <Link to={`/artistas/${artist.id}`} className="block">
       <div className="relative aspect-[4/5] overflow-hidden">
         {artist.image_url ? (
           <img src={artist.image_url} alt={artist.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -19,11 +21,19 @@ export default function ArtistCard({ artist }) {
           {artist.genre && <p className="text-sm text-primary">{artist.genre}</p>}
           {artist.country && <p className="text-xs text-muted-foreground">{artist.country}</p>}
         </div>
-        <div className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-background/70 backdrop-blur px-2 py-1 text-xs">
-          <Heart className="h-3 w-3 text-accent" /> {artist.likes ?? 0}
-        </div>
       </div>
       {artist.bio && <p className="p-4 text-sm text-muted-foreground line-clamp-3">{artist.bio}</p>}
     </Link>
+      <button
+        type="button"
+        onClick={like}
+        aria-pressed={liked}
+        aria-label={liked ? `Ya has dado tu corazón a ${artist.name}` : `Dar un corazón a ${artist.name}`}
+        className="absolute top-2 right-2 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-background/70 px-3 py-1.5 text-sm font-semibold backdrop-blur transition-transform hover:scale-105 active:scale-95"
+      >
+        {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={`h-4 w-4 text-accent ${liked ? 'fill-accent' : ''}`} />}
+        {likes}
+      </button>
+    </div>
   );
 }

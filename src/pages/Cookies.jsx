@@ -21,7 +21,7 @@ export default function Cookies() {
         <p><strong>Técnicos y necesarios</strong> (siempre activos):</p>
         <List>
           <li><strong>Sesión:</strong> te mantienen conectado cuando inicias sesión (y se borran al cerrar sesión).</li>
-          <li><strong>Voto:</strong> al votar una canción se guarda en tu navegador un código aleatorio para contar un solo voto por canción, y una marca para no volver a preguntarte si quieres dejar tu correo. No se crean si no votas.</li>
+          <li><strong>Voto:</strong> al votar una canción o dar un corazón a un artista se guarda en tu navegador un código aleatorio para contar un solo voto por canción o artista, y una marca para no volver a preguntarte si quieres dejar tu correo. No se crean si no votas.</li>
           <li><strong>Seguridad:</strong> una marca de tiempo que evita envíos repetidos en los formularios de contacto y sugerencias.</li>
           <li><strong>Tu elección sobre las cookies:</strong> recuerda si aceptaste o rechazaste las estadísticas.</li>
         </List>

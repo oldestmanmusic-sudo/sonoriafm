@@ -4,7 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { DEFAULT_COVER } from '@/lib/brand';
 import { Image } from '@/components/ui/image';
 import { Button } from '@/components/ui/button';
-import { Loader2, ExternalLink, Play, Pause, Share2 } from 'lucide-react';
+import { Loader2, ExternalLink, Play, Pause, Share2, Heart } from 'lucide-react';
+import { useArtistLike } from '@/lib/useArtistLike';
 import BackButton from '@/components/BackButton';
 import { useRadio } from '@/lib/radioContext';
 
@@ -15,6 +16,7 @@ export default function ArtistDetail() {
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
   const { onDemandTrack, isPlaying, isLoading, playOnDemand, toggle } = useRadio();
+  const { likes, liked, liking, like } = useArtistLike(artist?.id, artist?.likes);
 
   useEffect(() => {
     let active = true;
@@ -92,6 +94,10 @@ export default function ArtistDetail() {
           </p>
           {artist.bio && <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">{artist.bio}</p>}
           <div className="mt-5 flex flex-wrap gap-3">
+            <Button onClick={like} aria-pressed={liked} className="rounded-full">
+              {liking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />}
+              {liked ? 'Te gusta' : 'Me gusta'} · {likes}
+            </Button>
             {artist.social_url && (
               <a href={artist.social_url} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className="rounded-full">

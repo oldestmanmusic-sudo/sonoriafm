@@ -11,7 +11,7 @@ let memoryId = '';
 // Aviso para ofrecer (opcionalmente) dejar el correo tras un voto sin cuenta.
 export const ASK_EMAIL_EVENT = 'sonoria:pedir-correo';
 
-function deviceId(create = false) {
+export function deviceId(create = false) {
   try {
     const saved = window.localStorage.getItem(VOTE_KEY);
     if (saved) return saved;
