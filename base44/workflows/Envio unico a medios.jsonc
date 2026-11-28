@@ -25,9 +25,7 @@
           "call": "invoke_backend_function",
           "then": "end",
           "with": {
-            "args": {
-              "test": true
-            },
+            "args": {},
             "function_name": "sendPressOnce"
           }
         }
