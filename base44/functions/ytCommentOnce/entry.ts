@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
-// DE UN SOLO USO. Publica 6 comentarios aprobados por Víctor desde el canal de la radio. Caduca el 29/11/2026.
-const EXPIRES = Date.parse('2026-11-29T00:00:00Z');
+// DE UN SOLO USO. Publica 6 comentarios aprobados por Víctor desde el canal de la radio. Caduca el 01/12/2026.
+const EXPIRES = Date.parse('2026-12-01T00:00:00Z');
 const CHANNEL = 'UCZ_FH7cWbjJwHvfY0CBDKkQ';
 const WEB = 'sonoriafm.com';
 const ITEMS = [
