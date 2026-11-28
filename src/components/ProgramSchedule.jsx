@@ -31,7 +31,7 @@ function isOnAir(start, end, cur) {
 
 export default function ProgramSchedule() {
   const [programs, setPrograms] = useState(null);
-  const [day, setDay] = useState('Lun');
+  const [day, setDay] = useState(() => madridNow().dayKey || 'Lun');
 
   useEffect(() => {
     let active = true;
@@ -47,7 +47,19 @@ export default function ProgramSchedule() {
   }, []);
 
   const { dayKey: todayKey, minutes: nowMinutes } = madridNow();
-  const filtered = (programs ?? []).filter((p) => p.day === day).sort((a, b) => a.start_time.localeCompare(b.start_time));
+  // Dos franjas seguidas del mismo programa se muestran como un solo bloque (p. ej. 20:00-24:00).
+  const filtered = (programs ?? [])
+    .filter((p) => p.day === day)
+    .sort((a, b) => a.start_time.localeCompare(b.start_time))
+    .reduce((acc, p) => {
+      const prev = acc[acc.length - 1];
+      if (prev && prev.title === p.title && prev.end_time === p.start_time) {
+        acc[acc.length - 1] = { ...prev, end_time: p.end_time };
+      } else {
+        acc.push(p);
+      }
+      return acc;
+    }, []);
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-12">
