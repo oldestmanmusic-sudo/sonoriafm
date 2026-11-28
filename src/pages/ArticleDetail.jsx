@@ -6,6 +6,7 @@ import { formatDate } from '@/components/news/ArticleCard';
 import ArticleBody from '@/components/news/ArticleBody';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarDays, Loader2, Share2, User } from 'lucide-react';
+import { setShareMeta } from '@/lib/seoMeta';
 
 // Enlace para compartir: muestra el título y la foto de la noticia y lleva a ella.
 const shareUrl = (id) => `https://sonoriafm.com/functions/compartirNoticia?id=${id}`;
@@ -40,9 +41,13 @@ export default function ArticleDetail() {
           setArticle(data);
           // Título y descripción propios de cada noticia (pestaña, compartir y buscadores).
           if (data?.title) document.title = `${data.title} · SONORIA FM`;
-          const desc = data?.excerpt || '';
-          let meta = document.querySelector('meta[name="description"]');
-          if (meta && desc) meta.setAttribute('content', desc);
+          if (data?.title) {
+            setShareMeta({
+              title: `${data.title} · SONORIA FM`,
+              description: data.excerpt || '',
+              image: data.cover_url,
+            });
+          }
         }
       } catch {
         if (active) setArticle(null);
