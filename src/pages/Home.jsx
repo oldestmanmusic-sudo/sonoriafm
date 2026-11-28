@@ -54,11 +54,9 @@ export default function Home() {
 
   return (
     <PullToRefresh onRefresh={refresh}>
-      <NowPlaying nowPlaying={nowPlaying} />
+      <NowPlaying track={nowPlaying} sideLeft={<TopTen tracks={topTen} />} />
 
       <AppBanner />
-
-      <LoveTypeBanner />
 
       <section className="mx-auto max-w-md px-4 pb-8 lg:hidden">
         <TopTen tracks={topTen} />
@@ -96,6 +94,8 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      <LoveTypeBanner />
     </PullToRefresh>
   );
 }
