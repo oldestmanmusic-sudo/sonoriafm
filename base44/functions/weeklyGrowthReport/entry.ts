@@ -39,6 +39,26 @@ const ms = (s) => {
   return Number.isFinite(v) ? v : 0;
 };
 const DAY = 86400000;
+const ARTIST_GOAL = 50;
+const LISTEN_START = '2026-11-26';
+
+// Día (AAAA-MM-DD) en hora de Madrid.
+const madridDay = (t) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date(t));
+const addDays = (day, n) => new Date(Date.parse(`${day}T12:00:00Z`) + n * DAY).toISOString().slice(0, 10);
+const shortDay = (day) => day.split('-').reverse().slice(0, 2).join('/');
+
+// Un registro por minuto de escucha. Sin las escuchas del administrador.
+async function listensSince(db, since) {
+  const all = [];
+  for (let page = 0; page < 50; page++) {
+    const items = toList(await db.ListenStat.filter({ date: { $gte: since } }, '-created_date', 1000, page * 1000));
+    all.push(...items);
+    if (items.length < 1000) break;
+  }
+  return all.filter((r) => !r.own);
+}
 
 // Botón de la app: va en todos los correos de la radio.
 const APP_URL = 'https://sonoriafm.com/app';
@@ -78,24 +98,48 @@ export default async function(req) {
     const w1 = now - 7 * DAY;
     const w0 = now - 14 * DAY;
 
-    const [users, subs, artists, tracks, likes, prospects] = await Promise.all([
+    const today = madridDay(now);
+    const prevStart = addDays(today, -14);
+    const curStart = addDays(today, -7);
+
+    const [users, subs, artists, tracks, prospects, topRows, listens] = await Promise.all([
       db.User.filter({}, { limit: 500 }).then(toList).catch(() => []),
       db.Submission.filter({}, { limit: 500 }).then(toList).catch(() => []),
       db.Artist.filter({}, { limit: 500 }).then(toList).catch(() => []),
       db.Track.filter({}, { limit: 500 }).then(toList).catch(() => []),
-      db.TrackLike.filter({}, { limit: 500, sort: '-created_date' }).then(toList).catch(() => []),
       db.Prospect.filter({}, { limit: 500 }).then(toList).catch(() => []),
+      db.TopWeek.filter({}, '-week_date', 100).then(toList).catch(() => null),
+      listensSince(db, prevStart).catch((e) => { console.error('escuchas:', e?.message); return null; }),
     ]);
 
     const count = (list, a, b) => list.filter((x) => { const t = ms(x.created_date); return t >= a && t < b; }).length;
-    const row = (label, list) => {
-      const cur = count(list, w1, now + 1);
-      const prev = count(list, w0, w1);
+    const compare = (label, cur, prev) => {
       const diff = cur - prev;
       const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '=';
       return `<tr><td style="padding:6px 10px">${esc(label)}</td><td style="padding:6px 10px;text-align:right"><strong>${cur}</strong></td>` +
         `<td style="padding:6px 10px;text-align:right;color:#666">${prev}</td><td style="padding:6px 10px;color:#8b33ff">${arrow} ${diff > 0 ? '+' : ''}${diff}</td></tr>`;
     };
+
+    const row = (label, list) => compare(label, count(list, w1, now + 1), count(list, w0, w1));
+
+    // Escuchas: siete días completos (hasta ayer) frente a los siete anteriores.
+    const between = (from, to) => (listens || []).filter((r) => r.date >= from && r.date < to);
+    const connections = (rows) => new Set(rows.map((r) => r.sid)).size;
+    const curListens = between(curStart, today);
+    const prevListens = between(prevStart, curStart);
+    const listenRows = listens
+      ? compare('Conexiones de escucha en la web', connections(curListens), connections(prevListens)) +
+        compare('Minutos escuchados en la web', curListens.length, prevListens.length)
+      : '';
+    const listenNote = !listens
+      ? 'Esta vez no se han podido leer las cifras de escucha.'
+      : `Escuchas: del ${shortDay(curStart)} al ${shortDay(addDays(today, -1))}, sin contar las tuyas ni las de la app de Android.` +
+        (prevStart < LISTEN_START ? ' El contador empezó el 26/11/2026, así que las primeras comparaciones están incompletas.' : '');
+
+    // Votos: el contador se pone a cero cada lunes, por eso se comparan los votos guardados del podio.
+    const weeks = [...new Set((topRows || []).map((r) => r.week_date).filter(Boolean))].sort().reverse();
+    const podiumVotes = (week) => (topRows || []).filter((r) => r.week_date === week).reduce((n, r) => n + (Number(r.likes) || 0), 0);
+    const voteRow = weeks.length ? compare('Votos de las canciones del podio', podiumVotes(weeks[0]), podiumVotes(weeks[1])) : '';
 
     const stages = {};
     for (const p of prospects) stages[p.stage || 'nuevo'] = (stages[p.stage || 'nuevo'] || 0) + 1;
@@ -114,9 +158,12 @@ export default async function(req) {
       row('Canciones enviadas', subs) +
       row('Artistas nuevos', artists) +
       row('Canciones en la radio', tracks) +
-      row('Votos (likes)', likes) +
+      listenRows +
+      voteRow +
       `</table>` +
+      `<p style="color:#666;font-size:13px">${esc(listenNote)}</p>` +
       `<p><strong>Totales:</strong> ${artists.length} artistas · ${tracks.length} canciones.</p>` +
+      `<p><strong>Objetivo de ${ARTIST_GOAL} artistas:</strong> ${artists.length} de ${ARTIST_GOAL}.</p>` +
       `<p><strong>Envíos pendientes de revisar:</strong> ${pendingSubs}</p>` +
       `<p><strong>Último envío de un artista:</strong> ${lastExternal ? `hace ${daysSince} día(s) (${esc(lastExternal.artist_name || '')})` : 'ninguno'}</p>` +
       `<p><strong>Embudo de marketing (${prospects.length} oportunidades):</strong><br>${stageHtml}</p>` +
