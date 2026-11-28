@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
 // DE UN SOLO USO. Fase 1: solo consulta (no publica nada). Caduca el 29/11/2026.
 const EXPIRES = Date.parse('2026-11-29T00:00:00Z');
-const HANDLES = ['djbandapr', 'lenao.oficial', 'Sarx-p4i', 'Elnochistlense', 'chris.vegha.colombia', 'elpifas2223', 'Nova_music_oficial'];
+const HANDLES = ['Elnochistlense', 'chris.vegha.colombia', 'lenao.oficial'];
 
 export default async function(req) {
   try {
@@ -21,14 +21,15 @@ export default async function(req) {
       try {
         const c = (await yt(`channels?part=snippet,contentDetails&forHandle=${encodeURIComponent(h)}`)).items?.[0];
         if (!c) { console.log(`YT_CH ${h} no encontrado`); continue; }
-        const list = await yt(`playlistItems?part=contentDetails&maxResults=8&playlistId=${c.contentDetails.relatedPlaylists.uploads}`);
+        const list = await yt(`playlistItems?part=contentDetails&maxResults=50&playlistId=${c.contentDetails.relatedPlaylists.uploads}`);
         const ids = (list.items || []).map((i) => i.contentDetails.videoId);
         const vids = ids.length ? (await yt(`videos?part=snippet,status,statistics&id=${ids.join(',')}`)).items || [] : [];
         console.log(`YT_CH ${h} ` + JSON.stringify({
           name: c.snippet.title,
-          videos: vids.map((v) => ({
-            id: v.id, t: v.snippet.title.slice(0, 80), d: v.snippet.publishedAt.slice(0, 10), cat: v.snippet.categoryId,
-            kids: v.status?.madeForKids, comments: v.statistics?.commentCount ?? 'off', desc: v.snippet.description.slice(0, 120),
+          total: c.contentDetails ? ids.length : 0,
+          videos: vids.filter((v) => v.statistics?.commentCount !== undefined && v.snippet.categoryId === '10' || /canci|music|m\u00fasic|ia\b|suno|cumbia|corrido|pop|balada/i.test(v.snippet.title + ' ' + v.snippet.description)).slice(0, 15).map((v) => ({
+            id: v.id, t: v.snippet.title.slice(0, 60), d: v.snippet.publishedAt.slice(0, 10), cat: v.snippet.categoryId,
+            kids: v.status?.madeForKids, comments: v.statistics?.commentCount ?? 'off', 
           })),
         }));
       } catch (e) {
