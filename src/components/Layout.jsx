@@ -3,7 +3,6 @@ import { Link, Outlet, useLocation, useNavigationType } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import SiteNav from '@/components/SiteNav';
-import LoveTypeTopBar from '@/components/LoveTypeTopBar';
 import SocialLinks from '@/components/SocialLinks';
 import RadioPlayer from '@/components/RadioPlayer';
 import BottomTabs from '@/components/BottomTabs';
@@ -83,7 +82,6 @@ export default function Layout() {
     <RadioProvider playlist={playlist}>
       <div className="min-h-screen flex flex-col">
         <SiteNav />
-        <LoveTypeTopBar />
         <ClaimPendingSubmission />
       <CookieNotice />
         <PreguntaOpinion />
